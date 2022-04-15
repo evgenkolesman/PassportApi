@@ -1,0 +1,395 @@
+swagger: "2.0"
+info:
+  description: "This a Passport API for my practicing"
+  version: "1.0.0"
+  title: "PassportStore"
+  termsOfService: "http://localhost:8080/docs"
+  contact:
+    email: "evgeniy.kolesnikov@sperasoft.com"
+  
+host: "localhost"
+basePath: "/v1"
+
+tags:
+- name: "Person"
+  description: "Everything about Persons"
+  # externalDocs:
+  #   description: "Requests with persons"
+    # url: "http://swagger.io"
+- name: "PassportStore"
+  description: "Everything about Passport"
+  # externalDocs:
+  #   description: "Requests of passport store"
+    # url: "http://swagger.io"
+schemes:
+- "http"
+paths:
+  /person:
+    post:
+      tags:
+      - "person"
+      summary: "Add a new person to the store"
+      description: "adding a person to DB"
+      operationId: "addPerson"
+      consumes:
+      - "application/json"
+      - "application/xml"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Person which need to be added to our DB"
+        required: true
+        schema:
+          $ref: "#/definitions/Person"
+      responses:
+        "200":
+            description: "successful operation"
+        "405":
+          description: "Invalid input"
+      # security:
+      # - petstore_auth:
+      #   - "write:persons"
+      #   - "read:persons"
+    # get:
+    #   tags:
+    #   - "person"
+    #   summary: "Find lists of persons"
+    #   description: "Return persons list"
+    #   operationId: "getPersons"
+    #   produces:
+    #   - "application/xml"
+    #   - "application/json"
+    #   parameters:
+    #   - in: "body"
+    #     name: "list"
+    #     description: "ID of person to return"
+    #     required: true
+    #     schema:
+
+      # responses:
+      #   "200":
+      #     description: "successful operation"
+          # schema:
+          #   $ref: "#/definitions/Person"
+      #   "404":
+      #     description: "Person not found"
+ 
+  /person/{name}:
+    get:
+      tags:
+      - "person"
+      summary: "Find person by ID"
+      description: "Return a person with current name"
+      operationId: "getPersonById"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "name"
+        in: "path"
+        description: "ID of person"
+        required: true
+        type: "string"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/Person"
+        "400":
+          description: "Invalid ID supplied"
+        "404":
+          description: "Person not found"
+    put:
+      tags:
+      - "person"
+      summary: "Updates a person in the store with form data"
+      description: "Update person details with current name "
+      operationId: "updatePerson"
+      consumes:
+      - "application/xml"
+      - "application/json"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "name"
+        in: "path"
+        description: "Person name to delete"
+        required: true
+        type: "string"
+      - in: "body"
+        name: "body"
+        description: "Person which need to be updated"
+        required: true
+        schema:
+          $ref: "#/definitions/Person"
+      responses:
+        "200":
+            description: "successful operation"
+            schema:
+              $ref: "#/definitions/Person"
+        "405":
+          description: "Invalid input"
+    delete:
+      tags:
+      - "person"
+      summary: "Delete a person with current name"
+      description: ""
+      operationId: "deletePerson"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "name"
+        in: "path"
+        description: "Person name to delete"
+        required: true
+        type: "string"
+      responses:
+        "200":
+            description: "successful operation"
+        "400":
+          description: "Invalid ID supplied"
+        "404":
+          description: "Pet not found"
+  
+  /person/passport/{passportNumber}:        
+    get:
+      tags:
+      - "person"
+      summary: "Find person by passport number"
+      description: "Return person with passport number"
+      operationId: "getPersonByPasswordNumber"
+      produces:
+      - "application/xml"
+      - "application/json"    
+      parameters:
+      - name: "passportNumber"
+        in: "path"
+        description: "number of person`s password data"
+        required: true
+        type: "string"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/Person"
+        "400":
+          description: "Invalid passport number supplied"
+        "404":
+          description: "Person not found"    
+  
+  /person/passportLost/{name}:        
+    get:
+      tags:
+      - "person"
+      summary: "Find passport by name"
+      description: "Return person"
+      operationId: "getPersonPassportByCreds"
+      produces:
+      - "application/xml"
+      - "application/json"    
+      parameters:
+      - name: "name"
+        in: "path"
+        description: "Number of person`s passport data"
+        required: true
+        type: "string"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/Person"
+        "400":
+          description: "Invalid passport number supplied"
+        "404":
+          description: "Person not found"               
+        
+        
+  /passport:
+    get:
+      tags:
+      - "passportStore"
+      summary: "Finds passport with date range"
+      description: "Return a list with passports with date range"
+      operationId: "getPassports"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "dateStart"
+        in: "query"
+        description: "Start date of range"
+        required: true
+        type: "integer"
+        format: "int64"
+      - name: "dateEnd"
+        in: "query"
+        description: "End date of range"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/ApiResponse"
+        "400":
+          description: "Invalid Order"
+    
+    post:
+      tags:
+      - "passportStore"
+      summary: "Add a passport"
+      description: "Add a  passport"
+      operationId: "addPassport"
+      consumes:
+      - "application/xml"
+      - "application/json"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Passport which need to be updated"
+        required: true
+        schema:
+          $ref: "#/definitions/Passport"
+      responses:
+        "200":
+            description: "successful operation"
+            schema:
+              $ref: "#/definitions/Passport"
+        "405":
+          description: "Invalid input"
+      
+  /passport/{number}:
+    get:
+      tags:
+      - "passportStore"
+      summary: "Find passport by number"
+      description: "Find passport by number"
+      operationId: "getPassport"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "number"
+        in: "path"
+        description: "Number of passport to get"
+        required: true
+        type: "integer"
+        format: "int64"
+      - name: "active"
+        in: "query"
+        description: "Active status of passport to get"
+        required: true
+        type: "boolean"
+      responses:
+        "200":
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/ApiResponse"
+        "400":
+          description: "Invalid Order"
+    put:
+      tags:
+      - "passportStore"
+      summary: "Updates a passport"
+      description: "Updates passport"
+      operationId: "updatePassport"
+      consumes:
+      - "application/xml"
+      - "application/json"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "number"
+        in: "path"
+        description: "number of passport to get"
+        required: true
+        type: "integer"
+        format: "int64"
+      - in: "body"
+        name: "body"
+        description: "Passport which need to be updated"
+        required: true
+        schema:
+          $ref: "#/definitions/Passport"
+      responses:
+        "200":
+            description: "successful operation"
+            schema:
+              $ref: "#/definitions/Passport"
+        "405":
+          description: "Invalid input"
+    delete:
+      tags:
+      - "passportStore"
+      summary: "Deletes a passport"
+      description: ""
+      operationId: "deletePassport"
+      produces:
+      - "application/xml"
+      - "application/json"
+      parameters:
+      - name: "number"
+        in: "path"
+        description: "Passport number to delete"
+        required: true
+        type: "string"
+      responses:
+        "200":
+            description: "successful operation"
+        "400":
+          description: "Invalid ID supplied"
+        "404":
+          description: "Pet not found"
+
+definitions:
+  Person:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+      birthday:
+        type: "string"
+      birthdayCountry:
+        type: "string"
+    xml:
+      name: "Person"
+  Passport:
+    type: "object"
+    properties:
+      number:
+        type: "integer"
+        format: "int64"
+      name:
+        type: "string"
+      birthday:
+        type: "string"
+      birthdayCountry:
+        type: "string"
+    xml:
+      name: "Person"
+ 
+  ApiResponse:
+    type: "object"
+    properties:
+      code:
+        type: "integer"
+        format: "int32"
+      type:
+        type: "string"
+      message:
+        type: "string"
+        
+  
+externalDocs:
+  description: "Find out data of response"
+  url: "http://swagger.io"
