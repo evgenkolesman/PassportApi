@@ -14,14 +14,14 @@ public class PersonRequest {
 
     @NotBlank(message = "Name field should be filled")
     @Size(min = 3, message = "name must be minimum 2 characters long")
-    private String name;
+    String name;
 
     @NotBlank(message = "Date field should be filled")
     @DateTimeFormat(iso = ISO.DATE)
-    private Date birthday;
+    Date birthday;
 
     @NotBlank
     @Size(min = 2, max = 2, message = "Birthday country should be formatted like ISO CODE (2 characters)")
-    private String birthdayCountry;
+    String birthdayCountry;
 
 }

@@ -35,6 +35,7 @@ public class PassportRepository {
         Passport passport = Passport.of(passportRequest);
         person.getList().add(passport);
         passportRepo.put(passport.getId(), passport);
+
         return passport;
     }
 
@@ -65,9 +66,8 @@ public class PassportRepository {
 
     public List<Passport> getPassportsByParams(boolean active, Date dateStart, Date dateEnd) {
         return passportRepo.values().stream().filter(a -> a.isActive() == active)
-                .filter(a ->
-                        (dateStart.before(a.getGivenDate()) || dateStart.equals(a.getGivenDate()) &&
-                                (dateEnd.after(a.getGivenDate()) || dateEnd.equals(a.getGivenDate()))))
+                .filter(a -> (dateStart.before(a.getGivenDate()) || dateStart.equals(a.getGivenDate()) &&
+                        (dateEnd.after(a.getGivenDate()) || dateEnd.equals(a.getGivenDate()))))
                 .collect(Collectors.toList());
     }
 
@@ -79,8 +79,7 @@ public class PassportRepository {
     }
 
     public List<Passport> getPassportsByParams(boolean active) {
-        return passportRepo.values().stream()
-                .filter(a -> a.isActive() == active)
+        return passportRepo.values().stream().filter(a -> a.isActive() == active)
                 .collect(Collectors.toList());
     }
 

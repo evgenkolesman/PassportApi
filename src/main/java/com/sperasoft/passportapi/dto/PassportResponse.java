@@ -10,13 +10,13 @@ import java.util.Date;
 @Data
 public class PassportResponse {
 
-    private String id;
+    String id;
 
-    private String number;
+    String number;
 
-    private Date givenDate;
+    Date givenDate;
 
-    private String departmentCode;
+    String departmentCode;
 
     public static PassportResponse of(Passport passport) {
         ModelMapper model = new ModelMapper();

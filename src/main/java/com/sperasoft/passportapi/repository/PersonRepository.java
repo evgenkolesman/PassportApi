@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Repository
 public class PersonRepository {
 
-    private Map<String, Person> personRepo = new ConcurrentHashMap<>();
+    Map<String, Person> personRepo = new ConcurrentHashMap<>();
 
     public List<Person> findAll() {
         return personRepo.values().stream().toList();

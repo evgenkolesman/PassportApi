@@ -42,12 +42,12 @@ public class PassportServiceImpl implements PassportService {
     @Override
     public PassportResponse findPassportById(String personId, String id, String active) {
         if (personRepository.findById(personId) == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Invalid person ID");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid person ID");
         }
         if (passportRepository.findPassportById(id) == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Invalid person ID");
         }
-        if (active.isEmpty()) {
+        if (active == null) {
             return PassportResponse.of(passportRepository.findPassportById(id));
         } else
             return PassportResponse.of(passportRepository.findPassportById(id, Boolean.valueOf(active)));
@@ -59,7 +59,7 @@ public class PassportServiceImpl implements PassportService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid person ID");
         }
         if (passportRepository.findPassportById(id) == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid person ID");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Invalid person ID");
         }
         if (passportRepository.isPassportPresent(passport)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Such passport presents cannot be added");
@@ -73,23 +73,48 @@ public class PassportServiceImpl implements PassportService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid person ID");
         }
         if (passportRepository.findPassportById(id) == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Invalid person ID");
+        }
+        return PassportResponse.of(passportRepository.deletePassport(id));
+    }
+
+    @Override
+    public List<PassportResponse> getAllPassports(String personId, String active,
+                                                  String dateStart, String dateEnd) throws ParseException {
+        if (personRepository.findById(personId) == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid person ID");
         }
-        Person person = personRepository.findPersonById(personId);
-        person.getList().stream().filter(a -> {
-            if (a.getId().equals(id)) {
-                log.info(a.toString());
-            }
-            return !a.getId().equals(id);
-        }).collect(Collectors.toList());
-        return PassportResponse.of(passportRepository.deletePassport(id));
+
+        if (active.isEmpty() && dateStart.isEmpty() && dateEnd.isEmpty()) {
+            return passportRepository.getPassportsByParams().stream()
+                    .map(PassportResponse::of).collect(Collectors.toList());
+        } else if (dateStart.isEmpty() && dateEnd.isEmpty()) {
+            return passportRepository.getPassportsByParams(Boolean.valueOf(active)).stream()
+                    .map(PassportResponse::of).collect(Collectors.toList());
+        }
+
+        DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        Date dateFirst = format.parse(dateStart);
+        Date dateSecond = format.parse(dateStart);
+        if (dateFirst.after(dateSecond)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Invalid data period: Start date is after End date");
+        }
+        if (active.isEmpty()) {
+            return passportRepository.getPassportsByParams(dateFirst, dateSecond).stream()
+                    .map(PassportResponse::of).collect(Collectors.toList());
+        }
+
+        return passportRepository.getPassportsByParams(Boolean.valueOf(active), dateFirst, dateSecond).stream()
+                .map(PassportResponse::of).collect(Collectors.toList());
+
     }
 
     @Override
     public List<PassportResponse> getPassportsByPersonIdAndParams(String personId, String active,
                                                                   String dateStart, String dateEnd) throws ParseException {
         if (personRepository.findById(personId) == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Invalid person ID");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid person ID");
         }
         Person person = personRepository.findPersonById(personId);
         if (active.isEmpty() && dateStart.isEmpty() && dateEnd.isEmpty()) {
@@ -100,7 +125,7 @@ public class PassportServiceImpl implements PassportService {
 
         DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
         Date dateFirst = format.parse(dateStart);
-        Date dateSecond = format.parse(dateEnd);
+        Date dateSecond = format.parse(dateStart);
         if (dateFirst.after(dateSecond)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "Invalid data period: Start date is after End date");
@@ -114,10 +139,6 @@ public class PassportServiceImpl implements PassportService {
     private List<PassportResponse> getPassportsByPersonAndParams(Person person,
                                                                  Date dateStart,
                                                                  Date dateEnd) {
-        if (dateStart.after(dateEnd)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Invalid data period: Start date is after End date");
-        }
         return person.getList().stream().filter(a ->
                         (dateStart.before(a.getGivenDate()) || dateStart.equals(a.getGivenDate()) &&
                                 (dateEnd.after(a.getGivenDate()) || dateEnd.equals(a.getGivenDate()))))
@@ -128,10 +149,6 @@ public class PassportServiceImpl implements PassportService {
                                                                  boolean active,
                                                                  Date dateStart,
                                                                  Date dateEnd) {
-        if (dateStart.after(dateEnd)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Invalid data period: Start date is after End date");
-        }
         return person.getList().stream().filter(a -> a.isActive() == active).filter(a ->
                         (dateStart.before(a.getGivenDate()) || dateStart.equals(a.getGivenDate()) &&
                                 (dateEnd.after(a.getGivenDate()) || dateEnd.equals(a.getGivenDate()))))

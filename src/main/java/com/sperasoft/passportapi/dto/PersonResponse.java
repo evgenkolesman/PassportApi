@@ -11,18 +11,17 @@ import java.util.List;
 @Data
 public class PersonResponse {
 
-    private String id;
+    String id;
 
-    private String name;
+    String name;
 
-    private Date birthday;
+    Date birthday;
 
-    private String birthdayCountry;
+    String birthdayCountry;
 
     public static PersonResponse of(Person personStore) {
         ModelMapper model = new ModelMapper();
         model.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        PersonResponse personResponse =  model.map(personStore, PersonResponse.class);
-        return personResponse;
+        return model.map(personStore, PersonResponse.class);
     }
 }
