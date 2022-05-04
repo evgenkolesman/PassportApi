@@ -123,7 +123,7 @@ paths:
         - "PassportStore"
       summary: "Find Person`s passports "
       description: "Get passports of a person maybe added some parameters"
-      operationId: "getPasswordByPersonIdAndPassportId"
+      operationId: "getPassportByPersonIdAndPassportId"
       parameters:
         - name: "personId"
           in: "path"
@@ -367,7 +367,7 @@ paths:
         - "PassportStore"
       summary: "Find passports from whole list of Persons with necessary date range"
       description: "Return a list with passports with date range if necessary and with different statuses
-      this endpoint need to be available for user only with admin Role"
+      this endpoint need to be available for user only with admin role"
       operationId: "getPassports"
       parameters:
         - name: "id"
