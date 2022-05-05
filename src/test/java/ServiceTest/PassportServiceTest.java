@@ -110,46 +110,60 @@ class PassportServiceTest {
     }
 
     @Test
+    void testGetAllPassportsAllParams() throws ParseException {
+        assertEquals(new ArrayList<>(Collections.singleton(passportResponse)),
+                passportService.getAllPassports(person1.getId(), "true", "2022-03-05", "2022-05-04"));
+    }
+
+    @Test
+    void testGetAllPassportsBadDate() {
+        assertThrowsExactly(ResponseStatusException.class, () ->
+                passportService.getAllPassports(person1.getId(), "true","2022-08-04", "2022-05-04"));
+    }
+
+    @Test
+    void testGetAllPassportsWithoutBoolean() throws ParseException {
+        assertEquals(new ArrayList<>(Collections.singleton(passportResponse)),
+                passportService.getAllPassports(person1.getId(),"","2022-03-05", "2022-05-04"));
+    }
+
+    @Test
+    void testGetAllPassportsWithoutParam() throws ParseException {
+        assertEquals(new ArrayList<>(Collections.singleton(passportResponse)),
+                passportService.getAllPassports(person1.getId(),"","", ""));
+    }
+
+    @Test
+    void testGetAllPassportsOnlyBoolean() throws ParseException {
+        assertEquals(new ArrayList<>(Collections.singleton(passportResponse)),
+                passportService.getAllPassports(person1.getId(),"true","", ""));
+    }
+
+    @Test
     void testGetPassportsByPersonIdAndParamsWithoutParams() throws ParseException {
         assertEquals(new ArrayList<>(Collections.singleton(passportResponse)),
-                passportService.getPassportsByPersonIdAndParams(person1.getId(),
-                        "", "", ""));
+                passportService.getPassportsByPersonIdAndParams(person1.getId(),"","", ""));
     }
 
     @Test
     void testGetPassportsByPersonIdAndParamsWithOutBoolean() throws ParseException {
         assertEquals(new ArrayList<>(Collections.singleton(passportResponse)),
-                passportService.getPassportsByPersonIdAndParams(person1.getId(),
-                        "", "2022-03-05", "2022-05-04"));
-    }
-
-    @Test
-    void testGetPassportsByPersonIdAndParamsWithOutBooleanWrong() throws ParseException {
-        assertThrowsExactly(ResponseStatusException.class, () ->
-                passportService.getPassportsByPersonIdAndParams(person1.getId(),
-                        "", "2022-08-05", "2022-05-04"));
+                passportService.getPassportsByPersonIdAndParams(person1.getId(),"","2022-03-05", "2022-05-04"));
     }
 
     @Test
     void testGetPassportsByPersonIdAndParamsWithOutDate() throws ParseException {
         assertEquals(new ArrayList<>(Collections.singleton(passportResponse)),
-                passportService.getPassportsByPersonIdAndParams(person1.getId(),
-                        "true", "", ""));
-    }
-
-    @Test
-    void testGetPassportsByPersonIdAndParamsWithOutDateWithFalse() throws ParseException {
-        assertEquals(new ArrayList<>(),
-                passportService.getPassportsByPersonIdAndParams(person1.getId(),
-                        "false", "", ""));
+                passportService.getPassportsByPersonIdAndParams(person1.getId(),"true","", ""));
     }
 
     @Test
     void testGetPassportsByPersonIdAndParamsWithBadDate() {
         assertThrowsExactly(ResponseStatusException.class,
                 () ->
-                        passportService.getPassportsByPersonIdAndParams(person1.getId(),
-                                "true", "2022-08-04", "2022-04-05"));
+                passportService.getPassportsByPersonIdAndParams(person1.getId(),"true","2022-08-04", "2022-04-05"));
     }
+
+
 
 }

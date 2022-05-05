@@ -22,6 +22,7 @@ public class PersonResponse {
     public static PersonResponse of(Person personStore) {
         ModelMapper model = new ModelMapper();
         model.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        return model.map(personStore, PersonResponse.class);
+        PersonResponse personResponse =  model.map(personStore, PersonResponse.class);
+        return personResponse;
     }
 }

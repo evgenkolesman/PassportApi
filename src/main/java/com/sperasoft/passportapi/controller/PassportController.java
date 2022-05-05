@@ -46,7 +46,7 @@ public class PassportController {
         return passportService.updatePassport(personId, id, passport);
     }
 
-    @GetMapping("/passport/{id}")
+    @DeleteMapping("/passport/{id}")
     public PassportResponse deletePassport(@PathVariable String personId,
                                            @PathVariable String id) {
         return passportService.deletePassport(personId, id);

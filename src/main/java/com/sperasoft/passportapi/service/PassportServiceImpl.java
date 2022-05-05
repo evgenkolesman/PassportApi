@@ -95,7 +95,7 @@ public class PassportServiceImpl implements PassportService {
 
         DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
         Date dateFirst = format.parse(dateStart);
-        Date dateSecond = format.parse(dateStart);
+        Date dateSecond = format.parse(dateEnd);
         if (dateFirst.after(dateSecond)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "Invalid data period: Start date is after End date");
@@ -125,7 +125,7 @@ public class PassportServiceImpl implements PassportService {
 
         DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
         Date dateFirst = format.parse(dateStart);
-        Date dateSecond = format.parse(dateStart);
+        Date dateSecond = format.parse(dateEnd);
         if (dateFirst.after(dateSecond)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "Invalid data period: Start date is after End date");
@@ -139,6 +139,10 @@ public class PassportServiceImpl implements PassportService {
     private List<PassportResponse> getPassportsByPersonAndParams(Person person,
                                                                  Date dateStart,
                                                                  Date dateEnd) {
+        if (dateStart.after(dateEnd)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Invalid data period: Start date is after End date");
+        }
         return person.getList().stream().filter(a ->
                         (dateStart.before(a.getGivenDate()) || dateStart.equals(a.getGivenDate()) &&
                                 (dateEnd.after(a.getGivenDate()) || dateEnd.equals(a.getGivenDate()))))
@@ -149,6 +153,10 @@ public class PassportServiceImpl implements PassportService {
                                                                  boolean active,
                                                                  Date dateStart,
                                                                  Date dateEnd) {
+        if (dateStart.after(dateEnd)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Invalid data period: Start date is after End date");
+        }
         return person.getList().stream().filter(a -> a.isActive() == active).filter(a ->
                         (dateStart.before(a.getGivenDate()) || dateStart.equals(a.getGivenDate()) &&
                                 (dateEnd.after(a.getGivenDate()) || dateEnd.equals(a.getGivenDate()))))
