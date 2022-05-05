@@ -41,7 +41,7 @@ public class PersonServiceImpl implements PersonService {
     @Override
     public PersonResponse deletePerson(String id) {
         if (findById(id) == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid data");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Invalid data");
         }
         return PersonResponse.of(personRepository.deletePerson(id));
     }
