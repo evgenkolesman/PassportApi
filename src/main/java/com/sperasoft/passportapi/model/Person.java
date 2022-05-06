@@ -13,15 +13,15 @@ import java.util.UUID;
 @Data
 public class Person {
 
-    String id;
+    private String id;
 
-    String name;
+    private String name;
 
-    Date birthday;
+    private Date birthday;
 
-    String birthdayCountry;
+    private String birthdayCountry;
 
-    List<Passport> list = new ArrayList<>();
+    private List<Passport> list = new ArrayList<>();
 
     public static Person of(PersonRequest personRequest) {
         ModelMapper model = new ModelMapper();
