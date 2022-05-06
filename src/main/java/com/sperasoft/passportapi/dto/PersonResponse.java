@@ -11,13 +11,13 @@ import java.util.List;
 @Data
 public class PersonResponse {
 
-    String id;
+    private String id;
 
-    String name;
+    private String name;
 
-    Date birthday;
+    private Date birthday;
 
-    String birthdayCountry;
+    private String birthdayCountry;
 
     public static PersonResponse of(Person personStore) {
         ModelMapper model = new ModelMapper();

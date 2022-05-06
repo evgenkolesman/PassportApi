@@ -4,12 +4,12 @@ import com.sperasoft.passportapi.dto.PassportRequest;
 import com.sperasoft.passportapi.dto.PassportResponse;
 import com.sperasoft.passportapi.service.PassportService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import javax.websocket.server.PathParam;
 import java.text.ParseException;
-import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -47,23 +47,10 @@ public class PassportController {
     }
 
     @DeleteMapping("/passport/{id}")
-    public PassportResponse deletePassport(@PathVariable String personId,
-                                           @PathVariable String id) {
-        return passportService.deletePassport(personId, id);
+    public ResponseEntity<Void> deletePassport(@PathVariable String personId,
+                                                     @PathVariable String id) {
+        passportService.deletePassport(personId, id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-    /**
-     * Used for Admin service
-     *
-     * @param personId
-     * @return List<PassportResponse>
-     */
-
-    @GetMapping("/getAllPassports")
-    public List<PassportResponse> findAllPassports(@PathVariable String personId,
-                                                   @RequestParam(defaultValue = "") String active,
-                                                   @RequestParam(defaultValue = "") String dateStart,
-                                                   @RequestParam(defaultValue = "") String dateEnd) throws ParseException {
-        return passportService.getAllPassports(personId, active, dateStart, dateEnd);
-    }
 }

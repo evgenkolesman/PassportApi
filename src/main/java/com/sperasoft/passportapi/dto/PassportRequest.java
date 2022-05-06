@@ -14,13 +14,13 @@ public class PassportRequest {
 
     @NotBlank(message ="Passport number field should be filled")
     @Digits(integer = 10, fraction = 0, message = "Invalid passport number")
-    String number;
+    private String number;
 
     @NotBlank(message ="Given date field should be filled")
     @DateTimeFormat(iso = ISO.DATE)
-    Date givenDate;
+    private Date givenDate;
 
     @NotBlank(message ="Department code field should be filled")
     @Digits(integer = 6, fraction = 0, message = "Invalid department code")
-    String departmentCode;
+    private String departmentCode;
 }
