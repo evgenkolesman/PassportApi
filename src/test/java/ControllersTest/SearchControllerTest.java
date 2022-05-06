@@ -11,8 +11,6 @@ import com.sperasoft.passportapi.model.Passport;
 import com.sperasoft.passportapi.model.Person;
 import com.sperasoft.passportapi.repository.PassportRepository;
 import com.sperasoft.passportapi.repository.PersonRepository;
-import com.sperasoft.passportapi.service.PassportService;
-import com.sperasoft.passportapi.service.PersonService;
 import com.sperasoft.passportapi.service.SearchService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,7 +28,8 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -40,22 +39,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class SearchControllerTest {
 
     @Autowired
-    MockMvc mvc;
+    private MockMvc mvc;
 
     @MockBean
-    PersonRepository personRepository;
+    private PersonRepository personRepository;
 
     @MockBean
-    PassportRepository passportRepository;
+    private PassportRepository passportRepository;
 
     @MockBean
-    PersonService personService;
-
-    @MockBean
-    PassportService passportService;
-
-    @MockBean
-    SearchService searchService;
+    private SearchService searchService;
 
     private PassportRequest passportRequest;
     private PersonRequest personRequest;

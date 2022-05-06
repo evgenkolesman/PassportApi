@@ -11,7 +11,6 @@ import com.sperasoft.passportapi.model.Person;
 import com.sperasoft.passportapi.repository.PassportRepository;
 import com.sperasoft.passportapi.repository.PersonRepository;
 import com.sperasoft.passportapi.service.PassportService;
-import com.sperasoft.passportapi.service.PersonService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,19 +41,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class PassportControllerTest {
 
     @Autowired
-    MockMvc mvc;
+    private MockMvc mvc;
 
     @MockBean
-    PersonRepository personRepository;
+    private PersonRepository personRepository;
 
     @MockBean
-    PassportRepository passportRepository;
+    private PassportRepository passportRepository;
 
     @MockBean
-    PersonService personService;
-
-    @MockBean
-    PassportService passportService;
+    private PassportService passportService;
 
     private PassportRequest passportRequest;
     private PersonRequest personRequest;
