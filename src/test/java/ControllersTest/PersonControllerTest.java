@@ -1,6 +1,5 @@
-package ControlllersTest;
+package ControllersTest;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sperasoft.passportapi.PassportApiApplication;
 import com.sperasoft.passportapi.dto.PassportRequest;
@@ -10,8 +9,6 @@ import com.sperasoft.passportapi.dto.PersonResponse;
 import com.sperasoft.passportapi.model.Person;
 import com.sperasoft.passportapi.repository.PassportRepository;
 import com.sperasoft.passportapi.repository.PersonRepository;
-import com.sperasoft.passportapi.service.PassportService;
-import com.sperasoft.passportapi.service.PassportServiceImpl;
 import com.sperasoft.passportapi.service.PersonService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,10 +24,8 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 
 import static org.hamcrest.Matchers.containsString;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -53,11 +48,11 @@ class PersonControllerTest {
     @MockBean
     PersonService personService;
 
-    PassportRequest passport;
-    PersonRequest personRequest;
-    Person person1;
-    PassportResponse passportResponse;
-    PersonResponse personResponse;
+    private PassportRequest passport;
+    private PersonRequest personRequest;
+    private Person person1;
+    private PassportResponse passportResponse;
+    private PersonResponse personResponse;
 
     @BeforeEach
     private void testDataProduce() throws ParseException {
@@ -101,7 +96,8 @@ class PersonControllerTest {
         PersonRequest personRequestForTest = personRequest;
         personRequestForTest.setName("");
         when(personRepository.isPersonPresent(personRequestForTest)).thenReturn(true);
-        when(personService.addPerson(personRequestForTest)).thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid data"));
+        when(personService.addPerson(personRequestForTest))
+                .thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid data"));
         String req = mapper.writer().writeValueAsString(null);
         this.mvc.perform(post("/person").contentType("application/json")
                         .content(req))
@@ -115,7 +111,7 @@ class PersonControllerTest {
         ObjectMapper mapper = new ObjectMapper();
         when(personService.findById(personResponse.getId())).thenReturn(personResponse);
         String req = mapper.writer().writeValueAsString(personResponse);
-        this.mvc.perform(get("/person/" +  personResponse.getId()).contentType("application/json")
+        this.mvc.perform(get("/person/" + personResponse.getId()).contentType("application/json")
                         .content(req))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -124,11 +120,12 @@ class PersonControllerTest {
 
     @Test
     void testFindPersonByIdNotCorrect() throws Exception {
-        when(personService.findById("23")).thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Invalid person ID"));
+        when(personService.findById("23"))
+                .thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid person ID"));
         this.mvc.perform(get("/person/23").contentType("application/json")
                         .content(""))
                 .andDo(print())
-                .andExpect(status().isNotFound());
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -143,7 +140,7 @@ class PersonControllerTest {
         when(personService.findById(personResponse.getId())).thenReturn(personResponseForTest);
         when(personService.updatePerson(person1.getId(), personRequestForTest)).thenReturn(personResponseForTest);
         String req = mapper.writer().writeValueAsString(personResponseForTest);
-        this.mvc.perform(put("/person/" +  personResponse.getId()).contentType("application/json")
+        this.mvc.perform(put("/person/" + personResponse.getId()).contentType("application/json")
                         .content(req))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -154,7 +151,7 @@ class PersonControllerTest {
     void testUpdatePersonNotCorrect() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         String req = mapper.writer().writeValueAsString(null);
-        this.mvc.perform(put("/person/" +  personResponse.getId()).contentType("application/json")
+        this.mvc.perform(put("/person/" + personResponse.getId()).contentType("application/json")
                         .content(req))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
@@ -164,20 +161,22 @@ class PersonControllerTest {
     void testDeletePersonCorrect() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         String req = mapper.writer().writeValueAsString(personResponse);
-        this.mvc.perform(delete("/person/" +  personResponse.getId()).contentType("application/json")
+        this.mvc.perform(delete("/person/" + personResponse.getId()).contentType("application/json")
                         .content(req))
                 .andDo(print())
-                .andExpect(status().isOk())
+                .andExpect(status().isNoContent())
                 .andExpect(content().string(containsString("")));
     }
 
     @Test
     void testDeletePersonNotCorrect() throws Exception {
-        when(personService.findById("23")).thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Invalid data"));
-        when(personService.deletePerson("23")).thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Invalid data"));
-        this.mvc.perform(delete("/person/23" ).contentType("application/json")
+        when(personService.findById("23"))
+                .thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid data"));
+        when(personService.deletePerson("23"))
+                .thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid data"));
+        this.mvc.perform(delete("/person/23").contentType("application/json")
                         .content(""))
                 .andDo(print())
-                .andExpect(status().isNotFound());
+                .andExpect(status().isBadRequest());
     }
 }

@@ -12,15 +12,17 @@ import java.util.UUID;
 @Data
 public class Passport {
 
-    String id;
+    private String id;
 
-    String number;
+    private String number;
 
-    Date givenDate;
+    private Date givenDate;
 
-    String departmentCode;
+    private String departmentCode;
 
-    boolean active = true;
+    private boolean active = true;
+
+    private String description;
 
     public static Passport of(PassportRequest passportRequest) {
         ModelMapper model = new ModelMapper();
