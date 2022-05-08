@@ -7,6 +7,7 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -17,7 +18,7 @@ public class PersonRepository {
     private Map<String, Person> personRepo = new ConcurrentHashMap<>();
 
     public List<Person> findAll() {
-        return personRepo.values().stream().toList();
+        return new ArrayList<>(personRepo.values());
     }
 
     public boolean isPersonPresent(PersonRequest person) {
