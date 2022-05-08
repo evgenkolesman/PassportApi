@@ -3,7 +3,7 @@ info:
   description: "This is Passport API for my practicing"
   version: "1.0.0"
   title: "PassportApi"
-  termsOfService: "http://localhost:8080/api/docs"
+  termsOfService: "http://localhost:8080/api-docs"
   contact:
     email: "evgeniy.kolesnikov@sperasoft.com"
 
