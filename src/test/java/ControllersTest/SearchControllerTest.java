@@ -20,10 +20,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static org.hamcrest.Matchers.containsString;
@@ -50,26 +48,24 @@ class SearchControllerTest {
     @MockBean
     private SearchService searchService;
 
-    private PassportRequest passportRequest;
-    private PersonRequest personRequest;
     private Person person1;
     private PassportResponse passportResponse;
     private PersonResponse personResponse;
     private Passport passport;
 
     @BeforeEach
-    private void testDataProduce() throws ParseException {
-        String string = "2010-2-2";
-        Date dateToday = new Date();
-        passportRequest = new PassportRequest();
+    private void testDataProduce() {
+        String string = "2010-02-02";
+        DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate dateToday = LocalDate.now();
+        PassportRequest passportRequest = new PassportRequest();
         passportRequest.setNumber("1223123113");
         passportRequest.setGivenDate(dateToday);
         passportRequest.setDepartmentCode("123123");
-        personRequest = new PersonRequest();
+        PersonRequest personRequest = new PersonRequest();
         passport = Passport.of(passportRequest);
         passportResponse = PassportResponse.of(passport);
-        DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-        Date date = format.parse(string);
+        LocalDate date = LocalDate.parse(string, format);
         personRequest.setName("Alex Frolov");
         personRequest.setBirthday(date);
         personRequest.setBirthdayCountry("UK");
@@ -108,13 +104,11 @@ class SearchControllerTest {
 
     @Test
     void findAllPassports() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
         when(searchService.getAllPassports("", "", ""))
                 .thenReturn(List.of(passportResponse));
-        String req = mapper.writer().writeValueAsString(personResponse);
         this.mvc.perform(get("/getAllPassports")
                         .contentType("application/json")
-                        .content(req))
+                        .content(personResponse.toString()))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("1223123113")));

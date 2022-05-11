@@ -18,10 +18,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -38,26 +36,23 @@ class LostPassportControllerTest {
     @MockBean
     private PersonRepository personRepository;
 
-    private PassportRequest passportRequest;
-    private PersonRequest personRequest;
     private Person person;
     private PassportResponse passportResponse;
     private PersonResponse personResponse;
-    private Passport passport;
 
     @BeforeEach
-    private void testDataProduce() throws ParseException {
-        String string = "2010-2-2";
-        Date dateToday = new Date();
-        passportRequest = new PassportRequest();
+    private void testDataProduce() {
+        String string = "2010-02-02";
+        LocalDate dateToday = LocalDate.now();
+        PassportRequest passportRequest = new PassportRequest();
         passportRequest.setNumber("1223123113");
         passportRequest.setGivenDate(dateToday);
         passportRequest.setDepartmentCode("123123");
-        personRequest = new PersonRequest();
-        passport = Passport.of(passportRequest);
+        PersonRequest personRequest = new PersonRequest();
+        Passport passport = Passport.of(passportRequest);
         passportResponse = PassportResponse.of(passport);
-        DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-        Date date = format.parse(string);
+        DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate date = LocalDate.parse(string, format);
         personRequest.setName("Alex Frolov");
         personRequest.setBirthday(date);
         personRequest.setBirthdayCountry("UK");

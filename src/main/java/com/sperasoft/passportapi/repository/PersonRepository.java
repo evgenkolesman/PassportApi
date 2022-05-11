@@ -1,7 +1,6 @@
 package com.sperasoft.passportapi.repository;
 
 import com.sperasoft.passportapi.dto.PersonRequest;
-import com.sperasoft.passportapi.dto.PersonResponse;
 import com.sperasoft.passportapi.model.Person;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
@@ -15,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Repository
 public class PersonRepository {
 
-    private Map<String, Person> personRepo = new ConcurrentHashMap<>();
+    private final Map<String, Person> personRepo = new ConcurrentHashMap<>();
 
     public List<Person> findAll() {
         return new ArrayList<>(personRepo.values());

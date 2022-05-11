@@ -9,10 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,7 +38,8 @@ public class SearchServiceImpl implements SearchService {
 
     @Override
     public List<PassportResponse> getAllPassports(String active,
-                                                  String dateStart, String dateEnd) throws ParseException {
+                                                  String dateStart, String dateEnd) {
+        DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         if (active.isEmpty() && dateStart.isEmpty() && dateEnd.isEmpty()) {
             return passportRepository.getPassportsByParams().stream()
                     .map(PassportResponse::of)
@@ -49,11 +48,14 @@ public class SearchServiceImpl implements SearchService {
             return passportRepository.getPassportsByParams(Boolean.parseBoolean(active)).stream()
                     .map(PassportResponse::of)
                     .collect(Collectors.toList());
+        } else if (dateStart.isEmpty() || dateEnd.isEmpty()) {
+            if (dateStart.isEmpty()) {
+                dateStart = dateEnd;
+            } else dateEnd = format.format(LocalDate.now());
         }
-        DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-        Date dateFirst = format.parse(dateStart);
-        Date dateSecond = format.parse(dateEnd);
-        if (dateFirst.after(dateSecond)) {
+        LocalDate dateFirst = LocalDate.parse(dateStart, format);
+        LocalDate dateSecond = LocalDate.parse(dateEnd, format);
+        if (dateFirst.isAfter(dateSecond)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "Invalid data period: Start date is after End date");
         }
@@ -66,8 +68,5 @@ public class SearchServiceImpl implements SearchService {
         return passportRepository.getPassportsByParams(Boolean.parseBoolean(active), dateFirst, dateSecond).stream()
                 .map(PassportResponse::of)
                 .collect(Collectors.toList());
-
     }
-
-
 }

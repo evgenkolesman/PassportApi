@@ -22,11 +22,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import static org.hamcrest.Matchers.containsString;
@@ -53,25 +51,24 @@ class PassportControllerTest {
     private PassportService passportService;
 
     private PassportRequest passportRequest;
-    private PersonRequest personRequest;
     private Person person1;
     private PassportResponse passportResponse;
     private PersonResponse personResponse;
     private Passport passport;
 
     @BeforeEach
-    private void testDataProduce() throws ParseException {
-        String string = "2010-2-2";
-        DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-        Date datePassport = format.parse("2022-05-05");
+    private void testDataProduce() {
+        String string = "2010-02-02";
+        DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate datePassport = LocalDate.parse("2022-05-05", format);
         passportRequest = new PassportRequest();
         passportRequest.setNumber("1223123113");
         passportRequest.setGivenDate(datePassport);
         passportRequest.setDepartmentCode("123123");
-        personRequest = new PersonRequest();
+        PersonRequest personRequest = new PersonRequest();
         passport = Passport.of(passportRequest);
         passportResponse = PassportResponse.of(passport);
-        Date date = format.parse(string);
+        LocalDate date = LocalDate.parse(string, format);
         personRequest.setName("Alex Frolov");
         personRequest.setBirthday(date);
         personRequest.setBirthdayCountry("UK");

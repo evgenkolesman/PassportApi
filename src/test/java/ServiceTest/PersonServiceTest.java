@@ -9,57 +9,53 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class PersonServiceTest {
 
     private PersonService personService;
-    PersonResponse person1;
-    PersonRequest person = new PersonRequest();
+    PersonResponse person;
+    PersonRequest personRequest = new PersonRequest();
 
     @BeforeEach
-    private void beforeData() throws ParseException {
+    private void beforeData() {
         personService = new PersonServiceImpl(new PersonRepository());
-        String string = "2010-2-2";
-        DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-        Date date = format.parse(string);
-        person.setName("Alex Frolov");
-        person.setBirthday(date);
-        person.setBirthdayCountry("UK");
-        person1 = personService.addPerson(person);
-
+        String string = "2010-02-02";
+        DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate date = LocalDate.parse(string, format);
+        personRequest.setName("Alex Frolov");
+        personRequest.setBirthday(date);
+        personRequest.setBirthdayCountry("UK");
+        person = personService.addPerson(personRequest);
     }
 
     @Test
     public void testAddPersonCorrect() {
         assertThat("Problems with adding person (name field)",
-                person1.getName().equals(person.getName()));
+                person.getName().equals(personRequest.getName()));
         assertThat("Problems with adding person (birthday field)",
-                person1.getBirthday().equals(person.getBirthday()));
+                person.getBirthday().equals(personRequest.getBirthday()));
         assertThat("Problems with adding person (birthday country field)",
-                person1.getBirthdayCountry().equals(person.getBirthdayCountry()));
+                person.getBirthdayCountry().equals(personRequest.getBirthdayCountry()));
     }
 
     @Test
     public void testAddPersonDataNotCorrect() {
         assertThrowsExactly(ResponseStatusException.class,
-                () -> personService.addPerson(person).equals(person),
+                () -> personService.addPerson(personRequest),
                 "Problems with adding person (add a person twice)");
     }
 
     @Test
     public void testFindByIdCorrect() {
-        PersonResponse personResponse = personService.findById(person1.getId());
+        PersonResponse personResponse = personService.findById(person.getId());
         assertThat("Problems with search by id",
-                personResponse.equals(person1));
+                personResponse.equals(person));
     }
 
     @Test
@@ -72,11 +68,12 @@ public class PersonServiceTest {
     @Test
     public void testUpdatePersonCorrect() {
         person.setName("Alex Frol");
-        person.setBirthday(new Date());
+        person.setBirthday(LocalDate.now());
         person.setBirthdayCountry("US");
 
         assertThat("Problems with updating person",
-                !personService.updatePerson(person1.getId(), person).getName().equals(person1.getName()));
+                !personService.updatePerson(person.getId(),
+                        personRequest).getName().equals(person.getName()));
     }
 
     @Test
@@ -85,26 +82,24 @@ public class PersonServiceTest {
         String id = UUID.randomUUID().toString();
         PersonRequest personUpdate = new PersonRequest();
         personUpdate.setName("Alex Frol");
-        personUpdate.setBirthday(new Date());
+        personUpdate.setBirthday(LocalDate.now());
         personUpdate.setBirthdayCountry("US");
 
         assertThrowsExactly(ResponseStatusException.class, () ->
-                        personService.updatePerson(id, personUpdate).getName().equals(personUpdate.getName()),
+                        personService.updatePerson(id, personUpdate),
                 "Problems with updating person (name field)");
     }
 
     @Test
     public void testDeletePersonCorrect() {
-        assertTrue(personService.deletePerson(person1.getId()).equals(person1),
-                "Problems with delete");
+        assertEquals(personService.deletePerson(person.getId()), person, "Problems with delete");
     }
 
     @Test
     public void testDeletePersonNotCorrectWithDoubleDelete() {
-
-        personService.deletePerson(person1.getId()).equals(person1);
+        personService.deletePerson(person.getId());
         assertThrowsExactly(ResponseStatusException.class, () ->
-                        personService.deletePerson(person1.getId()).equals(person1),
+                        personService.deletePerson(person.getId()),
                 "Problems with delete can delete twice");
     }
 
