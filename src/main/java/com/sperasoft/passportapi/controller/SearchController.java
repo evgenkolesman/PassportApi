@@ -5,8 +5,6 @@ import com.sperasoft.passportapi.dto.PersonResponse;
 import com.sperasoft.passportapi.model.NumberPassport;
 import com.sperasoft.passportapi.service.SearchService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpRequest;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;

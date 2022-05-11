@@ -3,7 +3,6 @@ package ControllersTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sperasoft.passportapi.PassportApiApplication;
 import com.sperasoft.passportapi.dto.PassportRequest;
-import com.sperasoft.passportapi.dto.PassportResponse;
 import com.sperasoft.passportapi.dto.PersonRequest;
 import com.sperasoft.passportapi.dto.PersonResponse;
 import com.sperasoft.passportapi.model.Person;
@@ -20,10 +19,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.Mockito.when;
@@ -48,44 +45,38 @@ class PersonControllerTest {
     @MockBean
     PersonService personService;
 
-    private PassportRequest passport;
     private PersonRequest personRequest;
     private Person person1;
-    private PassportResponse passportResponse;
     private PersonResponse personResponse;
 
     @BeforeEach
-    private void testDataProduce() throws ParseException {
-        String string = "2010-2-2";
-        Date dateToday = new Date();
-        passport = new PassportRequest();
+    private void testDataProduce() {
+        String string = "2010-02-02";
+        LocalDate dateToday = LocalDate.now();
+        PassportRequest passport = new PassportRequest();
         passport.setNumber("1223123113");
         passport.setGivenDate(dateToday);
         passport.setDepartmentCode("123123");
         personRequest = new PersonRequest();
-        passportResponse = new PassportResponse();
-
-        DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-        Date date = format.parse(string);
+        DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate date = LocalDate.parse(string, format);
         personRequest.setName("Alex Frolov");
         personRequest.setBirthday(date);
         personRequest.setBirthdayCountry("UK");
         person1 = Person.of(personRequest);
         personResponse = PersonResponse.of(person1);
-
     }
 
     @Test
     void testCreatePersonCorrect() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         when(personService.addPerson(personRequest)).thenReturn(personResponse);
-        String req = mapper.writer().writeValueAsString(personResponse);
+        String req = mapper.writeValueAsString(personResponse);
         this.mvc.perform(post("/person").contentType("application/json")
                         .content(req))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("Alex Frolov")));
-
     }
 
     @Test
@@ -121,11 +112,11 @@ class PersonControllerTest {
     @Test
     void testFindPersonByIdNotCorrect() throws Exception {
         when(personService.findById("23"))
-                .thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid person ID"));
+                .thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Person not found"));
         this.mvc.perform(get("/person/23").contentType("application/json")
                         .content(""))
                 .andDo(print())
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -150,7 +141,7 @@ class PersonControllerTest {
     @Test
     void testUpdatePersonNotCorrect() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
-        String req = mapper.writer().writeValueAsString(null);
+        String req = mapper.writer().writeValueAsString("");
         this.mvc.perform(put("/person/" + personResponse.getId()).contentType("application/json")
                         .content(req))
                 .andDo(print())
@@ -170,13 +161,11 @@ class PersonControllerTest {
 
     @Test
     void testDeletePersonNotCorrect() throws Exception {
-        when(personService.findById("23"))
-                .thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid data"));
         when(personService.deletePerson("23"))
-                .thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid data"));
+                .thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Invalid data"));
         this.mvc.perform(delete("/person/23").contentType("application/json")
                         .content(""))
                 .andDo(print())
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isNotFound());
     }
 }

@@ -15,12 +15,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -28,69 +27,74 @@ import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 
 public class SearchServiceTest {
 
-    private PersonRepository personRepository = new PersonRepository();
-    private PassportRepository passportRepository = new PassportRepository();
-    private SearchService searchService = new SearchServiceImpl(passportRepository, personRepository);
-    private PassportService passportService;
+    private final PersonRepository personRepository = new PersonRepository();
+    private final PassportRepository passportRepository = new PassportRepository();
+    private final SearchService searchService = new SearchServiceImpl(passportRepository, personRepository);
 
     private PassportResponse passportResponse;
-    private PassportRequest passport;
-    private PersonRequest person;
-    private Person person1;
+    private Person person;
     private PersonResponse personResponse;
-
+    private final String todayDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
     @BeforeEach
-    private void testDataProduce() throws ParseException {
-        passportService = new PassportServiceImpl(passportRepository, personRepository);
-        passport = new PassportRequest();
+    private void testDataProduce() {
+        DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        PassportService passportService = new PassportServiceImpl(passportRepository, personRepository);
+        PassportRequest passport = new PassportRequest();
         passport.setNumber("1223123113");
-        passport.setGivenDate(new Date());
+        passport.setGivenDate(LocalDate.now());
         passport.setDepartmentCode("123123");
-        person = new PersonRequest();
-        String string = "2010-2-2";
-        DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-        Date date = format.parse(string);
-        person.setName("Alex Frolov");
-        person.setBirthday(date);
-        person.setBirthdayCountry("UK");
-
-        person1 =personRepository.addPerson(person);
-        personResponse =PersonResponse.of(person1);
-        passportResponse = passportService.addPassportToPerson(person1.getId(), passport);
+        PersonRequest personRequest = new PersonRequest();
+        String string = "2010-02-02";
+        LocalDate date = LocalDate.parse(string, format);
+        personRequest.setName("Alex Frolov");
+        personRequest.setBirthday(date);
+        personRequest.setBirthdayCountry("UK");
+        person = personRepository.addPerson(personRequest);
+        personResponse = PersonResponse.of(person);
+        passportResponse = passportService.addPassportToPerson(person.getId(), passport);
     }
 
     @Test
     public void findPersonByPassportNumberTest() {
-        personRepository.addPerson(person);
-        Person person1 = personRepository.findAll().get(0);
-        passportRepository.addPassport(passport, person1);
         assertThat("Problems with adding person", searchService.findPersonByPassportNumber("1223123113")
-                .equals(PersonResponse.of(person1)));
+                .equals(PersonResponse.of(person)));
     }
 
     @Test
     void testGetAllPassportsAllParams() throws ParseException {
         assertEquals(new ArrayList<>(Collections.singleton(passportResponse)),
-                searchService.getAllPassports("true", "2022-03-05", "2022-05-04"));
+                searchService.getAllPassports("true", "2022-03-05", todayDate));
     }
 
     @Test
     void testGetAllPassportsBadDate() {
         assertThrowsExactly(ResponseStatusException.class, () ->
-                searchService.getAllPassports( "true", "2022-08-04", "2022-05-04"));
+                searchService.getAllPassports("true", "2022-08-04", "2022-05-04"));
     }
 
     @Test
     void testGetAllPassportsWithoutBoolean() throws ParseException {
         assertEquals(new ArrayList<>(Collections.singleton(passportResponse)),
-                searchService.getAllPassports( "", "2022-03-05", "2022-05-04"));
+                searchService.getAllPassports("", "2022-03-05", todayDate));
+    }
+
+    @Test
+    void testGetAllPassportsWithoutBooleanWithEmptyStartDate() throws ParseException {
+        assertEquals(new ArrayList<>(),
+                searchService.getAllPassports("", "", "2022-05-04"));
+    }
+
+    @Test
+    void testGetAllPassportsWithoutBooleanWithEmptyEndDate() throws ParseException {
+        assertEquals(new ArrayList<>(Collections.singleton(passportResponse)),
+                searchService.getAllPassports("", "2022-05-04", ""));
     }
 
     @Test
     void testGetAllPassportsWithoutParam() throws ParseException {
         assertEquals(new ArrayList<>(Collections.singleton(passportResponse)),
-                searchService.getAllPassports( "", "", ""));
+                searchService.getAllPassports("", "", ""));
     }
 
     @Test

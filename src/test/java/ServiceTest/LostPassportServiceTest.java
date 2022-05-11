@@ -13,56 +13,51 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class LostPassportServiceTest {
-    private PersonRepository personRepository = new PersonRepository();
-    private PassportRepository passportRepository = new PassportRepository();
-    private LostPassportService lostPassportService = new LostPassportServiceImpl(personRepository);
-    private PersonRequest person;
-    private PassportRequest passport;
+    private final PersonRepository personRepository = new PersonRepository();
+    private final PassportRepository passportRepository = new PassportRepository();
+    private final LostPassportService lostPassportService = new LostPassportServiceImpl(personRepository);
+    private Person person;
 
     @BeforeEach
-    private void testDataProduce() throws ParseException {
-        passport = new PassportRequest();
+    private void testDataProduce() {
+        PassportRequest passport = new PassportRequest();
         passport.setNumber("1223123113");
-        passport.setGivenDate(new Date());
+        passport.setGivenDate(LocalDate.now());
         passport.setDepartmentCode("123123");
-        person = new PersonRequest();
-        String string = "2010-2-2";
-        DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-        Date date = format.parse(string);
-        person.setName("Alex Frolov");
-        person.setBirthday(date);
-        person.setBirthdayCountry("UK");
+        PersonRequest personRequest = new PersonRequest();
+        String string = "2010-02-02";
+        DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate date = LocalDate.parse(string, format);
+        personRequest.setName("Alex Frolov");
+        personRequest.setBirthday(date);
+        personRequest.setBirthdayCountry("UK");
+        personRepository.addPerson(personRequest);
+        person = personRepository.findAll().get(0);
+        passportRepository.addPassport(passport, person);
     }
 
 
     @Test
     public void testDeactivatePassportCorrect() {
-        personRepository.addPerson(person);
-        Person person1 = personRepository.findAll().get(0);
-        passportRepository.addPassport(passport, person1);
-        assertTrue(lostPassportService.deactivatePassport(person1.getId(),
-                        person1.getList().get(0).getId(), false, new Description()),
+        assertTrue(lostPassportService.deactivatePassport(person.getId(),
+                        person.getList().get(0).getId(), false, new Description()),
                 "Problems with deactivating passport");
     }
 
     @Test
     public void testDeactivatePassportNotCorrect() {
-
-        personRepository.addPerson(person);
-        Person person1 = personRepository.findAll().get(0);
-        Passport passportWithMistake = passportRepository.addPassport(passport, person1);
+        Passport passportWithMistake = person.getList().get(0);
         passportWithMistake.setActive(false);
-        assertThrowsExactly (ResponseStatusException.class,() ->
-                lostPassportService.deactivatePassport(person1.getId(),
-                        person1.getList().get(0).getId(), false, new Description()),
+        assertThrowsExactly(ResponseStatusException.class, () ->
+                        lostPassportService.deactivatePassport(person.getId(),
+                                person.getList().get(0).getId(), false, new Description()),
                 "Passport was deactivated but you try to deactivate it");
     }
 }

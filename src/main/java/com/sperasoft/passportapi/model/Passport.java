@@ -1,12 +1,11 @@
 package com.sperasoft.passportapi.model;
 
 import com.sperasoft.passportapi.dto.PassportRequest;
-import com.sperasoft.passportapi.dto.PersonResponse;
 import lombok.Data;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Data
@@ -16,7 +15,7 @@ public class Passport {
 
     private String number;
 
-    private Date givenDate;
+    private LocalDate givenDate;
 
     private String departmentCode;
 

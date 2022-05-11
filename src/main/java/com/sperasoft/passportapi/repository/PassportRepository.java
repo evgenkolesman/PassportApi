@@ -9,8 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 @Repository
 public class PassportRepository {
 
-    private Map<String, Passport> passportRepo = new ConcurrentHashMap<>();
+    private final Map<String, Passport> passportRepo = new ConcurrentHashMap<>();
 
     public boolean isPassportPresent(PassportRequest passportRequest) {
         return passportRepo.values().stream().anyMatch(p -> {
@@ -62,18 +62,19 @@ public class PassportRepository {
         return passportRepo.remove(id);
     }
 
-    public List<Passport> getPassportsByParams(boolean active, Date dateStart, Date dateEnd) {
+    public List<Passport> getPassportsByParams(boolean active, LocalDate dateStart, LocalDate dateEnd) {
         return passportRepo.values().stream().filter(a -> a.isActive() == active)
                 .filter(a ->
-                        (dateStart.before(a.getGivenDate()) || dateStart.equals(a.getGivenDate()) &&
-                                (dateEnd.after(a.getGivenDate()) || dateEnd.equals(a.getGivenDate()))))
+                        ((dateStart.isBefore(a.getGivenDate()) || dateStart.isEqual(a.getGivenDate())) &&
+                                (dateEnd.isAfter(a.getGivenDate()) || dateEnd.isEqual(a.getGivenDate()))))
                 .collect(Collectors.toList());
     }
 
-    public List<Passport> getPassportsByParams(Date dateStart, Date dateEnd) {
+    public List<Passport> getPassportsByParams(LocalDate dateStart, LocalDate dateEnd) {
         return passportRepo.values().stream()
-                .filter(a -> (dateStart.before(a.getGivenDate()) || dateStart.equals(a.getGivenDate()) &&
-                        (dateEnd.after(a.getGivenDate()) || dateEnd.equals(a.getGivenDate()))))
+                .filter(a ->
+                        ((dateStart.isBefore(a.getGivenDate()) || dateStart.isEqual(a.getGivenDate())) &&
+                                dateEnd.isAfter(a.getGivenDate()) || dateEnd.isEqual(a.getGivenDate())))
                 .collect(Collectors.toList());
     }
 

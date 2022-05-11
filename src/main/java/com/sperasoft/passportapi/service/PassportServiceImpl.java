@@ -11,10 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -68,18 +66,21 @@ public class PassportServiceImpl implements PassportService {
 
     @Override
     public List<PassportResponse> getPassportsByPersonIdAndParams(String personId, String active,
-                                                                  String dateStart, String dateEnd) throws ParseException {
+                                                                  String dateStart, String dateEnd) {
         Person person = personRepository.findPersonById(personId);
+        DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         if (active.isEmpty() && dateStart.isEmpty() && dateEnd.isEmpty()) {
             return person.getList().stream().map(PassportResponse::of).collect(Collectors.toList());
         } else if (dateStart.isEmpty() && dateEnd.isEmpty()) {
             return getPassportsByPersonAndParams(person, Boolean.parseBoolean(active));
+        } else if (dateStart.isEmpty() || dateEnd.isEmpty()) {
+            if (dateStart.isEmpty()) {
+                dateStart = dateEnd;
+            } else dateEnd = LocalDate.now().format(format);
         }
-
-        DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-        Date dateFirst = format.parse(dateStart);
-        Date dateSecond = format.parse(dateEnd);
-        if (dateFirst.after(dateSecond)) {
+        LocalDate dateFirst = LocalDate.parse(dateStart, format);
+        LocalDate dateSecond = LocalDate.parse(dateEnd);
+        if (dateFirst.isAfter(dateSecond)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "Invalid data period: Start date is after End date");
         }
@@ -90,29 +91,21 @@ public class PassportServiceImpl implements PassportService {
     }
 
     private List<PassportResponse> getPassportsByPersonAndParams(Person person,
-                                                                 Date dateStart,
-                                                                 Date dateEnd) {
-        if (dateStart.after(dateEnd)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Invalid data period: Start date is after End date");
-        }
+                                                                 LocalDate dateStart,
+                                                                 LocalDate dateEnd) {
         return person.getList().stream().filter(a ->
-                        (dateStart.before(a.getGivenDate()) || dateStart.equals(a.getGivenDate()) &&
-                                (dateEnd.after(a.getGivenDate()) || dateEnd.equals(a.getGivenDate()))))
+                        (dateStart.isBefore(a.getGivenDate()) || dateStart.isEqual(a.getGivenDate())) &&
+                                (dateEnd.isAfter(a.getGivenDate()) || dateEnd.isEqual(a.getGivenDate())))
                 .map(PassportResponse::of).collect(Collectors.toList());
     }
 
     private List<PassportResponse> getPassportsByPersonAndParams(Person person,
                                                                  boolean active,
-                                                                 Date dateStart,
-                                                                 Date dateEnd) {
-        if (dateStart.after(dateEnd)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "Invalid data period: Start date is after End date");
-        }
+                                                                 LocalDate dateStart,
+                                                                 LocalDate dateEnd) {
         return person.getList().stream().filter(a -> a.isActive() == active).filter(a ->
-                        (dateStart.before(a.getGivenDate()) || dateStart.equals(a.getGivenDate()) &&
-                                (dateEnd.after(a.getGivenDate()) || dateEnd.equals(a.getGivenDate()))))
+                        (dateStart.isBefore(a.getGivenDate()) || dateStart.isEqual(a.getGivenDate())) &&
+                                (dateEnd.isAfter(a.getGivenDate()) || dateEnd.isEqual(a.getGivenDate())))
                 .map(PassportResponse::of).collect(Collectors.toList());
     }
 

@@ -2,7 +2,6 @@ package com.sperasoft.passportapi.service;
 
 import com.sperasoft.passportapi.dto.PassportRequest;
 import com.sperasoft.passportapi.dto.PassportResponse;
-import org.springframework.http.HttpStatus;
 
 import java.text.ParseException;
 import java.util.List;
