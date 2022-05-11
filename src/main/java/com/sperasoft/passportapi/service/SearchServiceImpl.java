@@ -46,11 +46,10 @@ public class SearchServiceImpl implements SearchService {
                     .map(PassportResponse::of)
                     .collect(Collectors.toList());
         } else if (dateStart.isEmpty() && dateEnd.isEmpty()) {
-            return passportRepository.getPassportsByParams(Boolean.valueOf(active)).stream()
+            return passportRepository.getPassportsByParams(Boolean.parseBoolean(active)).stream()
                     .map(PassportResponse::of)
                     .collect(Collectors.toList());
         }
-
         DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
         Date dateFirst = format.parse(dateStart);
         Date dateSecond = format.parse(dateEnd);
@@ -64,7 +63,7 @@ public class SearchServiceImpl implements SearchService {
                     .collect(Collectors.toList());
         }
 
-        return passportRepository.getPassportsByParams(Boolean.valueOf(active), dateFirst, dateSecond).stream()
+        return passportRepository.getPassportsByParams(Boolean.parseBoolean(active), dateFirst, dateSecond).stream()
                 .map(PassportResponse::of)
                 .collect(Collectors.toList());
 
