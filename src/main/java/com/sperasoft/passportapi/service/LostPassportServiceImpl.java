@@ -16,20 +16,16 @@ public class LostPassportServiceImpl implements LostPassportService {
 
     @Override
     public boolean deactivatePassport(String personId, String id, boolean active, Description description) {
-        if (personRepository.findById(personId) == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid person ID");
-        }
         if (description == null) {
             description = new Description();
         }
-
         Passport passportPerson =
                 personRepository.findById(personId).getList().stream()
                         .filter(passport ->
                                 passport.getId().equals(id))
                         .findFirst()
                         .orElseThrow(() ->
-                                new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid passport ID"));
+                                new ResponseStatusException(HttpStatus.NOT_FOUND, "Passport not found "));
         if (passportPerson.isActive() == true) {
             passportPerson.setActive(active);
             passportPerson.setDescription(description.getDescription());

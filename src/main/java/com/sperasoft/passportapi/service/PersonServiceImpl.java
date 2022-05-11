@@ -33,7 +33,7 @@ public class PersonServiceImpl implements PersonService {
     @Override
     public PersonResponse updatePerson(String id, PersonRequest person) {
         if (findById(id) == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid data");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Person not found");
         }
         return PersonResponse.of(personRepository.updatePerson(id, person));
     }

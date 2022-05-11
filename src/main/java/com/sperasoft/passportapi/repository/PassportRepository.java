@@ -1,7 +1,6 @@
 package com.sperasoft.passportapi.repository;
 
 import com.sperasoft.passportapi.dto.PassportRequest;
-import com.sperasoft.passportapi.dto.PassportResponse;
 import com.sperasoft.passportapi.model.Passport;
 import com.sperasoft.passportapi.model.Person;
 import org.modelmapper.ModelMapper;
