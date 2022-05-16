@@ -1,9 +1,13 @@
 package com.sperasoft.passportapi.model;
 
-import com.sperasoft.passportapi.dto.PassportRequest;
+import com.sperasoft.passportapi.ModelMapperMaker;
+import com.sperasoft.passportapi.controller.dto.PassportRequest;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.convention.MatchingStrategies;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.util.UUID;
@@ -24,9 +28,7 @@ public class Passport {
     private String description;
 
     public static Passport of(PassportRequest passportRequest) {
-        ModelMapper model = new ModelMapper();
-        model.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        Passport passport = model.map(passportRequest, Passport.class);
+        Passport passport = ModelMapperMaker.configMapper().map(passportRequest, Passport.class);
         passport.setId(UUID.randomUUID().toString());
         return passport;
     }

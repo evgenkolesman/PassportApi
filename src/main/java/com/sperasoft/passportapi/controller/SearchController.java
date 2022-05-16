@@ -1,7 +1,7 @@
 package com.sperasoft.passportapi.controller;
 
-import com.sperasoft.passportapi.dto.PassportResponse;
-import com.sperasoft.passportapi.dto.PersonResponse;
+import com.sperasoft.passportapi.controller.dto.PassportResponse;
+import com.sperasoft.passportapi.controller.dto.PersonResponse;
 import com.sperasoft.passportapi.model.NumberPassport;
 import com.sperasoft.passportapi.service.SearchService;
 import lombok.RequiredArgsConstructor;

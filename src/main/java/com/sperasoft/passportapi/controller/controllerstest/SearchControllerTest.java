@@ -1,11 +1,11 @@
-package ControllersTest;
+package com.sperasoft.passportapi.controller.controllerstest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sperasoft.passportapi.PassportApiApplication;
-import com.sperasoft.passportapi.dto.PassportRequest;
-import com.sperasoft.passportapi.dto.PassportResponse;
-import com.sperasoft.passportapi.dto.PersonRequest;
-import com.sperasoft.passportapi.dto.PersonResponse;
+import com.sperasoft.passportapi.controller.dto.PassportRequest;
+import com.sperasoft.passportapi.controller.dto.PassportResponse;
+import com.sperasoft.passportapi.controller.dto.PersonRequest;
+import com.sperasoft.passportapi.controller.dto.PersonResponse;
 import com.sperasoft.passportapi.model.NumberPassport;
 import com.sperasoft.passportapi.model.Passport;
 import com.sperasoft.passportapi.model.Person;
@@ -48,7 +48,7 @@ class SearchControllerTest {
     @MockBean
     private SearchService searchService;
 
-    private Person person1;
+    private Person person;
     private PassportResponse passportResponse;
     private PersonResponse personResponse;
     private Passport passport;
@@ -69,15 +69,15 @@ class SearchControllerTest {
         personRequest.setName("Alex Frolov");
         personRequest.setBirthday(date);
         personRequest.setBirthdayCountry("UK");
-        person1 = Person.of(personRequest);
-        personResponse = PersonResponse.of(person1);
+        person = Person.of(personRequest);
+        personResponse = PersonResponse.of(person);
 
     }
 
     @Test
     void testFindPersonByPassportNumberCorrect() throws Exception {
         when(passportRepository.getPassportsByParams()).thenReturn(List.of(passport));
-        when(personRepository.findAll()).thenReturn(List.of(person1));
+        when(personRepository.findAll()).thenReturn(List.of(person));
         when(searchService.findPersonByPassportNumber("1223123113"))
                 .thenReturn(personResponse);
         NumberPassport numberPassport = new NumberPassport();

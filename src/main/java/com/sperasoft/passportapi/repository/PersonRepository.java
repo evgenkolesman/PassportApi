@@ -1,6 +1,7 @@
 package com.sperasoft.passportapi.repository;
 
-import com.sperasoft.passportapi.dto.PersonRequest;
+import com.sperasoft.passportapi.ModelMapperMaker;
+import com.sperasoft.passportapi.controller.dto.PersonRequest;
 import com.sperasoft.passportapi.model.Person;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
@@ -22,9 +23,7 @@ public class PersonRepository {
 
     public boolean isPersonPresent(PersonRequest person) {
         return personRepo.values().stream().anyMatch(p -> {
-            ModelMapper model = new ModelMapper();
-            model.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-            PersonRequest pr = model.map(p, PersonRequest.class);
+            PersonRequest pr = ModelMapperMaker.configMapper().map(p, PersonRequest.class);
             return pr.equals(person);
         });
     }

@@ -1,12 +1,14 @@
-package ServiceTest;
+package servicetest;
 
-import com.sperasoft.passportapi.dto.PersonRequest;
-import com.sperasoft.passportapi.dto.PersonResponse;
+import com.sperasoft.passportapi.PassportApiApplication;
+import com.sperasoft.passportapi.controller.dto.PersonRequest;
+import com.sperasoft.passportapi.controller.dto.PersonResponse;
 import com.sperasoft.passportapi.repository.PersonRepository;
 import com.sperasoft.passportapi.service.PersonService;
 import com.sperasoft.passportapi.service.PersonServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
@@ -16,6 +18,7 @@ import java.util.UUID;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
+@SpringBootTest(classes = PassportApiApplication.class)
 public class PersonServiceTest {
 
     private PersonService personService;

@@ -1,7 +1,7 @@
 package com.sperasoft.passportapi.service;
 
-import com.sperasoft.passportapi.dto.PersonRequest;
-import com.sperasoft.passportapi.dto.PersonResponse;
+import com.sperasoft.passportapi.controller.dto.PersonRequest;
+import com.sperasoft.passportapi.controller.dto.PersonResponse;
 
 public interface PersonService {
     PersonResponse addPerson(PersonRequest person);

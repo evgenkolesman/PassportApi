@@ -1,4 +1,4 @@
-package com.sperasoft.passportapi.dto;
+package com.sperasoft.passportapi.controller.dto;
 
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
