@@ -1,10 +1,10 @@
-package ControllersTest;
+package com.sperasoft.passportapi.controller.controllerstest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sperasoft.passportapi.PassportApiApplication;
-import com.sperasoft.passportapi.dto.PassportRequest;
-import com.sperasoft.passportapi.dto.PersonRequest;
-import com.sperasoft.passportapi.dto.PersonResponse;
+import com.sperasoft.passportapi.controller.dto.PassportRequest;
+import com.sperasoft.passportapi.controller.dto.PersonRequest;
+import com.sperasoft.passportapi.controller.dto.PersonResponse;
 import com.sperasoft.passportapi.model.Person;
 import com.sperasoft.passportapi.repository.PassportRepository;
 import com.sperasoft.passportapi.repository.PersonRepository;
@@ -46,7 +46,7 @@ class PersonControllerTest {
     PersonService personService;
 
     private PersonRequest personRequest;
-    private Person person1;
+    private Person person;
     private PersonResponse personResponse;
 
     @BeforeEach
@@ -63,8 +63,8 @@ class PersonControllerTest {
         personRequest.setName("Alex Frolov");
         personRequest.setBirthday(date);
         personRequest.setBirthdayCountry("UK");
-        person1 = Person.of(personRequest);
-        personResponse = PersonResponse.of(person1);
+        person = Person.of(personRequest);
+        personResponse = PersonResponse.of(person);
     }
 
     @Test
@@ -124,12 +124,12 @@ class PersonControllerTest {
         ObjectMapper mapper = new ObjectMapper();
         PersonRequest personRequestForTest = personRequest;
         personRequestForTest.setName("AAAAAAA");
-        Person person = Person.of(personRequest);
-        PersonResponse personResponseForTest = PersonResponse.of(person);
+        Person personNew= Person.of(personRequest);
+        PersonResponse personResponseForTest = PersonResponse.of(personNew);
 
-        when(personRepository.findPersonById(personResponseForTest.getId())).thenReturn(person);
+        when(personRepository.findPersonById(personResponseForTest.getId())).thenReturn(personNew);
         when(personService.findById(personResponse.getId())).thenReturn(personResponseForTest);
-        when(personService.updatePerson(person1.getId(), personRequestForTest)).thenReturn(personResponseForTest);
+        when(personService.updatePerson(person.getId(), personRequestForTest)).thenReturn(personResponseForTest);
         String req = mapper.writer().writeValueAsString(personResponseForTest);
         this.mvc.perform(put("/person/" + personResponse.getId()).contentType("application/json")
                         .content(req))

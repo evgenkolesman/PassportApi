@@ -1,6 +1,7 @@
 package com.sperasoft.passportapi.repository;
 
-import com.sperasoft.passportapi.dto.PassportRequest;
+import com.sperasoft.passportapi.ModelMapperMaker;
+import com.sperasoft.passportapi.controller.dto.PassportRequest;
 import com.sperasoft.passportapi.model.Passport;
 import com.sperasoft.passportapi.model.Person;
 import org.modelmapper.ModelMapper;
@@ -23,15 +24,14 @@ public class PassportRepository {
 
     public boolean isPassportPresent(PassportRequest passportRequest) {
         return passportRepo.values().stream().anyMatch(p -> {
-            ModelMapper model = new ModelMapper();
-            model.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-            PassportRequest pr = model.map(p, PassportRequest.class);
+            PassportRequest pr = ModelMapperMaker.configMapper().map(p, PassportRequest.class);
             return pr.equals(passportRequest);
         });
     }
 
     public Passport addPassport(PassportRequest passportRequest, Person person) {
-        Passport passport = Passport.of(passportRequest);
+        Passport passport = new Passport();
+                passport = passport.of(passportRequest);
         person.getList().add(passport);
         passportRepo.put(passport.getId(), passport);
         return passport;

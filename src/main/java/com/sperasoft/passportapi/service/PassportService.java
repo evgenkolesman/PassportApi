@@ -1,7 +1,7 @@
 package com.sperasoft.passportapi.service;
 
-import com.sperasoft.passportapi.dto.PassportRequest;
-import com.sperasoft.passportapi.dto.PassportResponse;
+import com.sperasoft.passportapi.controller.dto.PassportRequest;
+import com.sperasoft.passportapi.controller.dto.PassportResponse;
 
 import java.text.ParseException;
 import java.util.List;

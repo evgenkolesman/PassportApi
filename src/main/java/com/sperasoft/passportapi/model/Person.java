@@ -1,9 +1,13 @@
 package com.sperasoft.passportapi.model;
 
-import com.sperasoft.passportapi.dto.PersonRequest;
+import com.sperasoft.passportapi.ModelMapperMaker;
+import com.sperasoft.passportapi.controller.dto.PersonRequest;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.convention.MatchingStrategies;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -24,9 +28,7 @@ public class Person {
     private List<Passport> list = new ArrayList<>();
 
     public static Person of(PersonRequest personRequest) {
-        ModelMapper model = new ModelMapper();
-        model.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        Person person = model.map(personRequest, Person.class);
+        Person person = ModelMapperMaker.configMapper().map(personRequest, Person.class);
         person.setId(UUID.randomUUID().toString());
         return person;
     }

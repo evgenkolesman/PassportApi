@@ -1,8 +1,9 @@
-package ServiceTest;
+package servicetest;
 
-import com.sperasoft.passportapi.dto.PassportRequest;
-import com.sperasoft.passportapi.dto.PassportResponse;
-import com.sperasoft.passportapi.dto.PersonRequest;
+import com.sperasoft.passportapi.PassportApiApplication;
+import com.sperasoft.passportapi.controller.dto.PassportRequest;
+import com.sperasoft.passportapi.controller.dto.PassportResponse;
+import com.sperasoft.passportapi.controller.dto.PersonRequest;
 import com.sperasoft.passportapi.model.Person;
 import com.sperasoft.passportapi.repository.PassportRepository;
 import com.sperasoft.passportapi.repository.PersonRepository;
@@ -10,6 +11,7 @@ import com.sperasoft.passportapi.service.PassportService;
 import com.sperasoft.passportapi.service.PassportServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.text.ParseException;
@@ -22,6 +24,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 
+@SpringBootTest(classes = PassportApiApplication.class)
 class PassportServiceTest {
 
     private final PersonRepository personRepository = new PersonRepository();

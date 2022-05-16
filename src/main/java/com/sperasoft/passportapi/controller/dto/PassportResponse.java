@@ -1,7 +1,8 @@
-package com.sperasoft.passportapi.dto;
+package com.sperasoft.passportapi.controller.dto;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
+import com.sperasoft.passportapi.ModelMapperMaker;
 import com.sperasoft.passportapi.model.Passport;
 import lombok.Data;
 import org.modelmapper.ModelMapper;
@@ -22,8 +23,6 @@ public class PassportResponse {
     private String departmentCode;
 
     public static PassportResponse of(Passport passport) {
-        ModelMapper model = new ModelMapper();
-        model.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        return model.map(passport, PassportResponse.class);
+        return ModelMapperMaker.configMapper().map(passport, PassportResponse.class);
     }
 }

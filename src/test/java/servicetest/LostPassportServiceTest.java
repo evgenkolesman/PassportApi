@@ -1,7 +1,8 @@
-package ServiceTest;
+package servicetest;
 
-import com.sperasoft.passportapi.dto.PassportRequest;
-import com.sperasoft.passportapi.dto.PersonRequest;
+import com.sperasoft.passportapi.PassportApiApplication;
+import com.sperasoft.passportapi.controller.dto.PassportRequest;
+import com.sperasoft.passportapi.controller.dto.PersonRequest;
 import com.sperasoft.passportapi.model.Description;
 import com.sperasoft.passportapi.model.Passport;
 import com.sperasoft.passportapi.model.Person;
@@ -9,8 +10,10 @@ import com.sperasoft.passportapi.repository.PassportRepository;
 import com.sperasoft.passportapi.repository.PersonRepository;
 import com.sperasoft.passportapi.service.LostPassportService;
 import com.sperasoft.passportapi.service.LostPassportServiceImpl;
+import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
@@ -19,7 +22,9 @@ import java.time.format.DateTimeFormatter;
 import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@SpringBootTest(classes = PassportApiApplication.class)
 public class LostPassportServiceTest {
+
     private final PersonRepository personRepository = new PersonRepository();
     private final PassportRepository passportRepository = new PassportRepository();
     private final LostPassportService lostPassportService = new LostPassportServiceImpl(personRepository);

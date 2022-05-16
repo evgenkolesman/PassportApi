@@ -1,11 +1,11 @@
-package ControllersTest;
+package com.sperasoft.passportapi.controller.controllerstest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sperasoft.passportapi.PassportApiApplication;
-import com.sperasoft.passportapi.dto.PassportRequest;
-import com.sperasoft.passportapi.dto.PassportResponse;
-import com.sperasoft.passportapi.dto.PersonRequest;
-import com.sperasoft.passportapi.dto.PersonResponse;
+import com.sperasoft.passportapi.controller.dto.PassportRequest;
+import com.sperasoft.passportapi.controller.dto.PassportResponse;
+import com.sperasoft.passportapi.controller.dto.PersonRequest;
+import com.sperasoft.passportapi.controller.dto.PersonResponse;
 import com.sperasoft.passportapi.model.Passport;
 import com.sperasoft.passportapi.model.Person;
 import com.sperasoft.passportapi.repository.PassportRepository;
@@ -55,7 +55,7 @@ class PassportControllerTest {
     PassportService passportService;
 
     private PassportRequest passportRequest;
-    private Person person1;
+    private Person person;
     private PassportResponse passportResponse;
     private PersonResponse personResponse;
     private Passport passport;
@@ -76,8 +76,8 @@ class PassportControllerTest {
         personRequest.setName("Alex Frolov");
         personRequest.setBirthday(date);
         personRequest.setBirthdayCountry("UK");
-        person1 = Person.of(personRequest);
-        personResponse = PersonResponse.of(person1);
+        person = Person.of(personRequest);
+        personResponse = PersonResponse.of(person);
 
     }
 
@@ -129,7 +129,7 @@ class PassportControllerTest {
     @Test
     void testCreatePassport() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
-        when(personRepository.findById(person1.getId())).thenReturn(person1);
+        when(personRepository.findById(person.getId())).thenReturn(person);
         when(passportRepository.findPassportById(passport.getId())).thenReturn(passport);
         when(passportService.addPassportToPerson(personResponse.getId(), passportRequest))
                 .thenReturn(passportResponse);
@@ -205,7 +205,7 @@ class PassportControllerTest {
 
     @Test
     void deletePassport() throws Exception {
-        when(personRepository.findById(person1.getId())).thenReturn(person1);
+        when(personRepository.findById(person.getId())).thenReturn(person);
         when(passportRepository.findPassportById(passport.getId())).thenReturn(passport);
         when(passportService.deletePassport(personResponse.getId(), passport.getId()))
                 .thenReturn(passportResponse);

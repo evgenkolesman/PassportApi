@@ -1,7 +1,7 @@
 package com.sperasoft.passportapi.service;
 
-import com.sperasoft.passportapi.dto.PersonRequest;
-import com.sperasoft.passportapi.dto.PersonResponse;
+import com.sperasoft.passportapi.controller.dto.PersonRequest;
+import com.sperasoft.passportapi.controller.dto.PersonResponse;
 import com.sperasoft.passportapi.repository.PersonRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
