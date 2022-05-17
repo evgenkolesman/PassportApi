@@ -1,5 +1,9 @@
 package com.sperasoft.passportapi.controller.dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -16,6 +20,7 @@ public class PersonRequest {
     @Size(min = 3, message = "name must be minimum 2 characters long")
     private String name;
 
+    @JsonSerialize(using = LocalDateSerializer.class)
     @NotBlank(message = "Date field should be filled")
     @DateTimeFormat(iso = ISO.DATE)
     private LocalDate birthday;

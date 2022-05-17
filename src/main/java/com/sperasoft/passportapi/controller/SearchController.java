@@ -7,7 +7,6 @@ import com.sperasoft.passportapi.service.SearchServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-import java.text.ParseException;
 import java.util.List;
 
 @RestController
