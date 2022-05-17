@@ -19,6 +19,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -39,9 +40,10 @@ public class PassportServiceImpl {
         });
     }
 
-    //TODO check it
     public PassportResponse addPassportToPerson(String personId, PassportRequest passportRequest) {
         if (isPassportPresent(passportRequest)) {
+            log.info(String.format("%s %s %s", UUID.randomUUID(),
+                    HttpStatus.BAD_REQUEST, environment.getProperty("passport.exception.was-added")));
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     environment.getProperty("passport.exception.was-added"));
         }
@@ -51,31 +53,32 @@ public class PassportServiceImpl {
     }
 
     public PassportResponse findPassportById(String id, String active) {
-        if (passportRepository.findPassportById(id) == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-                    String.format(Objects.requireNonNull(environment.getProperty("passport.exception.notfound")), id));
-        }
+        checkPassportPresentWithId(id);
         if (active.isEmpty()) {
             return PassportResponse.of(passportRepository.findPassportById(id));
         } else
             return PassportResponse.of(passportRepository.findPassportById(id, Boolean.parseBoolean(active)));
     }
 
-    public PassportResponse updatePassport(String id, PassportRequest passportRequest) {
+    private void checkPassportPresentWithId(String id) {
         if (passportRepository.findPassportById(id) == null) {
+            log.info(String.format("%s %s %s", UUID.randomUUID(),
+                    HttpStatus.NOT_FOUND,
+                    String.format(Objects.requireNonNull(environment.getProperty("passport.exception.notfound")), id)));
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,
                     String.format(Objects.requireNonNull(environment.getProperty("passport.exception.notfound")), id));
         }
+    }
+
+    public PassportResponse updatePassport(String id, PassportRequest passportRequest) {
+        checkPassportPresentWithId(id);
         Passport passport = Passport.of(passportRequest);
         passport.setId(id);
         return PassportResponse.of(passportRepository.updatePassport(passport));
     }
 
     public PassportResponse deletePassport(String id) {
-        if (passportRepository.findPassportById(id) == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-                    String.format(Objects.requireNonNull(environment.getProperty("passport.exception.notfound")), id));
-        }
+        checkPassportPresentWithId(id);
         return PassportResponse.of(passportRepository.deletePassport(id));
     }
 
@@ -83,6 +86,10 @@ public class PassportServiceImpl {
                                                                   String dateStart, String dateEnd) {
         Person person = personRepositoryImpl.findPersonById(personId);
         if (person.getList().size() == 0) {
+            log.info(String.format("%s %s %s", UUID.randomUUID(),
+                    HttpStatus.NOT_FOUND,
+                    String.format(Objects.requireNonNull(
+                            environment.getProperty("passport.exception.person.nopassport")), personId)));
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,
                     String.format(Objects.requireNonNull(
                             environment.getProperty("passport.exception.person.nopassport")), personId));
@@ -99,6 +106,10 @@ public class PassportServiceImpl {
         LocalDate dateFirst = LocalDate.parse(dateStart, format);
         LocalDate dateSecond = LocalDate.parse(dateEnd);
         if (dateFirst.isAfter(dateSecond)) {
+            log.info(String.format("%s %s %s", UUID.randomUUID(),
+                    HttpStatus.BAD_REQUEST,
+                    Objects.requireNonNull(
+                            environment.getProperty("passport.exception.invalid.date"))));
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     environment.getProperty("passport.exception.invalid.date"));
         }
@@ -142,15 +153,26 @@ public class PassportServiceImpl {
                         .filter(passport ->
                                 passport.getId().equals(id))
                         .findFirst()
-                        .orElseThrow(() ->
-                                new ResponseStatusException(HttpStatus.NOT_FOUND,
-                                        String.format(Objects.requireNonNull(
-                                                environment.getProperty("passport.exception.notfound")), id)));
+                        .orElseThrow(() -> {
+                            log.info(String.format("%s %s %s", UUID.randomUUID(),
+                                    HttpStatus.NOT_FOUND,
+                                    Objects.requireNonNull(
+                                            String.format(Objects.requireNonNull(
+                                                    environment.getProperty("passport.exception.notfound")), id))));
+                            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                                    String.format(Objects.requireNonNull(
+                                            environment.getProperty("passport.exception.notfound")), id));
+
+                        });
         if (passportPerson.isActive() == true) {
             passportPerson.setActive(active);
             passportPerson.setDescription(description.getDescription());
             return true;
         } else
+            log.info(String.format("%s %s %s", UUID.randomUUID(),
+                    HttpStatus.CONFLICT,
+                    Objects.requireNonNull(
+                            environment.getProperty("passport.exception.deactivated"))));
             throw new ResponseStatusException(HttpStatus.CONFLICT,
                     environment.getProperty("passport.exception.deactivated"));
     }

@@ -5,6 +5,7 @@ import com.sperasoft.passportapi.controller.dto.PersonResponse;
 import com.sperasoft.passportapi.repository.PassportRepositoryImpl;
 import com.sperasoft.passportapi.repository.PersonRepositoryImpl;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -13,8 +14,11 @@ import org.springframework.web.server.ResponseStatusException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class SearchServiceImpl {
@@ -31,8 +35,13 @@ public class SearchServiceImpl {
                         .filter(person1 ->
                                 person1.getList().stream().anyMatch(
                                         p -> p.getNumber().equals(number))).findFirst()
-                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                                environment.getProperty("searches.exception.wrong-num"))))
+                        .orElseThrow(() -> {
+                            log.info(String.format("%s %s %s", UUID.randomUUID(),
+                                    HttpStatus.BAD_REQUEST,
+                                    Objects.requireNonNull(environment.getProperty("searches.exception.wrong-num"))));
+                            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                                    environment.getProperty("searches.exception.wrong-num"));
+                        }))
                 .map(PersonResponse::of)
                 .findFirst().get();
     }
@@ -56,6 +65,9 @@ public class SearchServiceImpl {
         LocalDate dateFirst = LocalDate.parse(dateStart, format);
         LocalDate dateSecond = LocalDate.parse(dateEnd, format);
         if (dateFirst.isAfter(dateSecond)) {
+            log.info(String.format("%s %s %s", UUID.randomUUID(),
+                    HttpStatus.BAD_REQUEST,
+                    Objects.requireNonNull(environment.getProperty("passport.exception.invalid.date"))));
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     environment.getProperty("passport.exception.invalid.date"));
         }
