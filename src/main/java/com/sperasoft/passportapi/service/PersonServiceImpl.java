@@ -14,10 +14,13 @@ public class PersonServiceImpl implements PersonService {
 
     private final PersonRepository personRepository;
 
+    //TODO need to replace controllers dto from repository
+    //TODO need to fix statuses
+
     @Override
     public PersonResponse addPerson(PersonRequest person) {
         if (personRepository.isPersonPresent(person)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid data");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid person data");
         }
         return PersonResponse.of(personRepository.addPerson(person));
     }
@@ -25,7 +28,8 @@ public class PersonServiceImpl implements PersonService {
     @Override
     public PersonResponse findById(String id) {
         if (personRepository.findById(id) == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Person not found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    String.format("Person with this ID: %s  not found", id));
         } else
             return PersonResponse.of(personRepository.findById(id));
     }
@@ -33,7 +37,8 @@ public class PersonServiceImpl implements PersonService {
     @Override
     public PersonResponse updatePerson(String id, PersonRequest person) {
         if (findById(id) == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Person not found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    String.format("Person with this ID: %s  not found", id));
         }
         return PersonResponse.of(personRepository.updatePerson(id, person));
     }
@@ -41,7 +46,8 @@ public class PersonServiceImpl implements PersonService {
     @Override
     public PersonResponse deletePerson(String id) {
         if (findById(id) == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Invalid data");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    String.format("Person with this ID: %s  not found", id));
         }
         return PersonResponse.of(personRepository.deletePerson(id));
     }

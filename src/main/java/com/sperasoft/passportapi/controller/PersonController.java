@@ -2,7 +2,7 @@ package com.sperasoft.passportapi.controller;
 
 import com.sperasoft.passportapi.controller.dto.PersonRequest;
 import com.sperasoft.passportapi.controller.dto.PersonResponse;
-import com.sperasoft.passportapi.service.PersonService;
+import com.sperasoft.passportapi.service.PersonServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +15,7 @@ import javax.validation.Valid;
 @RequiredArgsConstructor
 public class PersonController {
 
-    private final PersonService personService;
+    private final PersonServiceImpl personService;
 
     @PostMapping
     public PersonResponse createPerson(@RequestBody @Valid PersonRequest person) {

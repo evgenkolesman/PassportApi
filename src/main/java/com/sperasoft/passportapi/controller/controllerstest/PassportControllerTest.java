@@ -6,11 +6,12 @@ import com.sperasoft.passportapi.controller.dto.PassportRequest;
 import com.sperasoft.passportapi.controller.dto.PassportResponse;
 import com.sperasoft.passportapi.controller.dto.PersonRequest;
 import com.sperasoft.passportapi.controller.dto.PersonResponse;
+import com.sperasoft.passportapi.model.Description;
 import com.sperasoft.passportapi.model.Passport;
 import com.sperasoft.passportapi.model.Person;
 import com.sperasoft.passportapi.repository.PassportRepository;
 import com.sperasoft.passportapi.repository.PersonRepository;
-import com.sperasoft.passportapi.service.PassportService;
+import com.sperasoft.passportapi.service.PassportServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +49,7 @@ class PassportControllerTest {
     private PassportRepository passportRepository;
 
     @MockBean
-    private PassportService passportService;
+    private PassportServiceImpl passportService;
 
     private PassportRequest passportRequest;
     private Person person;
@@ -74,7 +75,6 @@ class PassportControllerTest {
         personRequest.setBirthdayCountry("UK");
         person = Person.of(personRequest);
         personResponse = PersonResponse.of(person);
-
     }
 
     @Test
@@ -210,5 +210,32 @@ class PassportControllerTest {
                         .content(""))
                 .andDo(print())
                 .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void lostPassportDeactivate() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        when(personRepository.findById(person.getId())).thenReturn(person);
+        String req = mapper.writer().writeValueAsString(new Description());
+        this.mvc.perform(post("/person/" + personResponse.getId()
+                        + "/passport/" + passportResponse.getId() + "/lostPassport?active=false")
+                        .contentType("application/json")
+                        .content(req))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void lostPassportDeactivateConflict() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        person.getList().get(0).setActive(false);
+        when(personRepository.findById(person.getId())).thenReturn(person);
+        String req = mapper.writer().writeValueAsString(new Description());
+        this.mvc.perform(post("/person/" + personResponse.getId() + "/passport/"
+                        + passportResponse.getId() + "/lostPassport?active=false")
+                        .contentType("application/json")
+                        .content(req))
+                .andDo(print())
+                .andExpect(status().isConflict());
     }
 }
