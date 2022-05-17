@@ -2,7 +2,8 @@ package com.sperasoft.passportapi.controller;
 
 import com.sperasoft.passportapi.controller.dto.PassportRequest;
 import com.sperasoft.passportapi.controller.dto.PassportResponse;
-import com.sperasoft.passportapi.service.PassportService;
+import com.sperasoft.passportapi.model.Description;
+import com.sperasoft.passportapi.service.PassportServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,13 +17,13 @@ import java.util.List;
 @RequestMapping("/person/{personId}")
 @RequiredArgsConstructor
 public class PassportController {
-    private final PassportService passportService;
+    private final PassportServiceImpl passportService;
 
     @GetMapping("/passport")
     public List<PassportResponse> findPersonPassports(@PathVariable String personId,
                                                       @RequestParam(defaultValue = "") String active,
                                                       @RequestParam(defaultValue = "") String dateStart,
-                                                      @RequestParam(defaultValue = "") String dateEnd) throws ParseException {
+                                                      @RequestParam(defaultValue = "") String dateEnd) {
         return passportService.getPassportsByPersonIdAndParams(personId, active, dateStart, dateEnd);
     }
 
@@ -51,6 +52,14 @@ public class PassportController {
                                                      @PathVariable String id) {
         passportService.deletePassport(personId, id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @PostMapping("/passport/{id}/lostPassport")
+    public boolean lostPassportDeactivate(@PathVariable String personId,
+                                          @PathVariable String id,
+                                          @RequestParam boolean active,
+                                          @RequestBody(required = false) Description description) {
+        return passportService.deactivatePassport(personId, id, active, description);
     }
 
 }

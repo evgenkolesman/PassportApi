@@ -4,8 +4,6 @@ import com.sperasoft.passportapi.ModelMapperMaker;
 import com.sperasoft.passportapi.controller.dto.PassportRequest;
 import com.sperasoft.passportapi.model.Passport;
 import com.sperasoft.passportapi.model.Person;
-import org.modelmapper.ModelMapper;
-import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.server.ResponseStatusException;
@@ -16,6 +14,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+
+//TODO add repository interfaces
 
 @Repository
 public class PassportRepository {
@@ -30,8 +30,7 @@ public class PassportRepository {
     }
 
     public Passport addPassport(PassportRequest passportRequest, Person person) {
-        Passport passport = new Passport();
-                passport = passport.of(passportRequest);
+        Passport passport = Passport.of(passportRequest);
         person.getList().add(passport);
         passportRepo.put(passport.getId(), passport);
         return passport;

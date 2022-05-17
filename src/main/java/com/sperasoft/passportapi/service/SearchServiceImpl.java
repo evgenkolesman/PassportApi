@@ -16,12 +16,11 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class SearchServiceImpl implements SearchService {
+public class SearchServiceImpl {
 
     private final PassportRepository passportRepository;
     private final PersonRepository personRepository;
 
-    @Override
     public PersonResponse findPersonByPassportNumber(String number) {
         return passportRepository.getPassportsByParams().stream()
                 .filter(passport -> passport.getNumber().equals(number))
@@ -31,12 +30,11 @@ public class SearchServiceImpl implements SearchService {
                                 person1.getList().stream().anyMatch(
                                         p -> p.getNumber().equals(number))).findFirst()
                         .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                                "No such number")))
+                                "Wrong number")))
                 .map(PersonResponse::of)
                 .findFirst().get();
     }
 
-    @Override
     public List<PassportResponse> getAllPassports(String active,
                                                   String dateStart, String dateEnd) {
         DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd");
