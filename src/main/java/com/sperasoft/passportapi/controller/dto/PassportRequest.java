@@ -1,5 +1,7 @@
 package com.sperasoft.passportapi.controller.dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -16,6 +18,7 @@ public class PassportRequest {
     @Digits(integer = 10, fraction = 0, message = "Invalid passport number")
     private String number;
 
+    @JsonSerialize(using = LocalDateSerializer.class)
     @NotBlank(message = "Given date field should be filled")
     @DateTimeFormat(iso = ISO.DATE)
     private LocalDate givenDate;
