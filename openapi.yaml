@@ -14,8 +14,6 @@ tags:
     description: "Everything about Passport"
   - name: "Search"
     description: "Will be used to find person by passport number"
-  - name: "LostPassport"
-    description: "Will be used to deactivate passport when it was lost"
 
 paths:
   /person:
@@ -38,7 +36,12 @@ paths:
               schema:
                 $ref: "#/components/schemas/PersonResponse"
         "400":
-          description: "Invalid data"
+          description: "Validation person data problem"
+          content:
+            'application/json':
+              schema:
+                type: string
+                example: "Invalid person data"
 
   /person/{id}:
     get:
@@ -61,10 +64,13 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/PersonResponse"
-        "400":
-          description: "Invalid data"
         "404":
           description: "Person not found"
+          content:
+            'application/json':
+              schema:
+                type: string
+                example: "Person with this ID: idNumber not found"
     put:
       tags:
         - "Person"
@@ -91,7 +97,19 @@ paths:
               schema:
                 $ref: "#/components/schemas/PersonResponse"
         "400":
-          description: "Invalid data"
+          description: "Validation problems"
+          content:
+            'application/json':
+              schema:
+                type: string
+                example: "Date field should be filled"
+        "404":
+          description: "Person not found"
+          content:
+            'application/json':
+              schema:
+                type: string
+                example: "Person with this ID: idNumber not found"
     delete:
       tags:
         - "Person"
@@ -108,10 +126,13 @@ paths:
       responses:
         "204":
           description: "Successful operation"
-        "400":
-          description: "Invalid data"
         "404":
           description: "Person not found"
+          content:
+            'application/json':
+              schema:
+                type: string
+                example: "Person with this ID: idNumber not found"
 
   /person/{personId}/passport:
     get:
@@ -155,8 +176,18 @@ paths:
                   $ref: "#/components/schemas/PassportResponse"
         "400":
           description: "Invalid data"
+          content:
+            'application/json':
+              schema:
+                type: string
+                example: "Invalid passport data: query problem description"
         "404":
-          description: "Passport not found"
+          description: "Person with id have not any passport"
+          content:
+            'application/json':
+              schema:
+                type: string
+                example: "Person with id: idNumber have not any passport"
     post:
       tags:
         - "PassportStore"
@@ -183,7 +214,12 @@ paths:
               schema:
                 $ref: "#/components/schemas/PassportResponse"
         "400":
-          description: "Invalid data"
+          description: "This passport was already added or can be problems with validation"
+          content:
+            'application/json':
+              schema:
+                type: string
+                example: "This passport was already added"
 
 
   /person/{personId}/passport/{id}:
@@ -218,8 +254,13 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/PassportResponse"
-        "400":
-          description: "Invalid data"
+        "404":
+          description: "Passport with id not found"
+          content:
+            'application/json':
+              schema:
+                type: string
+                example: "Passport with id: idNumber not found"
     put:
       tags:
         - "PassportStore"
@@ -252,7 +293,14 @@ paths:
               schema:
                 $ref: "#/components/schemas/PassportResponse"
         "400":
-          description: "Invalid data"
+          description: "Problems with any field validation"
+          content:
+            'application/json':
+              schema:
+                type: string
+                example: "Given date field should be filled"
+
+
     delete:
       tags:
         - "PassportStore"
@@ -275,16 +323,18 @@ paths:
       responses:
         "204":
           description: "Successful operation"
-
-        "400":
-          description: "Invalid data"
         "404":
           description: "Passport not found"
+          content:
+            'application/json':
+              schema:
+                type: string
+                example: "Pasport with ID: idNumber not found"
 
   /person/{personId}/passport/{id}/lostPassport:
     post:
       tags:
-        - "LostPassport"
+        - "PassportStore"
       summary: "change status of current passport"
       description: "Deactivate person`s passport "
       operationId: "changeStatusOfPassport"
@@ -328,6 +378,7 @@ paths:
         "409":
           description: "Passport was already deactivated"
 
+
   /searches:
     post:
       tags:
@@ -352,11 +403,12 @@ paths:
               schema:
                 $ref: "#/components/schemas/PersonResponse"
         "400":
-          description: "Invalid passport number supplied"
-        "404":
-          description: "Person not found"
-
-  /getAllPassports:
+          description: "Wrong number"
+          content:
+            'application/json':
+              schema:
+                type: string
+                example: "Wrong number"
     get:
       tags:
         - "Search"
@@ -392,7 +444,12 @@ paths:
                 items:
                   $ref: "#/components/schemas/PassportResponse"
         "400":
-          description: "Invalid data"
+          description: "Invalid data period: Start date is after End date"
+          content:
+            'application/json':
+              schema:
+                type: string
+                example: "Invalid data period: Start date is after End date"
 
 components:
   schemas:
