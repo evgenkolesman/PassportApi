@@ -6,11 +6,9 @@ import com.sperasoft.passportapi.model.Description;
 import com.sperasoft.passportapi.service.PassportServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.text.ParseException;
 import java.util.List;
 
 @RestController
@@ -34,24 +32,21 @@ public class PassportController {
     }
 
     @GetMapping("/passport/{id}")
-    public PassportResponse findPassport(@PathVariable String personId,
-                                         @PathVariable String id,
+    public PassportResponse findPassport(@PathVariable String id,
                                          @RequestParam(defaultValue = "") String active) {
-        return passportService.findPassportById(personId, id, active);
+        return passportService.findPassportById(id, active);
     }
 
     @PutMapping("/passport/{id}")
-    public PassportResponse updatePassport(@PathVariable String personId,
-                                           @PathVariable String id,
+    public PassportResponse updatePassport(@PathVariable String id,
                                            @RequestBody @Valid PassportRequest passport) {
-        return passportService.updatePassport(personId, id, passport);
+        return passportService.updatePassport(id, passport);
     }
 
     @DeleteMapping("/passport/{id}")
-    public ResponseEntity<Void> deletePassport(@PathVariable String personId,
-                                                     @PathVariable String id) {
-        passportService.deletePassport(personId, id);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deletePassport(@PathVariable String id) {
+        passportService.deletePassport(id);
     }
 
     @PostMapping("/passport/{id}/lostPassport")

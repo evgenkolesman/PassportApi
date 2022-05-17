@@ -1,4 +1,4 @@
-package com.sperasoft.passportapi.controller.controllerstest;
+package controllerstest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sperasoft.passportapi.PassportApiApplication;
@@ -9,19 +9,23 @@ import com.sperasoft.passportapi.controller.dto.PersonResponse;
 import com.sperasoft.passportapi.model.NumberPassport;
 import com.sperasoft.passportapi.model.Passport;
 import com.sperasoft.passportapi.model.Person;
-import com.sperasoft.passportapi.repository.PassportRepository;
-import com.sperasoft.passportapi.repository.PersonRepository;
-import com.sperasoft.passportapi.service.SearchService;
+import com.sperasoft.passportapi.repository.PassportRepositoryImpl;
+import com.sperasoft.passportapi.repository.PersonRepositoryImpl;
+import com.sperasoft.passportapi.service.SearchServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.core.env.Environment;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.List;
 
 import static org.hamcrest.Matchers.containsString;
@@ -39,19 +43,24 @@ class SearchControllerTest {
     @Autowired
     private MockMvc mvc;
 
-    @MockBean
-    private PersonRepository personRepository;
+    @Autowired
+    private Environment environment;
 
     @MockBean
-    private PassportRepository passportRepository;
+    private PersonRepositoryImpl personRepositoryImpl;
 
     @MockBean
-    private SearchService searchService;
+    private PassportRepositoryImpl passportRepository;
+
+    @MockBean
+    private SearchServiceImpl searchService;
 
     private Person person;
     private PassportResponse passportResponse;
     private PersonResponse personResponse;
     private Passport passport;
+    private final ObjectMapper mapper = new ObjectMapper();
+
 
     @BeforeEach
     private void testDataProduce() {
@@ -77,12 +86,11 @@ class SearchControllerTest {
     @Test
     void testFindPersonByPassportNumberCorrect() throws Exception {
         when(passportRepository.getPassportsByParams()).thenReturn(List.of(passport));
-        when(personRepository.findAll()).thenReturn(List.of(person));
+        when(personRepositoryImpl.findAll()).thenReturn(List.of(person));
         when(searchService.findPersonByPassportNumber("1223123113"))
                 .thenReturn(personResponse);
         NumberPassport numberPassport = new NumberPassport();
         numberPassport.setNumber("1223123113");
-        ObjectMapper mapper = new ObjectMapper();
         String req = mapper.writer().writeValueAsString(numberPassport);
         this.mvc.perform(post("/searches")
                         .contentType("application/json")
@@ -95,22 +103,46 @@ class SearchControllerTest {
 
     @Test
     void testFindPersonByPassportNumberNotCorrect() throws Exception {
+        when(personRepositoryImpl.findAll()).thenReturn(Collections.singletonList(person));
+        when(searchService.findPersonByPassportNumber("2313"))
+                .thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        environment.getProperty("searches.exception.wrong-num")));
+        NumberPassport number = new NumberPassport();
+        number.setNumber("2313");
+        String req = mapper.writer().writeValueAsString(number);
         this.mvc.perform(post("/searches")
                         .contentType("application/json")
-                        .content(""))
+                        .content(req))
                 .andDo(print())
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(a -> a.getResponse().getErrorMessage().equals(
+                        environment.getProperty("searches.exception.wrong-num")));
+
     }
 
     @Test
-    void findAllPassports() throws Exception {
+    void testFindAllPassportsCorrect() throws Exception {
         when(searchService.getAllPassports("", "", ""))
                 .thenReturn(List.of(passportResponse));
-        this.mvc.perform(get("/getAllPassports")
+        this.mvc.perform(get("/searches")
                         .contentType("application/json")
                         .content(personResponse.toString()))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("1223123113")));
+    }
+
+    @Test
+    void testFindAllPassportsCorrectBadDates() throws Exception {
+        when(searchService.getAllPassports("", "15-05-2022", "10-05-2022"))
+                .thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        environment.getProperty("passport.exception.invalid.date")));
+        this.mvc.perform(get("/searches?dateStart=15-05-2022&dateEnd=10-05-2022")
+                        .contentType("application/json")
+                        .content(personResponse.toString()))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(a -> a.getResponse().getErrorMessage().equals(
+                        environment.getProperty("passport.exception.invalid.date")));
     }
 }

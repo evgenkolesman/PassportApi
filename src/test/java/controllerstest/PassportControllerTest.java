@@ -1,4 +1,4 @@
-package com.sperasoft.passportapi.controller.controllerstest;
+package controllerstest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sperasoft.passportapi.PassportApiApplication;
@@ -9,15 +9,17 @@ import com.sperasoft.passportapi.controller.dto.PersonResponse;
 import com.sperasoft.passportapi.model.Description;
 import com.sperasoft.passportapi.model.Passport;
 import com.sperasoft.passportapi.model.Person;
-import com.sperasoft.passportapi.repository.PassportRepository;
-import com.sperasoft.passportapi.repository.PersonRepository;
+import com.sperasoft.passportapi.repository.PassportRepositoryImpl;
+import com.sperasoft.passportapi.repository.PersonRepositoryImpl;
 import com.sperasoft.passportapi.service.PassportServiceImpl;
+import com.sperasoft.passportapi.service.PersonServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -27,13 +29,13 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest(classes = PassportApiApplication.class)
 @AutoConfigureMockMvc
@@ -43,19 +45,26 @@ class PassportControllerTest {
     private MockMvc mvc;
 
     @MockBean
-    private PersonRepository personRepository;
+    private PersonRepositoryImpl personRepositoryImpl;
 
     @MockBean
-    private PassportRepository passportRepository;
+    private PassportRepositoryImpl passportRepository;
+
+    @MockBean
+    PersonServiceImpl personService;
 
     @MockBean
     private PassportServiceImpl passportService;
+
+    @Autowired
+    private Environment environment;
 
     private PassportRequest passportRequest;
     private Person person;
     private PassportResponse passportResponse;
     private PersonResponse personResponse;
     private Passport passport;
+    private final ObjectMapper mapper = new ObjectMapper();
 
     @BeforeEach
     private void testDataProduce() {
@@ -93,11 +102,18 @@ class PassportControllerTest {
         when(passportRepository.findPassportById(passport.getId())).thenReturn(passport);
         when(passportService.getPassportsByPersonIdAndParams(personResponse.getId(),
                 "true", "2022-05-06", "2022-05-05"))
-                .thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid data"));
+                .thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        String.format(Objects.requireNonNull(
+                                        environment.getProperty("passport.exception.person.nopassport")),
+                                personResponse.getId())));
         this.mvc.perform(get("/person/" + personResponse.getId() +
                         "/passport?active=true&dateStart=2022-05-06&dateEnd=2022-05-05")
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(a -> a.getResponse().getErrorMessage()
+                        .equals(String.format(Objects.requireNonNull(
+                                        environment.getProperty("passport.exception.person.nopassport")),
+                                personResponse.getId())));
     }
 
     @Test
@@ -112,7 +128,6 @@ class PassportControllerTest {
 
     @Test
     void testFindPersonPassportsWithoutParams() throws Exception {
-
         when(passportService.getPassportsByPersonIdAndParams(personResponse.getId(), "", "", ""))
                 .thenReturn(List.of(passportResponse));
         this.mvc.perform(get("/person/" + personResponse.getId() + "/passport")
@@ -124,12 +139,9 @@ class PassportControllerTest {
 
     @Test
     void testCreatePassport() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        when(personRepository.findById(person.getId())).thenReturn(person);
-        when(passportRepository.findPassportById(passport.getId())).thenReturn(passport);
         when(passportService.addPassportToPerson(personResponse.getId(), passportRequest))
                 .thenReturn(passportResponse);
-        String req = mapper.writer().writeValueAsString(passportResponse);
+        String req = mapper.writer().writeValueAsString(passportRequest);
         this.mvc.perform(post("/person/" + personResponse.getId() + "/passport")
                         .contentType("application/json")
                         .content(req))
@@ -148,10 +160,28 @@ class PassportControllerTest {
     }
 
     @Test
+    void testCreatePassportNotCorrectwBadData() throws Exception {
+        PassportRequest passportRequest1 = passportRequest;
+        passportRequest1.setNumber("233");
+        when(passportService.addPassportToPerson(personResponse.getId(), passportRequest1))
+                .thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        environment.getProperty("passport.exception.was-added")));
+        String req = mapper.writer().writeValueAsString(passportRequest1);
+        this.mvc.perform(post("/person/" + personResponse.getId() + "/passport")
+                        .contentType("application/json")
+                        .content(req))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(a -> a.getResponse().getErrorMessage()
+                        .equals(environment.getProperty("passport.exception.was-added")));
+    }
+
+    @Test
     void testFindPassportWithBoolean() throws Exception {
-        when(passportService.findPassportById(personResponse.getId(), passport.getId(), "true"))
+        when(passportService.findPassportById(passport.getId(), "true"))
                 .thenReturn(passportResponse);
-        this.mvc.perform(get("/person/" + personResponse.getId() + "/passport/" + passportResponse.getId() + "?active=true")
+        this.mvc.perform(get("/person/" + personResponse.getId() + "/passport/" +
+                        passportResponse.getId() + "?active=true")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("1223123113")));
@@ -159,7 +189,7 @@ class PassportControllerTest {
 
     @Test
     void testFindPassportWithOutBoolean() throws Exception {
-        when(passportService.findPassportById(personResponse.getId(), passport.getId(), ""))
+        when(passportService.findPassportById(passport.getId(), ""))
                 .thenReturn(passportResponse);
         this.mvc.perform(get("/person/" + personResponse.getId() + "/passport/" + passportResponse.getId())
                         .accept(MediaType.APPLICATION_JSON))
@@ -172,25 +202,50 @@ class PassportControllerTest {
     void testUpdatePassportNotCorrect() throws Exception {
         this.mvc.perform(put("/person/" + personResponse.getId() + "/passport/" + passportResponse.getId())
                         .contentType("application/json")
-                        .content(personResponse.toString()))
+                        .content(""))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
     }
 
     @Test
-    void testUpdatePassportCorrect() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
+    void testUpdatePassportNotCorrectNotFound() throws Exception {
         PassportResponse passportForTest = passportResponse;
         passportForTest.setDepartmentCode("111111");
         PassportRequest passportRequestTest = new PassportRequest();
         passportRequestTest.setNumber(passportForTest.getNumber());
         passportRequestTest.setGivenDate(passportForTest.getGivenDate());
         passportRequestTest.setDepartmentCode(passportForTest.getDepartmentCode());
-        when(passportService.findPassportById(personResponse.getId(), passport.getId(), "true"))
+        when(passportService.updatePassport(personResponse.getId(), passportRequestTest))
+                .thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        String.format(Objects.requireNonNull(
+                                        environment.getProperty("passport.exception.notfound")),
+                                personResponse.getId())));
+        String req = mapper.writer().writeValueAsString(passportRequestTest);
+        this.mvc.perform(put("/person/" + personResponse.getId() + "/passport/" + personResponse.getId())
+                        .contentType("application/json")
+                        .content(req))
+                .andDo(print())
+                .andExpect(status().isNotFound())
+                .andExpect((a) ->
+                        a.getResponse().getErrorMessage()
+                                .equals((String.format(Objects.requireNonNull(
+                                                environment.getProperty("passport.exception.notfound")),
+                                        personResponse.getId()))));
+    }
+
+    @Test
+    void testUpdatePassportCorrect() throws Exception {
+        PassportResponse passportForTest = passportResponse;
+        passportForTest.setDepartmentCode("111111");
+        PassportRequest passportRequestTest = new PassportRequest();
+        passportRequestTest.setNumber(passportForTest.getNumber());
+        passportRequestTest.setGivenDate(passportForTest.getGivenDate());
+        passportRequestTest.setDepartmentCode(passportForTest.getDepartmentCode());
+        when(passportService.findPassportById(passport.getId(), "true"))
                 .thenReturn(passportResponse);
-        when(passportService.updatePassport(personResponse.getId(), passport.getId(), passportRequestTest))
+        when(passportService.updatePassport(passport.getId(), passportRequestTest))
                 .thenReturn(passportForTest);
-        String req = mapper.writer().writeValueAsString(passportForTest);
+        String req = mapper.writer().writeValueAsString(passportRequestTest);
         this.mvc.perform(put("/person/" + personResponse.getId() + "/passport/" + passportResponse.getId())
                         .contentType("application/json")
                         .content(req))
@@ -201,9 +256,9 @@ class PassportControllerTest {
 
     @Test
     void deletePassport() throws Exception {
-        when(personRepository.findById(person.getId())).thenReturn(person);
+        when(personRepositoryImpl.findById(person.getId())).thenReturn(person);
         when(passportRepository.findPassportById(passport.getId())).thenReturn(passport);
-        when(passportService.deletePassport(personResponse.getId(), passport.getId()))
+        when(passportService.deletePassport(passport.getId()))
                 .thenReturn(passportResponse);
         this.mvc.perform(delete("/person/" + personResponse.getId() + "/passport/" + passportResponse.getId())
                         .contentType("application/json")
@@ -213,9 +268,24 @@ class PassportControllerTest {
     }
 
     @Test
+    void testDeletePassportNotCorrect() throws Exception {
+        when(passportService.deletePassport(passport.getId()))
+                .thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        String.format(Objects.requireNonNull(environment.getProperty("passport.exception.notfound")), passport.getId())));
+        this.mvc.perform(delete("/person/" + personResponse.getId() + "/passport/" + passportResponse.getId())
+                        .contentType("application/json")
+                        .content(""))
+                .andDo(print())
+                .andExpect(status().isNotFound())
+                .andExpect(a -> a.getResponse().getErrorMessage().equals(
+                        String.format(Objects.requireNonNull(environment.getProperty("passport.exception.notfound")),
+                                passport.getId())
+                ));
+    }
+
+    @Test
     void lostPassportDeactivate() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        when(personRepository.findById(person.getId())).thenReturn(person);
+        when(personRepositoryImpl.findById(person.getId())).thenReturn(person);
         String req = mapper.writer().writeValueAsString(new Description());
         this.mvc.perform(post("/person/" + personResponse.getId()
                         + "/passport/" + passportResponse.getId() + "/lostPassport?active=false")
@@ -227,15 +297,18 @@ class PassportControllerTest {
 
     @Test
     void lostPassportDeactivateConflict() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        person.getList().get(0).setActive(false);
-        when(personRepository.findById(person.getId())).thenReturn(person);
+        when(personRepositoryImpl.findById(person.getId())).thenReturn(person);
+        when(passportService.deactivatePassport(person.getId(), passport.getId(), false, new Description()))
+                .thenThrow(new ResponseStatusException(HttpStatus.CONFLICT,
+                        environment.getProperty("passport.exception.deactivated")));
         String req = mapper.writer().writeValueAsString(new Description());
         this.mvc.perform(post("/person/" + personResponse.getId() + "/passport/"
                         + passportResponse.getId() + "/lostPassport?active=false")
                         .contentType("application/json")
                         .content(req))
                 .andDo(print())
-                .andExpect(status().isConflict());
+                .andExpect(status().isConflict())
+                .andExpect(a -> a.getResponse().getErrorMessage()
+                        .equals(environment.getProperty("passport.exception.deactivated")));
     }
 }

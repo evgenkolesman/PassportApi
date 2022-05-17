@@ -1,4 +1,4 @@
-package com.sperasoft.passportapi;
+package com.sperasoft.passportapi.configuration;
 
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
