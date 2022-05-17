@@ -1,0 +1,538 @@
+openapi: "3.0.0"
+info:
+  description: "This is Passport API for my practicing"
+  version: "1.0.0"
+  title: "PassportApi"
+  termsOfService: "http://localhost:8080/api/docs"
+  contact:
+    email: "evgeniy.kolesnikov@sperasoft.com"
+
+tags:
+  - name: "Person"
+    description: "Everything about Persons"
+  - name: "PassportStore"
+    description: "Everything about Passport"
+  - name: "Search"
+    description: "Will be used to find person by passport number"
+
+paths:
+  /person:
+    post:
+      tags:
+        - "Person"
+      summary: "Add a new person to the store"
+      description: "Add new person"
+      operationId: "addPerson"
+      requestBody:
+        content:
+          'application/json':
+            schema:
+              $ref: '#/components/schemas/PersonRequest'
+      responses:
+        "200":
+          description: "Successful operation"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PersonResponse"
+        "400":
+          description: "Validation person data problem"
+          content:
+            'application/json':
+              schema:
+                type: string
+                example: "Invalid person data"
+
+  /person/{id}:
+    get:
+      tags:
+        - "Person"
+      summary: "Find person by ID"
+      description: "Returns a single person with current ID"
+      operationId: "getPersonById"
+      parameters:
+        - name: "id"
+          in: "path"
+          description: "Person ID"
+          required: true
+          schema:
+            type: "string"
+      responses:
+        "200":
+          description: "Successful operation"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PersonResponse"
+        "404":
+          description: "Person not found"
+          content:
+            'application/json':
+              schema:
+                type: string
+                example: "Person with this ID: idNumber not found"
+    put:
+      tags:
+        - "Person"
+      summary: "Updates a person in the store with form data"
+      description: "Updates person details with current ID"
+      operationId: "updatePerson"
+      parameters:
+        - name: "id"
+          in: path
+          description: "Person ID to update"
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          'application/json':
+            schema:
+              $ref: '#/components/schemas/PersonRequest'
+      responses:
+        "200":
+          description: "Successful operation"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PersonResponse"
+        "400":
+          description: "Validation problems"
+          content:
+            'application/json':
+              schema:
+                type: string
+                example: "Date field should be filled"
+        "404":
+          description: "Person not found"
+          content:
+            'application/json':
+              schema:
+                type: string
+                example: "Person with this ID: idNumber not found"
+    delete:
+      tags:
+        - "Person"
+      summary: "Delete a person"
+      description: "Delete a person with current ID"
+      operationId: "deletePerson"
+      parameters:
+        - name: "id"
+          in: "path"
+          description: "Person`s ID to delete"
+          required: true
+          schema:
+            type: "string"
+      responses:
+        "204":
+          description: "Successful operation"
+        "404":
+          description: "Person not found"
+          content:
+            'application/json':
+              schema:
+                type: string
+                example: "Person with this ID: idNumber not found"
+
+  /person/{personId}/passport:
+    get:
+      tags:
+        - "PassportStore"
+      summary: "Find Person`s passports "
+      description: "Get passports of a person maybe added some parameters"
+      operationId: "getPassportsByPersonId"
+      parameters:
+        - name: "personId"
+          in: "path"
+          description: "Person`s ID to get"
+          required: true
+          schema:
+            type: "string"
+        - name: "active"
+          in: "query"
+          description: "Status of passport to get"
+          schema:
+            type: "boolean"
+        - name: "dateStart"
+          in: "query"
+          description: "Start date of range"
+          schema:
+            type: "string"
+            format: "date"
+        - name: "dateEnd"
+          in: "query"
+          description: "End date of range"
+          schema:
+            type: "string"
+            format: "date"
+      responses:
+        "200":
+          description: "Successful operation"
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PassportResponse"
+        "400":
+          description: "Invalid data"
+          content:
+            'application/json':
+              schema:
+                type: string
+                example: "Invalid passport data: query problem description"
+        "404":
+          description: "Person with id have not any passport"
+          content:
+            'application/json':
+              schema:
+                type: string
+                example: "Person with id: idNumber have not any passport"
+    post:
+      tags:
+        - "PassportStore"
+      summary: "Add a passport"
+      description: "Add a  passport to this person"
+      operationId: "addPassport"
+      parameters:
+        - name: "personId"
+          in: "path"
+          description: "Person`s ID"
+          required: true
+          schema:
+            type: "string"
+      requestBody:
+        content:
+          'application/json':
+            schema:
+              $ref: '#/components/schemas/PassportRequest'
+      responses:
+        "200":
+          description: "Successful operation"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PassportResponse"
+        "400":
+          description: "This passport was already added or can be problems with validation"
+          content:
+            'application/json':
+              schema:
+                type: string
+                example: "This passport was already added"
+
+
+  /person/{personId}/passport/{id}:
+    get:
+      tags:
+        - "PassportStore"
+      summary: "Finds person`s passport by ID"
+      description: "Gives person`s passport with current ID"
+      operationId: "getPassport"
+      parameters:
+        - name: "personId"
+          in: "path"
+          description: "Person`s ID to get"
+          required: true
+          schema:
+            type: "string"
+        - name: "id"
+          in: "path"
+          description: "ID of passport to get"
+          required: true
+          schema:
+            type: "string"
+        - name: "active"
+          in: "query"
+          description: "Status of passport to get"
+          schema:
+            type: "boolean"
+      responses:
+        "200":
+          description: "Successful operation"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PassportResponse"
+        "404":
+          description: "Passport with id not found"
+          content:
+            'application/json':
+              schema:
+                type: string
+                example: "Passport with id: idNumber not found"
+    put:
+      tags:
+        - "PassportStore"
+      summary: "Update current passport"
+      description: "Update person`s passport by ID"
+      operationId: "updatePassport"
+      parameters:
+        - name: "personId"
+          in: "path"
+          description: "Person`s ID to get"
+          required: true
+          schema:
+            type: "string"
+        - name: "id"
+          in: "path"
+          description: "ID of passport to update"
+          required: true
+          schema:
+            type: "string"
+      requestBody:
+        content:
+          'application/json':
+            schema:
+              $ref: '#/components/schemas/PassportRequest'
+      responses:
+        "200":
+          description: "Successful operation"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PassportResponse"
+        "400":
+          description: "Problems with any field validation"
+          content:
+            'application/json':
+              schema:
+                type: string
+                example: "Given date field should be filled"
+
+
+    delete:
+      tags:
+        - "PassportStore"
+      summary: "Delete person`s passport with ID"
+      description: "Delete passport by ID"
+      operationId: "deletePassport"
+      parameters:
+        - name: "personId"
+          in: "path"
+          description: "Person`s ID to get"
+          required: true
+          schema:
+            type: "string"
+        - name: "id"
+          in: "path"
+          description: "Passport ID to delete"
+          required: true
+          schema:
+            type: "string"
+      responses:
+        "204":
+          description: "Successful operation"
+        "404":
+          description: "Passport not found"
+          content:
+            'application/json':
+              schema:
+                type: string
+                example: "Pasport with ID: idNumber not found"
+
+  /person/{personId}/passport/{id}/lostPassport:
+    post:
+      tags:
+        - "PassportStore"
+      summary: "change status of current passport"
+      description: "Deactivate person`s passport "
+      operationId: "changeStatusOfPassport"
+      parameters:
+        - name: "personId"
+          in: "path"
+          description: "Person`s ID to get"
+          required: true
+          schema:
+            type: "string"
+        - name: "id"
+          in: "path"
+          description: "Person`s ID to get"
+          required: true
+          schema:
+            type: "string"
+        - name: "active"
+          in: "query"
+          description: "Passport deactivation status"
+          required: true
+          schema:
+            type: "boolean"
+            enum:
+              - false
+      requestBody:
+        content:
+          'application/json':
+            schema:
+              type: "string"
+              example: "I lost my passport yesterday"
+              description: "Any data about losing passport"
+      responses:
+        "200":
+          description: "Successful operation: you need to create a new passport"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PassportResponse"
+        "400":
+          description: "Invalid data"
+        "409":
+          description: "Passport was already deactivated"
+
+
+  /searches:
+    post:
+      tags:
+        - "Search"
+      summary: "Search a person by passport number "
+      description: "Return person by passport number access need to be only special role "
+      operationId: "getPersonPassportByName"
+      requestBody:
+        content:
+          'application/json':
+            schema:
+              type: "string"
+              example: "2808153675"
+              description: "Write Person`s passport number"
+            example:
+              number: "2808153675"
+      responses:
+        "200":
+          description: "Successful operation"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PersonResponse"
+        "400":
+          description: "Wrong number"
+          content:
+            'application/json':
+              schema:
+                type: string
+                example: "Wrong number"
+    get:
+      tags:
+        - "Search"
+      summary: "Find passports from whole list of Persons with necessary date range"
+      description: "Return a list with passports with date range if necessary and with different statuses
+      this endpoint need to be available for user only with admin role"
+      operationId: "getPassports"
+      parameters:
+        - name: "active"
+          in: "query"
+          description: "Status of passport to get"
+          schema:
+            type: "boolean"
+        - name: "dateStart"
+          in: "query"
+          description: "Start date of range"
+          schema:
+            type: "string"
+            format: "date"
+        - name: "dateEnd"
+          in: "query"
+          description: "End date of range"
+          schema:
+            type: "string"
+            format: "date"
+      responses:
+        "200":
+          description: "Successful operation"
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PassportResponse"
+        "400":
+          description: "Invalid data period: Start date is after End date"
+          content:
+            'application/json':
+              schema:
+                type: string
+                example: "Invalid data period: Start date is after End date"
+
+components:
+  schemas:
+    PersonRequest:
+      type: "object"
+      required:
+        - name
+        - birthday
+        - birthdayCountry
+      properties:
+        name:
+          type: "string"
+          example: "FirstName SecondName"
+          description: "Name and surname of person"
+        birthday:
+          type: "string"
+          format: "date"
+        birthdayCountry:
+          type: "string"
+          example: "RU"
+          description: "ISO CODE (2 characters)"
+    PersonResponse:
+      type: "object"
+      required:
+        - id
+        - name
+        - birthday
+        - birthdayCountry
+      properties:
+        id:
+          type: "string"
+        name:
+          type: "string"
+          example: "FirstName SecondName"
+          description: "Name and surname of person"
+        birthday:
+          type: "string"
+          format: "date"
+        birthdayCountry:
+          type: "string"
+          example: "RU"
+          description: "ISO CODE (2 characters)"
+
+    PassportRequest:
+      type: "object"
+      required:
+        - number
+        - givenDate
+        - deparmentCode
+      properties:
+        number:
+          type: "string"
+          example: "2808153675"
+          description: "Code with 10-digits value"
+        givenDate:
+          type: "string"
+          format: "date"
+        deparmentCode:
+          type: "string"
+          example: "280540"
+          description: "Code with 6-digits value of any region where passport was registered"
+    PassportResponse:
+      type: "object"
+      required:
+        - id
+        - number
+        - givenDate
+        - deparmentCode
+      properties:
+        id:
+          type: "string"
+        number:
+          type: "string"
+          example: "2808153675"
+          description: "Code with 10-digits value"
+        givenDate:
+          type: "string"
+          format: "date"
+        deparmentCode:
+          type: "string"
+          example: "280540"
+          description: "Code with 6-digits value of any region where passport was registered"
+
+externalDocs:
+  description: "Find out data of response"
+  url: "http://swagger.io"
