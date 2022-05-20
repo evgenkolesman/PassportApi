@@ -3,6 +3,10 @@ package servicetest;
 import com.sperasoft.passportapi.PassportApiApplication;
 import com.sperasoft.passportapi.controller.dto.PersonRequest;
 import com.sperasoft.passportapi.controller.dto.PersonResponse;
+import com.sperasoft.passportapi.exceptions.passportexceptions.PassportNotFoundException;
+import com.sperasoft.passportapi.exceptions.personexceptions.InvalidPersonDataException;
+import com.sperasoft.passportapi.exceptions.personexceptions.PersonNotFoundException;
+import com.sperasoft.passportapi.model.Person;
 import com.sperasoft.passportapi.repository.PersonRepositoryImpl;
 import com.sperasoft.passportapi.service.PersonServiceImpl;
 import org.junit.jupiter.api.AfterEach;
@@ -58,7 +62,7 @@ public class PersonServiceTest {
 
     @Test
     public void testAddPersonDataNotCorrect() {
-        assertThrowsExactly(ResponseStatusException.class,
+        assertThrowsExactly(InvalidPersonDataException.class,
                 () -> personService.addPerson(personRequest),
                 "Problems with adding person (add a person twice)");
     }
@@ -72,7 +76,7 @@ public class PersonServiceTest {
 
     @Test
     public void testFindByIdNotCorrect() {
-        assertThrowsExactly(ResponseStatusException.class, () ->
+        assertThrowsExactly(PersonNotFoundException.class, () ->
                         personService.findById("123214-dsfdsf-23"),
                 "Problems with FindById (Exception not correct)");
     }
@@ -101,7 +105,7 @@ public class PersonServiceTest {
         personUpdate.setBirthday(LocalDate.now());
         personUpdate.setBirthdayCountry("US");
 
-        assertThrowsExactly(ResponseStatusException.class, () ->
+        assertThrowsExactly(PersonNotFoundException.class, () ->
                         personService.updatePerson(id, personUpdate),
                 "Problems with updating person wrong id" + id + " passed ");
     }
@@ -114,14 +118,14 @@ public class PersonServiceTest {
     @Test
     public void testDeletePersonNotCorrectWithDoubleDelete() {
         personService.deletePerson(personResponse.getId());
-        assertThrowsExactly(ResponseStatusException.class, () ->
+        assertThrowsExactly(PersonNotFoundException.class, () ->
                         personService.deletePerson(personResponse.getId()),
                 "Problems with delete can delete twice");
     }
 
     @Test
     public void testDeletePersonNotCorrectWithBadID() {
-        assertThrowsExactly(ResponseStatusException.class, () ->
+        assertThrowsExactly(PersonNotFoundException.class, () ->
                         personService.deletePerson("123214-dsfdsf-23"),
                 "Problems with search by ID: 123214-dsfdsf-23 in delete");
     }

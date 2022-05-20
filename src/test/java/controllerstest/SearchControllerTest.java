@@ -6,6 +6,8 @@ import com.sperasoft.passportapi.controller.dto.PassportRequest;
 import com.sperasoft.passportapi.controller.dto.PassportResponse;
 import com.sperasoft.passportapi.controller.dto.PersonRequest;
 import com.sperasoft.passportapi.controller.dto.PersonResponse;
+import com.sperasoft.passportapi.exceptions.passportexceptions.InvalidPassportDataException;
+import com.sperasoft.passportapi.exceptions.passportexceptions.PassportWrongNumberException;
 import com.sperasoft.passportapi.model.NumberPassport;
 import com.sperasoft.passportapi.model.Passport;
 import com.sperasoft.passportapi.model.Person;
@@ -19,9 +21,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.env.Environment;
-import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -105,8 +105,7 @@ class SearchControllerTest {
     void testFindPersonByPassportNumberNotCorrect() throws Exception {
         when(personRepositoryImpl.findAll()).thenReturn(Collections.singletonList(person));
         when(searchService.findPersonByPassportNumber("2313"))
-                .thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                        environment.getProperty("searches.exception.wrong-num")));
+                .thenThrow(new PassportWrongNumberException());
         NumberPassport number = new NumberPassport();
         number.setNumber("2313");
         String req = mapper.writer().writeValueAsString(number);
@@ -115,8 +114,8 @@ class SearchControllerTest {
                         .content(req))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
-                .andExpect(a -> a.getResponse().getErrorMessage().equals(
-                        environment.getProperty("searches.exception.wrong-num")));
+                .andExpect(a -> a.getResponse().getContentAsString().
+                        equals(environment.getProperty("searches.exception.wrong-num")));
 
     }
 
@@ -135,14 +134,13 @@ class SearchControllerTest {
     @Test
     void testFindAllPassportsCorrectBadDates() throws Exception {
         when(searchService.getAllPassports("", "15-05-2022", "10-05-2022"))
-                .thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                        environment.getProperty("passport.exception.invalid.date")));
+                .thenThrow(new InvalidPassportDataException());
         this.mvc.perform(get("/searches?dateStart=15-05-2022&dateEnd=10-05-2022")
                         .contentType("application/json")
                         .content(personResponse.toString()))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
-                .andExpect(a -> a.getResponse().getErrorMessage().equals(
+                .andExpect(a -> a.getResponse().getContentAsString().equals(
                         environment.getProperty("passport.exception.invalid.date")));
     }
 }

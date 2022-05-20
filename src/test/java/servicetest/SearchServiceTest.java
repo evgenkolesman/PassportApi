@@ -5,6 +5,7 @@ import com.sperasoft.passportapi.controller.dto.PassportRequest;
 import com.sperasoft.passportapi.controller.dto.PassportResponse;
 import com.sperasoft.passportapi.controller.dto.PersonRequest;
 import com.sperasoft.passportapi.controller.dto.PersonResponse;
+import com.sperasoft.passportapi.exceptions.passportexceptions.InvalidPassportDataException;
 import com.sperasoft.passportapi.model.Person;
 import com.sperasoft.passportapi.repository.PassportRepository;
 import com.sperasoft.passportapi.repository.PersonRepository;
@@ -16,7 +17,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -86,7 +86,7 @@ public class SearchServiceTest {
 
     @Test
     void testGetAllPassportsBadDate() {
-        assertThrowsExactly(ResponseStatusException.class, () ->
+        assertThrowsExactly(InvalidPassportDataException.class, () ->
                 searchService.getAllPassports("true", "2022-08-04", "2022-05-04"));
     }
 
