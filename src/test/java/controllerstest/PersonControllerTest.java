@@ -5,6 +5,8 @@ import com.sperasoft.passportapi.PassportApiApplication;
 import com.sperasoft.passportapi.controller.dto.PassportRequest;
 import com.sperasoft.passportapi.controller.dto.PersonRequest;
 import com.sperasoft.passportapi.controller.dto.PersonResponse;
+import com.sperasoft.passportapi.exceptions.personexceptions.InvalidPersonDataException;
+import com.sperasoft.passportapi.exceptions.personexceptions.PersonNotFoundException;
 import com.sperasoft.passportapi.model.Person;
 import com.sperasoft.passportapi.repository.PersonRepositoryImpl;
 import com.sperasoft.passportapi.service.PersonServiceImpl;
@@ -15,19 +17,17 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.env.Environment;
-import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Objects;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(classes = PassportApiApplication.class)
 @AutoConfigureMockMvc
@@ -87,14 +87,13 @@ class PersonControllerTest {
         personRequestForTest.setName("");
         when(personService.isPersonPresent(personRequestForTest)).thenReturn(true);
         when(personService.addPerson(personRequestForTest))
-                .thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                        environment.getProperty("person.exception.invalid-data")));
+                .thenThrow(new InvalidPersonDataException());
         String req = mapper.writer().writeValueAsString(personRequestForTest);
         this.mvc.perform(post("/person").contentType("application/json")
                         .content(req))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
-                .andExpect(a -> a.getResponse().getErrorMessage()
+                .andExpect(a -> a.getResponse().getContentAsString()
                         .equals(environment.getProperty("person.exception.invalid-data")));
 
     }
@@ -112,22 +111,22 @@ class PersonControllerTest {
 
     @Test
     void testFindPersonByIdNotCorrect() throws Exception {
-        when(personService.findById("23"))
-                .thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND,
-                        String.format(Objects.requireNonNull(
-                                environment.getProperty("passport.exception.notfound")), "23")));
-        this.mvc.perform(get("/person/23").contentType("application/json")
+        String id = "23";
+        when(personService.findById(id))
+                .thenThrow(new PersonNotFoundException(id));
+        this.mvc.perform(get("/person/" + id).contentType("application/json")
                         .content(""))
                 .andDo(print())
                 .andExpect(status().isNotFound())
-                .andExpect(a -> a.getResponse().getErrorMessage()
-                        .equals(environment.getProperty("person.exception.notfound")));
+                .andExpect(a -> a.getResponse().getContentAsString()
+                        .equals(String.format(environment.getProperty("person.exception.notfound"), id)));
     }
 
     @Test
     void testUpdatePersonCorrect() throws Exception {
         PersonRequest personRequestForTest = personRequest;
-        personRequestForTest.setName("AAAAAAA");
+        String newName = "AAAAAAA";
+        personRequestForTest.setName(newName);
         Person personNew = Person.of(personRequest);
         PersonResponse personResponseForTest = PersonResponse.of(personNew);
 
@@ -139,7 +138,7 @@ class PersonControllerTest {
                         .content(req))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(content().string(containsString("AAAAAAA")));
+                .andExpect(content().string(containsString(newName)));
     }
 
     @Test
@@ -162,15 +161,14 @@ class PersonControllerTest {
 
     @Test
     void testDeletePersonNotCorrect() throws Exception {
-        when(personService.deletePerson("23"))
-                .thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND,
-                        String.format(Objects.requireNonNull(
-                                environment.getProperty("person.exception.notfound")), "23")));
-        this.mvc.perform(delete("/person/23").contentType("application/json")
+        String id = "23";
+        when(personService.deletePerson(id))
+                .thenThrow(new PersonNotFoundException(id));
+        this.mvc.perform(delete("/person/" + id).contentType("application/json")
                         .content(""))
                 .andDo(print())
                 .andExpect(status().isNotFound())
-                .andExpect(a -> a.getResponse().getErrorMessage()
-                        .equals(environment.getProperty("person.exception.notfound")));
+                .andExpect(a -> a.getResponse().getContentAsString()
+                        .equals(String.format(environment.getProperty("person.exception.notfound"), id)));
     }
 }

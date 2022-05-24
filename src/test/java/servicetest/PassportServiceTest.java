@@ -5,6 +5,7 @@ import com.sperasoft.passportapi.controller.dto.PassportRequest;
 import com.sperasoft.passportapi.controller.dto.PassportResponse;
 import com.sperasoft.passportapi.controller.dto.PersonRequest;
 import com.sperasoft.passportapi.controller.dto.PersonResponse;
+import com.sperasoft.passportapi.exceptions.passportexceptions.*;
 import com.sperasoft.passportapi.model.Description;
 import com.sperasoft.passportapi.model.Passport;
 import com.sperasoft.passportapi.model.Person;
@@ -17,7 +18,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -43,6 +43,7 @@ class PassportServiceTest {
     private PassportResponse passportResponse;
     private String todayDate;
     Passport passport;
+    PersonRequest personRequest;
 
     @BeforeEach
     private void testDataProduce() {
@@ -52,7 +53,7 @@ class PassportServiceTest {
         passportRequest.setNumber("1223123113");
         passportRequest.setGivenDate(LocalDate.now());
         passportRequest.setDepartmentCode("123123");
-        PersonRequest personRequest = new PersonRequest();
+        personRequest = new PersonRequest();
         String string = "2010-02-02";
         LocalDate date = LocalDate.parse(string, format);
         personRequest.setName("Alex Frolov");
@@ -80,7 +81,7 @@ class PassportServiceTest {
 
     @Test
     public void testAddPassportToPersonNotCorrect() {
-        assertThrowsExactly(ResponseStatusException.class,
+        assertThrowsExactly(PassportWasAddedException.class,
                 () -> passportService.addPassportToPerson(person.getId(), passportRequest));
     }
 
@@ -92,7 +93,7 @@ class PassportServiceTest {
 
     @Test
     void testFindPassportByIdInvalidPassport() {
-        assertThrowsExactly(ResponseStatusException.class,
+        assertThrowsExactly(PassportNotFoundException.class,
                 () -> passportService.findPassportById(person.getId(), "true"));
     }
 
@@ -116,7 +117,7 @@ class PassportServiceTest {
     @Test
     void testUpdatePassportNotCorrect() {
         passportRequest.setDepartmentCode("288");
-        assertThrowsExactly(ResponseStatusException.class,
+        assertThrowsExactly(PassportNotFoundException.class,
                 () -> passportService.updatePassport("231", passportRequest),
                 "wrong id passed need to check");
     }
@@ -128,7 +129,7 @@ class PassportServiceTest {
 
     @Test
     void testDeletePassportNotCorrect() {
-        assertThrowsExactly(ResponseStatusException.class,
+        assertThrowsExactly(PassportNotFoundException.class,
                 () -> passportService.deletePassport("23123"));
     }
 
@@ -148,7 +149,7 @@ class PassportServiceTest {
 
     @Test
     void testGetPassportsByPersonIdAndParamsWithOutBooleanWrong() {
-        assertThrowsExactly(ResponseStatusException.class, () ->
+        assertThrowsExactly(InvalidPassportDataException.class, () ->
                 passportService.getPassportsByPersonIdAndParams(person.getId(),
                         "", "2022-08-05", "2022-05-04"));
     }
@@ -182,8 +183,18 @@ class PassportServiceTest {
     }
 
     @Test
+    void testGetPassportsByPersonIdAndParamsWithOutPassport() {
+        PersonRequest personRequest1 = personRequest;
+        personRequest1.setName("Elkin Vasiliy");
+        PersonResponse person = personService.addPerson(personRequest1);
+        assertThrowsExactly(PassportEmptyException.class, () ->
+                passportService.getPassportsByPersonIdAndParams(person.getId(),
+                        "true", "", "2022-04-05"));
+    }
+
+    @Test
     void testGetPassportsByPersonIdAndParamsWithBadDate() {
-        assertThrowsExactly(ResponseStatusException.class,
+        assertThrowsExactly(InvalidPassportDataException.class,
                 () -> passportService.getPassportsByPersonIdAndParams(person.getId(),
                         "true", "2022-08-04", "2022-04-05"));
     }
@@ -200,7 +211,7 @@ class PassportServiceTest {
     public void testDeactivatePassportNotCorrect() {
         Person person1 = personRepositoryImpl.findById(person.getId());
         person1.getList().get(0).setActive(false);
-        assertThrowsExactly(ResponseStatusException.class, () ->
+        assertThrowsExactly(PassportDeactivatedException.class, () ->
                         passportService.deactivatePassport(person1.getId(),
                         person1.getList().get(0).getId(), false, new Description()),
                 "Passport should be deactivated but not");
