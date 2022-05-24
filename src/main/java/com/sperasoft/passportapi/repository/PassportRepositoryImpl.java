@@ -1,12 +1,9 @@
 package com.sperasoft.passportapi.repository;
 
+import com.sperasoft.passportapi.exceptions.passportexceptions.PassportBadStatusException;
 import com.sperasoft.passportapi.model.Passport;
 import com.sperasoft.passportapi.model.Person;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -17,9 +14,6 @@ import java.util.stream.Collectors;
 
 @Repository
 public class PassportRepositoryImpl implements PassportRepository {
-
-    @Autowired
-    private Environment environment;
 
     private final Map<String, Passport> passportRepo = new ConcurrentHashMap<>();
 
@@ -41,8 +35,7 @@ public class PassportRepositoryImpl implements PassportRepository {
         if (passport.isActive() == active) {
             return passportRepo.get(id);
         } else
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    environment.getProperty("passport.exception.bad-status"));
+            throw new PassportBadStatusException();
     }
 
     @Override

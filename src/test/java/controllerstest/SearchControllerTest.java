@@ -115,7 +115,7 @@ class SearchControllerTest {
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(a -> a.getResponse().getContentAsString().
-                        equals(environment.getProperty("searches.exception.wrong-num")));
+                        equals(environment.getProperty("exception.PassportWrongNumberException")));
 
     }
 
@@ -141,6 +141,6 @@ class SearchControllerTest {
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(a -> a.getResponse().getContentAsString().equals(
-                        environment.getProperty("passport.exception.invalid.date")));
+                        environment.getProperty("exception.InvalidPassportDataException")));
     }
 }

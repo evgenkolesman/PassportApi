@@ -3,10 +3,8 @@ package servicetest;
 import com.sperasoft.passportapi.PassportApiApplication;
 import com.sperasoft.passportapi.controller.dto.PersonRequest;
 import com.sperasoft.passportapi.controller.dto.PersonResponse;
-import com.sperasoft.passportapi.exceptions.passportexceptions.PassportNotFoundException;
 import com.sperasoft.passportapi.exceptions.personexceptions.InvalidPersonDataException;
 import com.sperasoft.passportapi.exceptions.personexceptions.PersonNotFoundException;
-import com.sperasoft.passportapi.model.Person;
 import com.sperasoft.passportapi.repository.PersonRepositoryImpl;
 import com.sperasoft.passportapi.service.PersonServiceImpl;
 import org.junit.jupiter.api.AfterEach;
@@ -14,7 +12,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;

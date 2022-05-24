@@ -150,12 +150,7 @@ public class PassportServiceImpl {
 
     private void checkPassportPresentWithId(String id) {
         if (passportRepository.findPassportById(id) == null) {
-            String message = String.format(Objects.requireNonNull(environment.getProperty("passport.exception.notfound")), id);
-            log.info(String.format("%s %s %s", UUID.randomUUID(),
-                    HttpStatus.NOT_FOUND,
-                    message
-            ));
-            throw new PassportNotFoundException(message);
+            throw new PassportNotFoundException(id);
         }
     }
 
