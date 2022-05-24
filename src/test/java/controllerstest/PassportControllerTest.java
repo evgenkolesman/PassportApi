@@ -112,8 +112,8 @@ class PassportControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(a -> a.getResponse().getContentAsString()
-                        .equals(String.format(Objects.requireNonNull(
-                                        environment.getProperty("passport.exception.person.nopassport")),
+                        .equals(String.format(
+                                        environment.getProperty("exception.InvalidPassportDataException"),
                                 personResponse.getId())));
     }
 
@@ -160,7 +160,7 @@ class PassportControllerTest {
     }
 
     @Test
-    void testCreatePassportNotCorrectwBadData() throws Exception {
+    void testCreatePassportNotCorrectBadData() throws Exception {
         PassportRequest passportRequest1 = passportRequest;
         passportRequest1.setNumber("233");
         when(passportService.addPassportToPerson(personResponse.getId(), passportRequest1))
@@ -172,7 +172,7 @@ class PassportControllerTest {
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(a -> a.getResponse().getContentAsString()
-                        .equals(environment.getProperty("passport.exception.was-added")));
+                        .equals(environment.getProperty("exception.PassportWasAddedException")));
     }
 
     @Test
@@ -224,8 +224,8 @@ class PassportControllerTest {
                 .andExpect(status().isNotFound())
                 .andExpect((a) ->
                         a.getResponse().getContentAsString()
-                                .equals((String.format(Objects.requireNonNull(
-                                                environment.getProperty("passport.exception.notfound")),
+                                .equals((String.format(
+                                                environment.getProperty("exception.PersonNotFoundException"),
                                         personResponse.getId()))));
     }
 
@@ -273,8 +273,8 @@ class PassportControllerTest {
                 .andDo(print())
                 .andExpect(status().isNotFound())
                 .andExpect(a -> a.getResponse().getContentAsString()
-                        .equals(String.format(Objects.requireNonNull(
-                                environment.getProperty("passport.exception.notfound")),
+                        .equals(String.format(
+                                environment.getProperty("exception.PassportNotFoundException"),
                                 passport.getId())
                 ));
     }
@@ -304,6 +304,6 @@ class PassportControllerTest {
                 .andDo(print())
                 .andExpect(status().isConflict())
                 .andExpect(a -> a.getResponse().getContentAsString()
-                        .equals(environment.getProperty("passport.exception.deactivated")));
+                        .equals(environment.getProperty("exception.PassportDeactivatedException")));
     }
 }

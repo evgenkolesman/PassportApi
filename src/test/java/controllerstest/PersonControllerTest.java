@@ -94,7 +94,7 @@ class PersonControllerTest {
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(a -> a.getResponse().getContentAsString()
-                        .equals(environment.getProperty("person.exception.invalid-data")));
+                        .equals(environment.getProperty("exception.InvalidPersonDataException")));
 
     }
 
@@ -119,7 +119,8 @@ class PersonControllerTest {
                 .andDo(print())
                 .andExpect(status().isNotFound())
                 .andExpect(a -> a.getResponse().getContentAsString()
-                        .equals(String.format(environment.getProperty("person.exception.notfound"), id)));
+                        .equals(String.format(
+                                        environment.getProperty("exception.PersonNotFoundException"), id)));
     }
 
     @Test
@@ -169,6 +170,6 @@ class PersonControllerTest {
                 .andDo(print())
                 .andExpect(status().isNotFound())
                 .andExpect(a -> a.getResponse().getContentAsString()
-                        .equals(String.format(environment.getProperty("person.exception.notfound"), id)));
+                        .equals(String.format(environment.getProperty("exception.PersonNotFoundException"), id)));
     }
 }
