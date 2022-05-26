@@ -12,14 +12,11 @@ import com.sperasoft.passportapi.repository.PersonRepositoryImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.Environment;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -111,13 +108,16 @@ public class PassportServiceImpl {
         return person.getList().stream().filter(a -> a.isActive() == active).filter(a ->
                         (dateStart.isBefore(a.getGivenDate()) || dateStart.isEqual(a.getGivenDate())) &&
                                 (dateEnd.isAfter(a.getGivenDate()) || dateEnd.isEqual(a.getGivenDate())))
-                .map(PassportResponse::of).collect(Collectors.toList());
+                .map(PassportResponse::of)
+                .collect(Collectors.toList());
     }
 
     private List<PassportResponse> getPassportsByPersonAndParams(Person person,
                                                                  boolean active) {
-        return person.getList().stream().filter(a -> a.isActive() == active)
-                .map(PassportResponse::of).collect(Collectors.toList());
+        return person.getList().stream()
+                .filter(a -> a.isActive() == active)
+                .map(PassportResponse::of)
+                .collect(Collectors.toList());
     }
 
     public boolean deactivatePassport(String personId, String id, boolean active, Description description) {
@@ -130,13 +130,7 @@ public class PassportServiceImpl {
                                 passport.getId().equals(id))
                         .findFirst()
                         .orElseThrow(() -> {
-                            String messageNotFound = String.format(Objects.requireNonNull(
-                                    environment.getProperty("passport.exception.notfound")), id);
-                            log.info(String.format("%s %s %s", UUID.randomUUID(),
-                                    HttpStatus.NOT_FOUND,
-                                    messageNotFound
-                            ));
-                            throw new PassportNotFoundException(messageNotFound);
+                            throw new PassportNotFoundException(id);
                         });
         if (passportPerson.isActive() == true) {
             passportPerson.setActive(active);
@@ -146,7 +140,6 @@ public class PassportServiceImpl {
             throw new PassportDeactivatedException();
         }
     }
-
 
     private void checkPassportPresentWithId(String id) {
         if (passportRepository.findPassportById(id) == null) {
