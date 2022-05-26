@@ -25,9 +25,7 @@ public class SearchServiceImpl {
 
 
     public PersonResponse findPersonByPassportNumber(String number) {
-        return passportRepository.getPassportsByParams().stream()
-                .filter(passport -> passport.getNumber().equals(number))
-                .map(person -> personRepositoryImpl.findAll()
+        return personRepositoryImpl.findAll().stream().map(person -> personRepositoryImpl.findAll()
                         .stream()
                         .filter(person1 ->
                                 person1.getList().stream().anyMatch(

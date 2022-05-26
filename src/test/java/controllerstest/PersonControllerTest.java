@@ -85,7 +85,6 @@ class PersonControllerTest {
         personResponseForTest.setName("");
         PersonRequest personRequestForTest = personRequest;
         personRequestForTest.setName("");
-        when(personService.isPersonPresent(personRequestForTest)).thenReturn(true);
         when(personService.addPerson(personRequestForTest))
                 .thenThrow(new InvalidPersonDataException());
         String req = mapper.writer().writeValueAsString(personRequestForTest);

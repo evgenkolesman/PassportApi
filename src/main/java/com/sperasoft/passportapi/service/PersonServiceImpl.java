@@ -18,12 +18,7 @@ public class PersonServiceImpl {
 
     private final PersonRepository personRepositoryImpl;
 
-    public boolean isPersonPresent(PersonRequest personRequest) {
-        return personRepositoryImpl.findAll().stream().anyMatch(p -> {
-            PersonRequest pr = ModelMapperMaker.configMapper().map(p, PersonRequest.class);
-            return pr.equals(personRequest);
-        });
-    }
+
     public PersonResponse addPerson(PersonRequest personRequest) {
         if (isPersonPresent(personRequest)) {
            throw new InvalidPersonDataException();
@@ -55,5 +50,12 @@ public class PersonServiceImpl {
         if (findById(id) == null) {
             throw new PersonNotFoundException(id);
         }
+    }
+
+    private boolean isPersonPresent(PersonRequest personRequest) {
+        return personRepositoryImpl.findAll().stream().anyMatch(p -> {
+            PersonRequest pr = ModelMapperMaker.configMapper().map(p, PersonRequest.class);
+            return pr.equals(personRequest);
+        });
     }
 }
