@@ -4,6 +4,7 @@ import com.sperasoft.passportapi.model.Passport;
 import com.sperasoft.passportapi.model.Person;
 
 import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 public interface PassportRepository {
@@ -17,11 +18,12 @@ public interface PassportRepository {
 
     Passport deletePassport(String id);
 
-    List<Passport> getPassportsByParams(boolean active, LocalDate dateStart, LocalDate dateEnd);
+    List<Passport> getPassportsByParams(Boolean active, ZonedDateTime dateStart, ZonedDateTime dateEnd);
 
-    List<Passport> getPassportsByParams(LocalDate dateStart, LocalDate dateEnd);
+    List<Passport> getPassportsByParams(ZonedDateTime dateStart, ZonedDateTime dateEnd);
 
-    List<Passport> getPassportsByParams(boolean active);
-
+    List<Passport> getPassportsByParams(Boolean active);
     List<Passport> getPassportsByParams();
+
+
 }

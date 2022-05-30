@@ -1,25 +1,21 @@
-package servicetest;
+package com.sperasoft.passportapi.service;
 
 import com.sperasoft.passportapi.PassportApiApplication;
 import com.sperasoft.passportapi.controller.dto.PassportRequest;
-import com.sperasoft.passportapi.controller.dto.PassportResponse;
 import com.sperasoft.passportapi.controller.dto.PersonRequest;
-import com.sperasoft.passportapi.controller.dto.PersonResponse;
 import com.sperasoft.passportapi.exceptions.passportexceptions.*;
 import com.sperasoft.passportapi.model.Description;
 import com.sperasoft.passportapi.model.Passport;
 import com.sperasoft.passportapi.model.Person;
 import com.sperasoft.passportapi.repository.PassportRepositoryImpl;
 import com.sperasoft.passportapi.repository.PersonRepositoryImpl;
-import com.sperasoft.passportapi.service.PassportServiceImpl;
-import com.sperasoft.passportapi.service.PersonServiceImpl;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.time.LocalDate;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -35,15 +31,15 @@ class PassportServiceTest {
     @Autowired
     private PassportRepositoryImpl passportRepository;
     @Autowired
-    private PassportServiceImpl passportService;
+    private PassportService passportService;
     @Autowired
-    private PersonServiceImpl personService;
-    private PassportRequest passportRequest;
+    private PersonService personService;
+
     private Person person;
-    private PassportResponse passportResponse;
     private String todayDate;
-    Passport passport;
-    PersonRequest personRequest;
+    private PassportRequest passportRequest;
+    private PersonRequest personRequest;
+    private Passport passport;
 
     @BeforeEach
     private void testDataProduce() {
@@ -51,7 +47,7 @@ class PassportServiceTest {
         todayDate = LocalDate.now().format(format);
         passportRequest = new PassportRequest();
         passportRequest.setNumber("1223123113");
-        passportRequest.setGivenDate(LocalDate.now());
+        passportRequest.setGivenDate(LocalDateTime.now());
         passportRequest.setDepartmentCode("123123");
         personRequest = new PersonRequest();
         String string = "2010-02-02";
@@ -59,42 +55,39 @@ class PassportServiceTest {
         personRequest.setName("Alex Frolov");
         personRequest.setBirthday(date);
         personRequest.setBirthdayCountry("UK");
-        PersonResponse personResponse = personService.addPerson(personRequest);
-        person = Person.of(personRequest);
-        person.setId(personResponse.getId());
-        passportResponse = passportService.addPassportToPerson(person.getId(), passportRequest);
-        passport = passportRepository.findPassportById(passportResponse.getId());
-        passport.setId(passportResponse.getId());
-        person.getList().add(passport);
+        person = personService.addPerson(Person.of(personRequest));
+        passport = passportService.addPassportToPerson(person.getId(), Passport.of(passportRequest));
     }
 
     @AfterEach
     private void testDataClear() {
-        passportRepository.deletePassport(passportResponse.getId());
+        passportRepository.deletePassport(passport.getId());
         personRepositoryImpl.deletePerson(person.getId());
     }
 
+
+    //TODO fix tests with controller mocks maybe can replace services and repos
     @Test
     public void testAddPassportToPersonCorrect() {
-        assertEquals(passportResponse.getNumber(), person.getList().get(0).getNumber());
+        assertEquals(passport.getNumber(), person.getList().get(0).getNumber());
     }
 
     @Test
     public void testAddPassportToPersonNotCorrect() {
         assertThrowsExactly(PassportWasAddedException.class,
-                () -> passportService.addPassportToPerson(person.getId(), passportRequest));
+                () -> passportService.addPassportToPerson(person.getId(), passport));
     }
 
 
     @Test
     void testFindPassportById() {
-        assertEquals(passportService.findPassportById(passportResponse.getId(), "true"), passportResponse);
+        assertEquals(passportService.findPassportById(passport.getId(), true), passport);
     }
 
     @Test
     void testFindPassportByIdInvalidPassport() {
         assertThrowsExactly(PassportNotFoundException.class,
-                () -> passportService.findPassportById(person.getId(), "true"));
+                () -> passportService.findPassportById(person.getId(), true));
     }
 
     @Test
@@ -102,29 +95,31 @@ class PassportServiceTest {
         PassportRequest passportRequest1 = passportRequest;
         passportRequest1.setNumber("2133548212");
         passportRequest1.setDepartmentCode("213123");
-        passportRequest1.setGivenDate(LocalDate.now());
-        assertEquals(passportService.updatePassport(passportResponse.getId(),
-                passportRequest1).getDepartmentCode(), passportRequest1.getDepartmentCode(),
+        passportRequest1.setGivenDate(LocalDateTime.now());
+        Passport passport1 = Passport.of(passportRequest1);
+        passport1.setId(passport1.getId());
+        assertEquals(passportService.updatePassport(passport.getId(),
+                passport1).getDepartmentCode(), passportRequest1.getDepartmentCode(),
                 "Update problems with department code");
-        assertEquals(passportService.updatePassport(passportResponse.getId(),
-                        passportRequest1).getNumber(), passportRequest1.getNumber(),
+        assertEquals(passportService.updatePassport(passport.getId(),
+                        passport1).getNumber(), passportRequest1.getNumber(),
                 "Update problems with number");
-        assertEquals(passportService.updatePassport(passportResponse.getId(),
-                        passportRequest1).getGivenDate(), passportRequest1.getGivenDate(),
+        assertEquals(passportService.updatePassport(passport.getId(),
+                        passport1).getGivenDate(), passportRequest1.getGivenDate(),
                 "Update problems with given date");
     }
 
     @Test
     void testUpdatePassportNotCorrect() {
-        passportRequest.setDepartmentCode("288");
+        passport.setDepartmentCode("288");
         assertThrowsExactly(PassportNotFoundException.class,
-                () -> passportService.updatePassport("231", passportRequest),
+                () -> passportService.updatePassport("231", passport),
                 "wrong id passed need to check");
     }
 
     @Test
     void testDeletePassportCorrect() {
-        assertEquals(passportService.deletePassport(passportResponse.getId()), passportResponse);
+        assertEquals(passportService.deletePassport(passport.getId()), passport);
     }
 
     @Test
@@ -135,68 +130,74 @@ class PassportServiceTest {
 
     @Test
     void testGetPassportsByPersonIdAndParamsWithoutParams() {
-        assertEquals(new ArrayList<>(Collections.singleton(passportResponse)),
+        assertEquals(new ArrayList<>(Collections.singleton(passport)),
                 passportService.getPassportsByPersonIdAndParams(person.getId(),
-                        "", "", ""));
+                        null, null, null));
     }
 
     @Test
     void testGetPassportsByPersonIdAndParamsWithOutBoolean() {
-        assertEquals(new ArrayList<>(Collections.singleton(passportResponse)),
+        assertEquals(new ArrayList<>(Collections.singleton(passport)),
                 passportService.getPassportsByPersonIdAndParams(person.getId(),
-                        "", "2022-03-05", todayDate));
+                        null, ZonedDateTime.parse("2022-05-01T19:00:00-02:00"),
+                        LocalDate.parse(todayDate).atTime(LocalTime.of(0,0,0)).atZone(ZoneId.systemDefault())));
     }
 
     @Test
     void testGetPassportsByPersonIdAndParamsWithOutBooleanWrong() {
         assertThrowsExactly(InvalidPassportDataException.class, () ->
                 passportService.getPassportsByPersonIdAndParams(person.getId(),
-                        "", "2022-08-05", "2022-05-04"));
+                        null, ZonedDateTime.parse("2022-12-01T19:00:00-02:00"), ZonedDateTime.parse("2022-05-01T19:00:00-02:00")));
     }
 
     @Test
     void testGetPassportsByPersonIdAndParamsWithOutDate() {
-        assertEquals(new ArrayList<>(Collections.singleton(passportResponse)),
+        assertEquals(new ArrayList<>(Collections.singleton(passport)),
                 passportService.getPassportsByPersonIdAndParams(person.getId(),
-                        "true", "", ""));
+                        true, null, null));
     }
 
     @Test
     void testGetPassportsByPersonIdAndParamsWithOutDateWithFalse() {
         assertEquals(new ArrayList<>(),
                 passportService.getPassportsByPersonIdAndParams(person.getId(),
-                        "false", "", ""));
+                        false, null, null));
     }
 
     @Test
     void testGetPassportsByPersonIdAndParamsWithStartDate() {
-        assertEquals(List.of(passportResponse),
+        assertEquals(List.of(passport),
                 passportService.getPassportsByPersonIdAndParams(person.getId(),
-                        "true", "2022-05-05", ""));
+                        true, null, null));
     }
 
     @Test
     void testGetPassportsByPersonIdAndParamsWithEndDate() {
         assertEquals(new ArrayList<>(),
                 passportService.getPassportsByPersonIdAndParams(person.getId(),
-                        "true", "", "2022-04-05"));
+                        true, null,
+                        ZonedDateTime.parse("2022-05-11T19:00:00-02:00")));
     }
 
     @Test
     void testGetPassportsByPersonIdAndParamsWithOutPassport() {
-        PersonRequest personRequest1 = personRequest;
-        personRequest1.setName("Elkin Vasiliy");
-        PersonResponse person = personService.addPerson(personRequest1);
+        Person person1 = new Person();
+        person1.setId("1323jafjsf-3213sdk");
+        person1.setName("Elkin Vasiliy");
+        person1.setBirthday(LocalDate.now());
+        person1.setBirthdayCountry("Ru");
+        Person person2 = personService.addPerson(person1);
         assertThrowsExactly(PassportEmptyException.class, () ->
-                passportService.getPassportsByPersonIdAndParams(person.getId(),
-                        "true", "", "2022-04-05"));
+                passportService.getPassportsByPersonIdAndParams(person2.getId(),
+                        true, null, ZonedDateTime.parse("2022-04-05T19:00:00-02:00")));
     }
 
     @Test
     void testGetPassportsByPersonIdAndParamsWithBadDate() {
         assertThrowsExactly(InvalidPassportDataException.class,
                 () -> passportService.getPassportsByPersonIdAndParams(person.getId(),
-                        "true", "2022-08-04", "2022-04-05"));
+                        true, ZonedDateTime.parse("2022-08-04T19:00:00-02:00"),
+                        ZonedDateTime.parse("2022-04-05T19:00:00-02:00")));
     }
 
 

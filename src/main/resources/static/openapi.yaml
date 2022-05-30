@@ -158,13 +158,15 @@ paths:
           description: "Start date of range"
           schema:
             type: "string"
-            format: "date"
+            format: "dateTime"
+            example: "2022-10-01T19:00:00-01:00"
         - name: "dateEnd"
           in: "query"
           description: "End date of range"
           schema:
             type: "string"
-            format: "date"
+            format: "dateTime"
+            example: "2022-10-01T19:00:00-10:00"
       responses:
         "200":
           description: "Successful operation"
@@ -299,8 +301,6 @@ paths:
               schema:
                 type: string
                 example: "Given date field should be filled"
-
-
     delete:
       tags:
         - "PassportStore"
@@ -427,13 +427,15 @@ paths:
           description: "Start date of range"
           schema:
             type: "string"
-            format: "date"
+            format: "dateTime"
+            example: "2022-10-01T19:00:00-01:00"
         - name: "dateEnd"
           in: "query"
           description: "End date of range"
           schema:
             type: "string"
-            format: "date"
+            format: "dateTime"
+            example: "2022-10-01T19:00:00-01:00"
       responses:
         "200":
           description: "Successful operation"
@@ -506,7 +508,7 @@ components:
           description: "Code with 10-digits value"
         givenDate:
           type: "string"
-          format: "date"
+          format: "dateTime"
         deparmentCode:
           type: "string"
           example: "280540"
@@ -527,7 +529,7 @@ components:
           description: "Code with 10-digits value"
         givenDate:
           type: "string"
-          format: "date"
+          format: "dateTime"
         deparmentCode:
           type: "string"
           example: "280540"

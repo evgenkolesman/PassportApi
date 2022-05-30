@@ -1,4 +1,4 @@
-package com.sperasoft.passportapi.controller.resttest;
+package com.sperasoft.passportapi.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -7,14 +7,16 @@ import com.sperasoft.passportapi.configuration.EnvConfig;
 import com.sperasoft.passportapi.controller.dto.PassportRequest;
 import com.sperasoft.passportapi.controller.dto.PersonRequest;
 import com.sperasoft.passportapi.controller.dto.PersonResponse;
-import com.sperasoft.passportapi.model.Person;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -23,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Slf4j
 @SpringBootTest(classes = PassportApiApplication.class)
-public class PersonRestTest {
+public class PersonRestControllerTest {
 
     private static final ObjectMapper mapper = new ObjectMapper();
     private static PersonRequest personRequest;
@@ -35,7 +37,7 @@ public class PersonRestTest {
     @BeforeAll
     static void testDataProduce() throws JsonProcessingException {
         String string = "2010-02-02";
-        LocalDate dateToday = LocalDate.now();
+        LocalDateTime dateToday = LocalDateTime.now();
         PassportRequest passport = new PassportRequest();
         passport.setNumber("1223123113");
         passport.setGivenDate(dateToday);

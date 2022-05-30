@@ -14,48 +14,44 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class PersonServiceImpl {
+public class PersonService {
 
     private final PersonRepository personRepositoryImpl;
 
 
-    public PersonResponse addPerson(PersonRequest personRequest) {
-        if (isPersonPresent(personRequest)) {
+    public Person addPerson(Person person) {
+        if (personRepositoryImpl.findAll().stream().anyMatch(person1 ->
+                person1.getName().equals(person.getName())
+                        && person1.getBirthday().isEqual(person.getBirthday())
+                        && person1.getBirthdayCountry().equals(person.getBirthdayCountry())
+        )) {
            throw new InvalidPersonDataException();
         }
-        Person person = Person.of(personRequest);
-        return PersonResponse.of(personRepositoryImpl.addPerson(person));
+        return personRepositoryImpl.addPerson(person);
     }
 
-    public PersonResponse findById(String id) {
+    public Person findById(String id) {
         if (personRepositoryImpl.findById(id) == null) {
             throw new PersonNotFoundException(id);
         }
-            return PersonResponse.of(personRepositoryImpl.findById(id));
+            return personRepositoryImpl.findById(id);
     }
 
-    public PersonResponse updatePerson(String id, PersonRequest personRequest) {
+    public Person updatePerson(String id, PersonRequest personRequest) {
         checkPersonPresentInRepository(id);
         Person person = Person.of(personRequest);
         person.setId(id);
-        return PersonResponse.of(personRepositoryImpl.updatePerson(id, person));
+        return personRepositoryImpl.updatePerson(id, person);
     }
 
-    public PersonResponse deletePerson(String id) {
+    public Person deletePerson(String id) {
         checkPersonPresentInRepository(id);
-        return PersonResponse.of(personRepositoryImpl.deletePerson(id));
+        return personRepositoryImpl.deletePerson(id);
     }
 
     private void checkPersonPresentInRepository(String id) {
         if (findById(id) == null) {
             throw new PersonNotFoundException(id);
         }
-    }
-
-    private boolean isPersonPresent(PersonRequest personRequest) {
-        return personRepositoryImpl.findAll().stream().anyMatch(p -> {
-            PersonRequest pr = ModelMapperMaker.configMapper().map(p, PersonRequest.class);
-            return pr.equals(personRequest);
-        });
     }
 }
