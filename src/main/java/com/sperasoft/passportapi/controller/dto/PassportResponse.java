@@ -1,10 +1,13 @@
 package com.sperasoft.passportapi.controller.dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.sperasoft.passportapi.configuration.ModelMapperMaker;
 import com.sperasoft.passportapi.model.Passport;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 public class PassportResponse {
@@ -13,6 +16,7 @@ public class PassportResponse {
 
     private String number;
 
+    @JsonSerialize(using = LocalDateSerializer.class)
     private LocalDate givenDate;
 
     private String departmentCode;

@@ -1,5 +1,7 @@
 package com.sperasoft.passportapi.model;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.sperasoft.passportapi.configuration.ModelMapperMaker;
 import com.sperasoft.passportapi.controller.dto.PersonRequest;
 import lombok.Data;
@@ -16,6 +18,7 @@ public class Person {
 
     private String name;
 
+    @JsonSerialize(using = LocalDateSerializer.class)
     private LocalDate birthday;
 
     private String birthdayCountry;

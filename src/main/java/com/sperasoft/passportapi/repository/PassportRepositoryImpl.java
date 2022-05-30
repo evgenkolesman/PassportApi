@@ -5,7 +5,8 @@ import com.sperasoft.passportapi.model.Passport;
 import com.sperasoft.passportapi.model.Person;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -50,25 +51,31 @@ public class PassportRepositoryImpl implements PassportRepository {
     }
 
     @Override
-    public List<Passport> getPassportsByParams(boolean active, LocalDate dateStart, LocalDate dateEnd) {
+    public List<Passport> getPassportsByParams(Boolean active, ZonedDateTime dateStart, ZonedDateTime dateEnd) {
         return passportRepo.values().stream().filter(a -> a.isActive() == active)
                 .filter(a ->
-                        ((dateStart.isBefore(a.getGivenDate()) || dateStart.isEqual(a.getGivenDate())) &&
-                                (dateEnd.isAfter(a.getGivenDate()) || dateEnd.isEqual(a.getGivenDate()))))
+                        ((dateStart.isBefore(a.getGivenDate().atZone(ZoneId.systemDefault()))
+                                || dateStart.isEqual(a.getGivenDate().atZone(ZoneId.systemDefault())))
+                                &&
+                                (dateEnd.isAfter(a.getGivenDate().atZone(ZoneId.systemDefault()))
+                                        || dateEnd.isEqual(a.getGivenDate().atZone(ZoneId.systemDefault())))))
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<Passport> getPassportsByParams(LocalDate dateStart, LocalDate dateEnd) {
+    public List<Passport> getPassportsByParams(ZonedDateTime dateStart, ZonedDateTime dateEnd) {
         return passportRepo.values().stream()
                 .filter(a ->
-                        ((dateStart.isBefore(a.getGivenDate()) || dateStart.isEqual(a.getGivenDate())) &&
-                                dateEnd.isAfter(a.getGivenDate()) || dateEnd.isEqual(a.getGivenDate())))
+                        ((dateStart.isBefore(a.getGivenDate().atZone(ZoneId.systemDefault()))
+                                || dateStart.isEqual(a.getGivenDate().atZone(ZoneId.systemDefault())))
+                                &&
+                                (dateEnd.isAfter(a.getGivenDate().atZone(ZoneId.systemDefault()))
+                                        || dateEnd.isEqual(a.getGivenDate().atZone(ZoneId.systemDefault())))))
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<Passport> getPassportsByParams(boolean active) {
+    public List<Passport> getPassportsByParams(Boolean active) {
         return passportRepo.values().stream()
                 .filter(a -> a.isActive() == active)
                 .collect(Collectors.toList());

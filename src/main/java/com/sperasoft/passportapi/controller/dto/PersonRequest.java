@@ -18,9 +18,10 @@ public class PersonRequest {
     @Size(min = 3, message = "name must be minimum 2 characters long")
     private String name;
 
-    @JsonSerialize(using = LocalDateSerializer.class)
+
     @NotBlank(message = "Date field should be filled")
     @DateTimeFormat(iso = ISO.DATE)
+    @JsonSerialize(using = LocalDateSerializer.class)
     private LocalDate birthday;
 
     @NotBlank

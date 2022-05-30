@@ -1,12 +1,11 @@
-package servicetest;
+package com.sperasoft.passportapi.service;
 
 import com.sperasoft.passportapi.PassportApiApplication;
 import com.sperasoft.passportapi.controller.dto.PersonRequest;
-import com.sperasoft.passportapi.controller.dto.PersonResponse;
 import com.sperasoft.passportapi.exceptions.personexceptions.InvalidPersonDataException;
 import com.sperasoft.passportapi.exceptions.personexceptions.PersonNotFoundException;
+import com.sperasoft.passportapi.model.Person;
 import com.sperasoft.passportapi.repository.PersonRepositoryImpl;
-import com.sperasoft.passportapi.service.PersonServiceImpl;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,12 +23,13 @@ import static org.junit.jupiter.api.Assertions.*;
 public class PersonServiceTest {
 
     @Autowired
-    private PersonServiceImpl personService;
+    private PersonService personService;
 
     @Autowired
     private PersonRepositoryImpl personRepositoryImpl;
-    PersonResponse personResponse;
-    PersonRequest personRequest = new PersonRequest();
+
+    private Person person;
+    private final PersonRequest personRequest = new PersonRequest();
 
     @BeforeEach
     private void beforeData() {
@@ -39,36 +39,36 @@ public class PersonServiceTest {
         personRequest.setName("Alex Frolov");
         personRequest.setBirthday(date);
         personRequest.setBirthdayCountry("UK");
-        personResponse = personService.addPerson(personRequest);
+        person = personService.addPerson(Person.of(personRequest));
     }
 
     @AfterEach
     private void afterData() {
-        personRepositoryImpl.deletePerson(personResponse.getId());
+        personRepositoryImpl.deletePerson(person.getId());
     }
 
     @Test
     public void testAddPersonCorrect() {
         assertThat("Problems with adding person (name field)",
-                personResponse.getName().equals(personRequest.getName()));
+                person.getName().equals(personRequest.getName()));
         assertThat("Problems with adding person (birthday field)",
-                personResponse.getBirthday().equals(personRequest.getBirthday()));
+                person.getBirthday().equals(personRequest.getBirthday()));
         assertThat("Problems with adding person (birthday country field)",
-                personResponse.getBirthdayCountry().equals(personRequest.getBirthdayCountry()));
+                person.getBirthdayCountry().equals(personRequest.getBirthdayCountry()));
     }
 
     @Test
     public void testAddPersonDataNotCorrect() {
         assertThrowsExactly(InvalidPersonDataException.class,
-                () -> personService.addPerson(personRequest),
+                () -> personService.addPerson(person),
                 "Problems with adding person (add a person twice)");
     }
 
     @Test
     public void testFindByIdCorrect() {
-        PersonResponse personResponse = personService.findById(this.personResponse.getId());
+        Person person = personService.findById(this.person.getId());
         assertThat("Problems with search by id",
-                personResponse.equals(this.personResponse));
+                person.equals(this.person));
     }
 
     @Test
@@ -86,7 +86,7 @@ public class PersonServiceTest {
         personRequest.setBirthday(date);
         personRequest.setBirthdayCountry("US");
 
-        PersonResponse pr = personService.updatePerson(personResponse.getId(),
+        Person pr = personService.updatePerson(person.getId(),
                 personRequest);
         assertEquals("Alex Frol", pr.getName(), "Problems with updating person name field");
         assertTrue(pr.getBirthday().isEqual(date),"Problems with updating person birthday field");
@@ -109,14 +109,14 @@ public class PersonServiceTest {
 
     @Test
     public void testDeletePersonCorrect() {
-        assertEquals(personService.deletePerson(personResponse.getId()), personResponse, "Problems with delete");
+        assertEquals(personService.deletePerson(person.getId()), person, "Problems with delete");
     }
 
     @Test
     public void testDeletePersonNotCorrectWithDoubleDelete() {
-        personService.deletePerson(personResponse.getId());
+        personService.deletePerson(person.getId());
         assertThrowsExactly(PersonNotFoundException.class, () ->
-                        personService.deletePerson(personResponse.getId()),
+                        personService.deletePerson(person.getId()),
                 "Problems with delete can delete twice");
     }
 
