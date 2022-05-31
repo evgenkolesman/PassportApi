@@ -1,5 +1,6 @@
 package com.sperasoft.passportapi.service;
 
+import com.devskiller.friendly_id.FriendlyId;
 import com.sperasoft.passportapi.PassportApiApplication;
 import com.sperasoft.passportapi.controller.dto.PersonRequest;
 import com.sperasoft.passportapi.exceptions.personexceptions.InvalidPersonDataException;
@@ -14,7 +15,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.UUID;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -87,23 +87,22 @@ public class PersonServiceTest {
         personRequest.setBirthdayCountry("US");
 
         Person pr = personService.updatePerson(person.getId(),
-                personRequest);
+                Person.of(personRequest));
         assertEquals("Alex Frol", pr.getName(), "Problems with updating person name field");
-        assertTrue(pr.getBirthday().isEqual(date),"Problems with updating person birthday field");
+        assertTrue(pr.getBirthday().isEqual(date), "Problems with updating person birthday field");
         assertEquals("US", pr.getBirthdayCountry(), "Problems with updating person birthday country field");
     }
 
     @Test
     public void testUpdatePersonNotCorrect() {
 
-        String id = UUID.randomUUID().toString();
+        String id = FriendlyId.createFriendlyId();
         PersonRequest personUpdate = new PersonRequest();
         personUpdate.setName("Alex Frol");
         personUpdate.setBirthday(LocalDate.now());
         personUpdate.setBirthdayCountry("US");
-
         assertThrowsExactly(PersonNotFoundException.class, () ->
-                        personService.updatePerson(id, personUpdate),
+                        personService.updatePerson(id, Person.of(personUpdate)),
                 "Problems with updating person wrong id" + id + " passed ");
     }
 

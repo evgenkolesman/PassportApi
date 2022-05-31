@@ -1,6 +1,5 @@
 package com.sperasoft.passportapi.controller;
 
-import com.sperasoft.passportapi.configuration.ModelMapperMaker;
 import com.sperasoft.passportapi.controller.dto.PassportRequest;
 import com.sperasoft.passportapi.controller.dto.PassportResponse;
 import com.sperasoft.passportapi.model.Description;
@@ -19,14 +18,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/person/{personId}")
+@RequestMapping("/person/{personId}/passport")
 @RequiredArgsConstructor
 public class PassportController {
     private final PassportService passportService;
 
-    @GetMapping("/passport")
-    public List<PassportResponse> findPersonPassports(@PathVariable String personId,
-                                                      @RequestParam(name = "active", defaultValue = "") Boolean active,
+    @GetMapping
+    public List<PassportResponse> findPersonPassports(@PathVariable(name ="personId") String personId,
+                                                      @RequestParam(name = "active") @Nullable Boolean active,
                                                       @RequestParam(name = "dateStart")
                                                       @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
                                                       @Nullable ZonedDateTime dateStart,
@@ -38,35 +37,35 @@ public class PassportController {
                 .collect(Collectors.toList());
     }
 
-    @PostMapping("/passport")
+    @PostMapping
     public PassportResponse createPassport(@PathVariable("personId") String personId,
                                            @RequestBody @Valid PassportRequest passportRequest) {
 
         return PassportResponse.of(passportService.addPassportToPerson(personId, Passport.of(passportRequest)));
     }
 
-    @GetMapping("/passport/{id}")
+    @GetMapping("/{id}")
     public PassportResponse findPassport(@PathVariable("id") String id,
-                                         @RequestParam(name = "active", defaultValue = "") Boolean active) {
+                                         @RequestParam(name = "active") @Nullable Boolean active) {
         return PassportResponse.of(passportService.findPassportById(id, active));
     }
 
-    @PutMapping("/passport/{id}")
+    @PutMapping("/{id}")
     public PassportResponse updatePassport(@PathVariable("id") String id,
                                            @RequestBody @Valid PassportRequest passportRequest) {
         return PassportResponse.of(passportService.updatePassport(id, Passport.of(passportRequest)));
     }
 
-    @DeleteMapping("/passport/{id}")
+    @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deletePassport(@PathVariable("id") String id) {
         passportService.deletePassport(id);
     }
 
-    @PostMapping("/passport/{id}/lostPassport")
+    @PostMapping("/{id}/lostPassport")
     public boolean lostPassportDeactivate(@PathVariable("personId") String personId,
                                           @PathVariable("id") String id,
-                                          @RequestParam(value = "active") @NotNull Boolean active,
+                                          @RequestParam(name = "active") @NotNull Boolean active,
                                           @RequestBody(required = false) Description description) {
         return passportService.deactivatePassport(personId, id, active, description);
     }

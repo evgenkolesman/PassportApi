@@ -6,10 +6,7 @@ import com.sperasoft.passportapi.controller.PassportController;
 import com.sperasoft.passportapi.controller.dto.PassportRequest;
 import com.sperasoft.passportapi.controller.dto.PassportResponse;
 import com.sperasoft.passportapi.controller.dto.PersonRequest;
-import com.sperasoft.passportapi.exceptions.passportexceptions.InvalidPassportDataException;
-import com.sperasoft.passportapi.exceptions.passportexceptions.PassportDeactivatedException;
-import com.sperasoft.passportapi.exceptions.passportexceptions.PassportNotFoundException;
-import com.sperasoft.passportapi.exceptions.passportexceptions.PassportWasAddedException;
+import com.sperasoft.passportapi.exceptions.passportexceptions.*;
 import com.sperasoft.passportapi.exceptions.personexceptions.PersonNotFoundException;
 import com.sperasoft.passportapi.model.Description;
 import com.sperasoft.passportapi.model.Passport;
@@ -25,7 +22,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -62,7 +58,7 @@ class PassportControllerTest {
     private void testDataProduce() {
         String string = "2010-02-02";
         DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        LocalDateTime datePassport = LocalDateTime.parse("2022-05-05", format);
+        LocalDate datePassport = LocalDate.parse("2022-05-05", format);
         passportRequest = new PassportRequest();
         passportRequest.setNumber("1223123113");
         passportRequest.setGivenDate(datePassport);
@@ -94,12 +90,27 @@ class PassportControllerTest {
                 true, ZonedDateTime.parse("2022-05-06T19:00:00-02:00"), ZonedDateTime.parse("2022-05-05T19:00:00-02:00")))
                 .thenThrow(new InvalidPassportDataException());
         this.mvc.perform(get("/person/" + person.getId() +
-                        "/passport?active=true&dateStart=2022-05-06&dateEnd=2022-05-05")
+                        "/passport?active=true&dateStart=2022-05-06T19:00:00-02:00&dateEnd=2022-05-05T19:00:00-02:00")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(a -> a.getResponse().getContentAsString()
                         .equals(String.format(
                                         environment.getProperty("exception.InvalidPassportDataException"),
+                                person.getId())));
+    }
+
+    @Test
+    void testFindPersonPassportsWithoutPassport() throws Exception {
+        when(passportController.findPersonPassports(person.getId(),
+                true, ZonedDateTime.parse("2022-05-02T19:00:00-02:00"), ZonedDateTime.parse("2022-05-08T19:00:00-02:00")))
+                .thenThrow(new PassportEmptyException(person.getId()));
+        this.mvc.perform(get("/person/" + person.getId() +
+                        "/passport?active=true&dateStart=2022-05-02T19:00:00-02:00&dateEnd=2022-05-08T19:00:00-02:00")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(a -> a.getResponse().getContentAsString()
+                        .equals(String.format(
+                                environment.getProperty("exception.PassportEmptyException"),
                                 person.getId())));
     }
 

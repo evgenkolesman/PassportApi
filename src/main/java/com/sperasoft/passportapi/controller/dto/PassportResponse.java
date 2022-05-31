@@ -7,7 +7,6 @@ import com.sperasoft.passportapi.model.Passport;
 import lombok.Data;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Data
 public class PassportResponse {

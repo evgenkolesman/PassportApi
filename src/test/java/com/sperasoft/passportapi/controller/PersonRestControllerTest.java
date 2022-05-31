@@ -16,7 +16,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -37,7 +36,7 @@ public class PersonRestControllerTest {
     @BeforeAll
     static void testDataProduce() throws JsonProcessingException {
         String string = "2010-02-02";
-        LocalDateTime dateToday = LocalDateTime.now();
+        LocalDate dateToday = LocalDate.now();
         PassportRequest passport = new PassportRequest();
         passport.setNumber("1223123113");
         passport.setGivenDate(dateToday);
@@ -45,7 +44,7 @@ public class PersonRestControllerTest {
         personRequest = new PersonRequest();
         DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         LocalDate date = LocalDate.parse(string, format);
-        int intVar = ThreadLocalRandom.current().nextInt(100);
+        int intVar = ThreadLocalRandom.current().nextInt(10000);
         personRequest.setName("Alex Frolov" + intVar);
         personRequest.setBirthday(date);
         personRequest.setBirthdayCountry("UK");

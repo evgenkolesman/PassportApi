@@ -16,7 +16,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -37,14 +36,12 @@ public class SearchRestControllerTest {
     private static PersonResponse personResponse;
     private static PersonRequest personRequest;
     private static final ObjectMapper mapper = new ObjectMapper();
-    private static LocalDate date;
-    private static LocalDateTime datePassport;
     private static int number;
 
     @BeforeAll
     static void testDataProduce() throws JsonProcessingException {
 
-        datePassport = LocalDateTime.parse("2022-05-05T19:00:00-02:00");
+        LocalDate datePassport = LocalDate.parse("2022-05-05");
         passportRequest = new PassportRequest();
         number = ThreadLocalRandom.current().nextInt(899999999) + 1000000000;
         int departmentCode = ThreadLocalRandom.current().nextInt(899999) + 100000;
@@ -53,7 +50,7 @@ public class SearchRestControllerTest {
         passportRequest.setGivenDate(datePassport);
         passportRequest.setDepartmentCode(String.valueOf(departmentCode));
         personRequest = new PersonRequest();
-        date = LocalDate.parse("2022-05-05", DateTimeFormatter.ISO_DATE);
+        LocalDate date = LocalDate.parse("2022-05-05", DateTimeFormatter.ISO_DATE);
         personRequest.setName("Alex Frolov" + varInt);
         personRequest.setBirthday(date);
         personRequest.setBirthdayCountry("UK");
@@ -166,7 +163,7 @@ public class SearchRestControllerTest {
         number1.setNumber(String.valueOf(number));
         var response = given()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .get("http://localhost:8081/searches?dateStart=2022-05-01T19:00:00-10:00&dateEnd=2022-07-01T19:00:00-10:00")
+                .get("http://localhost:8081/searches?dateStart=2022-05-01T19:00:00+09:00&dateEnd=2022-07-01T19:00:00+10:00")
                 .then()
                 .and()
                 .log()

@@ -1,15 +1,13 @@
 package com.sperasoft.passportapi.model;
 
+import com.devskiller.friendly_id.FriendlyId;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
-import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.sperasoft.passportapi.configuration.ModelMapperMaker;
 import com.sperasoft.passportapi.controller.dto.PassportRequest;
 import lombok.Data;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Data
 public class Passport {
@@ -18,8 +16,8 @@ public class Passport {
 
     private String number;
 
-    @JsonSerialize(using = LocalDateTimeSerializer.class)
-    private LocalDateTime givenDate;
+    @JsonSerialize(using = LocalDateSerializer.class)
+    private LocalDate givenDate;
 
     private String departmentCode;
 
@@ -29,7 +27,7 @@ public class Passport {
 
     public static Passport of(PassportRequest passportRequest) {
         Passport passport = ModelMapperMaker.configMapper().map(passportRequest, Passport.class);
-        passport.setId(UUID.randomUUID().toString());
+        passport.setId(FriendlyId.createFriendlyId());
         return passport;
     }
 }

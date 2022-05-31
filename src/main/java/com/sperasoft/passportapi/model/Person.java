@@ -1,5 +1,6 @@
 package com.sperasoft.passportapi.model;
 
+import com.devskiller.friendly_id.FriendlyId;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.sperasoft.passportapi.configuration.ModelMapperMaker;
@@ -9,7 +10,6 @@ import lombok.Data;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Data
 public class Person {
@@ -27,7 +27,7 @@ public class Person {
 
     public static Person of(PersonRequest personRequest) {
         Person person = ModelMapperMaker.configMapper().map(personRequest, Person.class);
-        person.setId(UUID.randomUUID().toString());
+        person.setId(FriendlyId.createFriendlyId());
         return person;
     }
 }

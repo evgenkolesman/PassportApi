@@ -16,7 +16,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -35,14 +35,12 @@ public class PassportRestControllerTest {
     private static PassportResponse passportResponse;
     private static PersonResponse personResponse;
     private static final ObjectMapper mapper = new ObjectMapper();
-    private static LocalDate date;
-    private static LocalDateTime datePassport;
 
     @BeforeAll
     static void testDataProduce() throws JsonProcessingException {
         String string = "2010-02-02";
         DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        datePassport = LocalDateTime.parse("2022-05-05T19:00:00-02:00");
+        LocalDate datePassport = LocalDate.parse("2022-05-05");
         passportRequest = new PassportRequest();
         int number = ThreadLocalRandom.current().nextInt(999999999);
         int departmentCode = ThreadLocalRandom.current().nextInt(99999);
@@ -51,7 +49,7 @@ public class PassportRestControllerTest {
         passportRequest.setGivenDate(datePassport);
         passportRequest.setDepartmentCode(String.valueOf(departmentCode));
         PersonRequest personRequest = new PersonRequest();
-        date = LocalDate.parse(string, format);
+        LocalDate date = LocalDate.parse(string, format);
         personRequest.setName("Alex Frolov" + varInt);
         personRequest.setBirthday(date);
         personRequest.setBirthdayCountry("UK");
@@ -135,10 +133,10 @@ public class PassportRestControllerTest {
 
     @Test
     public void testFindPassportWithParamsCorrect() {
-        var response = given()
+        given()
                 .get("http://localhost:8081/person/" + personResponse.getId() +
                         "/passport/" +
-                        "?active=true&dateStart=2022-05-04&dateEnd=" + datePassport)
+                        "?active=true&dateStart=2022-05-04T19:00:00-02:00&dateEnd=" + ZonedDateTime.now())
                 .then()
                 .and()
                 .log()
@@ -152,7 +150,7 @@ public class PassportRestControllerTest {
         var response = given()
                 .get("http://localhost:8081/person/" + personResponse.getId() +
                         "/passport/" +
-                        "?dateStart=2022-05-04&dateEnd=" + datePassport)
+                        "?dateStart=2022-05-04T19:00:00-02:00&dateEnd=" + ZonedDateTime.now())
                 .then()
                 .and()
                 .log()
@@ -168,8 +166,8 @@ public class PassportRestControllerTest {
     public void testFindPassportsWithDatesNotCorrect() {
         var response = given()
                 .get("http://localhost:8081/person/" + personResponse.getId() +
-                        "/passport/" +
-                        "?dateStart=2022-05-04&dateEnd=2022-05-01")
+                        "/passport" +
+                        "?dateStart=2022-05-10T19:00:00-02:00&dateEnd=2022-05-08T19:00:00-02:00")
                 .then()
                 .and()
                 .log()
@@ -200,7 +198,7 @@ public class PassportRestControllerTest {
     }
 
     @Test
-    public void testFindPassportsWithoutParamsCorrect() throws JsonProcessingException {
+    public void testFindPassportsWithoutParamsCorrect() {
         var response = given()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .get("http://localhost:8081/person/" + personResponse.getId() +
@@ -219,7 +217,7 @@ public class PassportRestControllerTest {
     @Test
     @Order(10)
     public void testLostPassportCorrect() {
-        var response = given()
+        given()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .body(new Description())
                 .post("http://localhost:8081/person/" + personResponse.getId() +

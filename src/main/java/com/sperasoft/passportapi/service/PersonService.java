@@ -1,8 +1,5 @@
 package com.sperasoft.passportapi.service;
 
-import com.sperasoft.passportapi.configuration.ModelMapperMaker;
-import com.sperasoft.passportapi.controller.dto.PersonRequest;
-import com.sperasoft.passportapi.controller.dto.PersonResponse;
 import com.sperasoft.passportapi.exceptions.personexceptions.InvalidPersonDataException;
 import com.sperasoft.passportapi.exceptions.personexceptions.PersonNotFoundException;
 import com.sperasoft.passportapi.model.Person;
@@ -37,9 +34,8 @@ public class PersonService {
             return personRepositoryImpl.findById(id);
     }
 
-    public Person updatePerson(String id, PersonRequest personRequest) {
+    public Person updatePerson(String id, Person person) {
         checkPersonPresentInRepository(id);
-        Person person = Person.of(personRequest);
         person.setId(id);
         return personRepositoryImpl.updatePerson(id, person);
     }

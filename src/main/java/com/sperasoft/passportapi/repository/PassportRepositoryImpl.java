@@ -1,11 +1,13 @@
 package com.sperasoft.passportapi.repository;
 
+import com.sperasoft.passportapi.configuration.PredicateDatesChecking;
 import com.sperasoft.passportapi.exceptions.passportexceptions.PassportBadStatusException;
 import com.sperasoft.passportapi.model.Passport;
 import com.sperasoft.passportapi.model.Person;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,9 +16,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 @Repository
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class PassportRepositoryImpl implements PassportRepository {
 
-    private final Map<String, Passport> passportRepo = new ConcurrentHashMap<>();
+    private final PredicateDatesChecking predicateDatesChecking;
+    private static final Map<String, Passport> passportRepo = new ConcurrentHashMap<>();
 
     @Override
     public Passport addPassport(Passport passport, Person person) {
@@ -53,24 +57,16 @@ public class PassportRepositoryImpl implements PassportRepository {
     @Override
     public List<Passport> getPassportsByParams(Boolean active, ZonedDateTime dateStart, ZonedDateTime dateEnd) {
         return passportRepo.values().stream().filter(a -> a.isActive() == active)
-                .filter(a ->
-                        ((dateStart.isBefore(a.getGivenDate().atZone(ZoneId.systemDefault()))
-                                || dateStart.isEqual(a.getGivenDate().atZone(ZoneId.systemDefault())))
-                                &&
-                                (dateEnd.isAfter(a.getGivenDate().atZone(ZoneId.systemDefault()))
-                                        || dateEnd.isEqual(a.getGivenDate().atZone(ZoneId.systemDefault())))))
+                .filter(passport ->
+                        predicateDatesChecking.test(passport, List.of(dateStart, dateEnd)))
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<Passport> getPassportsByParams(ZonedDateTime dateStart, ZonedDateTime dateEnd) {
         return passportRepo.values().stream()
-                .filter(a ->
-                        ((dateStart.isBefore(a.getGivenDate().atZone(ZoneId.systemDefault()))
-                                || dateStart.isEqual(a.getGivenDate().atZone(ZoneId.systemDefault())))
-                                &&
-                                (dateEnd.isAfter(a.getGivenDate().atZone(ZoneId.systemDefault()))
-                                        || dateEnd.isEqual(a.getGivenDate().atZone(ZoneId.systemDefault())))))
+                .filter(passport ->
+                        predicateDatesChecking.test(passport, List.of(dateStart, dateEnd)))
                 .collect(Collectors.toList());
     }
 
@@ -85,4 +81,5 @@ public class PassportRepositoryImpl implements PassportRepository {
     public List<Passport> getPassportsByParams() {
         return new ArrayList<>(passportRepo.values());
     }
+
 }

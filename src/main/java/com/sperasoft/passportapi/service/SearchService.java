@@ -11,7 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Slf4j
@@ -29,14 +28,13 @@ public class SearchService {
                         .filter(person1 ->
                                 person1.getList().stream().anyMatch(
                                         p -> p.getNumber().equals(number))).findFirst()
-                        .orElseThrow(() -> {
-                            throw new PassportWrongNumberException();
-                        }))
+                        .orElseThrow(PassportWrongNumberException::new))
                 .findFirst().get();
     }
 
     public List<Passport> getAllPassports(Boolean active,
-                                          ZonedDateTime dateStart, ZonedDateTime dateEnd) {
+                                          ZonedDateTime dateStart,
+                                          ZonedDateTime dateEnd) {
         if (active == null && dateStart == null && dateEnd == null) {
             return passportRepository.getPassportsByParams();
         } else if (dateStart == null && dateEnd == null) {
