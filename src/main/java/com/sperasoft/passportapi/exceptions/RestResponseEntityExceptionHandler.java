@@ -1,5 +1,6 @@
 package com.sperasoft.passportapi.exceptions;
 
+import com.devskiller.friendly_id.FriendlyId;
 import com.sperasoft.passportapi.configuration.EnvConfig;
 import com.sperasoft.passportapi.exceptions.passportexceptions.*;
 import com.sperasoft.passportapi.exceptions.personexceptions.InvalidPersonDataException;
@@ -12,16 +13,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.context.request.WebRequest;
-import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.util.Objects;
-import java.util.UUID;
 
 @ControllerAdvice
 @Slf4j
 @RequiredArgsConstructor
-public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
+public class RestResponseEntityExceptionHandler {
 
     private final EnvConfig environment;
 
@@ -36,30 +34,20 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
             InvalidPersonDataException.class
     })
     protected ResponseEntity<Object> handleConflict(
-            RuntimeException ex,
-            WebRequest request) {
+            RuntimeException ex) {
         HttpStatus status = ex.getClass().getAnnotation(ResponseStatus.class).value();
         String propName = "exception." + ex.getClass().getSimpleName();
         String message;
-        if(ex.getMessage() != null) {
+        if (ex.getMessage() != null) {
             message = String.format(
                     environment.getProperty(propName), ex.getMessage());
         } else message = Objects.requireNonNull(
                 environment.getProperty(propName));
-        return getObjectResponseEntity(ex, request, message, status);
-    }
-
-    private ResponseEntity<Object> getObjectResponseEntity(RuntimeException ex,
-                                                           WebRequest request,
-                                                           String message,
-                                                           HttpStatus status) {
         log.error(String.format("%s %s %s",
-                UUID.randomUUID(),
+                FriendlyId.createFriendlyId(),
                 status,
                 message
         ));
-        return handleExceptionInternal(ex, message,
-                new HttpHeaders(), status, request);
+        return new ResponseEntity<>(message, new HttpHeaders(), status);
     }
-
 }

@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Repository
 public class PersonRepositoryImpl implements PersonRepository{
 
-    private final Map<String, Person> personRepo = new ConcurrentHashMap<>();
+    private static final Map<String, Person> personRepo = new ConcurrentHashMap<>();
 
     @Override
     public List<Person> findAll() {

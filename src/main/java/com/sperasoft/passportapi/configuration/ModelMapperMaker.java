@@ -3,10 +3,11 @@ package com.sperasoft.passportapi.configuration;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.env.Environment;
 
 @Configuration
+@ComponentScan(lazyInit = true)
 public class ModelMapperMaker {
     private static ModelMapper model;
 

@@ -19,7 +19,6 @@ import org.springframework.core.env.Environment;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 import static org.hamcrest.Matchers.containsString;
@@ -51,7 +50,7 @@ class PersonControllerTest {
     @BeforeEach
     private void testDataProduce() {
         String string = "2010-02-02";
-        LocalDateTime dateToday = LocalDateTime.now();
+        LocalDate dateToday = LocalDate.now();
         PassportRequest passport = new PassportRequest();
         passport.setNumber("1223123113");
         passport.setGivenDate(dateToday);

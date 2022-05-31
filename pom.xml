@@ -18,6 +18,7 @@
         <model.mapper.version>3.1.0</model.mapper.version>
         <springdoc.openapi.version>1.6.8</springdoc.openapi.version>
         <rest-assured.version>5.0.1</rest-assured.version>
+        <friendly-id.version>1.1.0</friendly-id.version>
     </properties>
 
     <dependencies>
@@ -48,6 +49,11 @@
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-ui</artifactId>
             <version>${springdoc.openapi.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.devskiller.friendly-id</groupId>
+            <artifactId>friendly-id</artifactId>
+            <version>${friendly-id.version}</version>
         </dependency>
         <dependency>
             <groupId>io.rest-assured</groupId>

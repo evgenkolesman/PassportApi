@@ -508,7 +508,7 @@ components:
           description: "Code with 10-digits value"
         givenDate:
           type: "string"
-          format: "dateTime"
+          format: "date"
         deparmentCode:
           type: "string"
           example: "280540"
@@ -529,7 +529,7 @@ components:
           description: "Code with 10-digits value"
         givenDate:
           type: "string"
-          format: "dateTime"
+          format: "date"
         deparmentCode:
           type: "string"
           example: "280540"

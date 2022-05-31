@@ -15,7 +15,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.time.*;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,7 +38,6 @@ class PassportServiceTest {
     private PersonService personService;
 
     private Person person;
-    private String todayDate;
     private PassportRequest passportRequest;
     private PersonRequest personRequest;
     private Passport passport;
@@ -44,10 +45,9 @@ class PassportServiceTest {
     @BeforeEach
     private void testDataProduce() {
         DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        todayDate = LocalDate.now().format(format);
         passportRequest = new PassportRequest();
         passportRequest.setNumber("1223123113");
-        passportRequest.setGivenDate(LocalDateTime.now());
+        passportRequest.setGivenDate(LocalDate.now());
         passportRequest.setDepartmentCode("123123");
         personRequest = new PersonRequest();
         String string = "2010-02-02";
@@ -95,7 +95,7 @@ class PassportServiceTest {
         PassportRequest passportRequest1 = passportRequest;
         passportRequest1.setNumber("2133548212");
         passportRequest1.setDepartmentCode("213123");
-        passportRequest1.setGivenDate(LocalDateTime.now());
+        passportRequest1.setGivenDate(LocalDate.now());
         Passport passport1 = Passport.of(passportRequest1);
         passport1.setId(passport1.getId());
         assertEquals(passportService.updatePassport(passport.getId(),
@@ -140,7 +140,7 @@ class PassportServiceTest {
         assertEquals(new ArrayList<>(Collections.singleton(passport)),
                 passportService.getPassportsByPersonIdAndParams(person.getId(),
                         null, ZonedDateTime.parse("2022-05-01T19:00:00-02:00"),
-                        LocalDate.parse(todayDate).atTime(LocalTime.of(0,0,0)).atZone(ZoneId.systemDefault())));
+                        ZonedDateTime.now()));
     }
 
     @Test
@@ -165,8 +165,17 @@ class PassportServiceTest {
     }
 
     @Test
-    void testGetPassportsByPersonIdAndParamsWithStartDate() {
+    void testGetPassportsByPersonIdAndParamsWithOutStartDate() {
         assertEquals(List.of(passport),
+                passportService.getPassportsByPersonIdAndParams(person.getId(),
+                        true, ZonedDateTime.parse("2022-01-01T19:00:00-02:00"),
+                        passport.getGivenDate().atStartOfDay(ZoneId.systemDefault())));
+    }
+
+    @Test
+    void testGetPassportsByPersonIdAndParamsWithStartDate() {
+        person.getList().clear();
+        assertThrowsExactly(PassportEmptyException.class, () ->
                 passportService.getPassportsByPersonIdAndParams(person.getId(),
                         true, null, null));
     }
@@ -196,8 +205,8 @@ class PassportServiceTest {
     void testGetPassportsByPersonIdAndParamsWithBadDate() {
         assertThrowsExactly(InvalidPassportDataException.class,
                 () -> passportService.getPassportsByPersonIdAndParams(person.getId(),
-                        true, ZonedDateTime.parse("2022-08-04T19:00:00-02:00"),
-                        ZonedDateTime.parse("2022-04-05T19:00:00-02:00")));
+                        true, ZonedDateTime.parse("2022-08-04T19:00:00+02:00"),
+                        ZonedDateTime.parse("2022-04-05T19:00:00+02:00")));
     }
 
 

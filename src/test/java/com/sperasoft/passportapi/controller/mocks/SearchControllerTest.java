@@ -22,7 +22,6 @@ import org.springframework.core.env.Environment;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -59,7 +58,7 @@ class SearchControllerTest {
     private void testDataProduce() {
         String string = "2010-02-02";
         DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        LocalDateTime dateToday = LocalDateTime.now();
+        LocalDate dateToday = LocalDate.now();
         PassportRequest passportRequest = new PassportRequest();
         passportRequest.setNumber("1223123113");
         passportRequest.setGivenDate(dateToday);
@@ -120,11 +119,11 @@ class SearchControllerTest {
 
     @Test
     void testFindAllPassportsCorrectBadDates() throws Exception {
-        when(searchController.findAllPassports(null, ZonedDateTime.parse("15-05-2022T19:00:00-02:00"),
-                ZonedDateTime.parse("10-05-2022T19:00:00-02:00")))
+        when(searchController.findAllPassports(null, ZonedDateTime.parse("2022-05-15T19:00:00+02:00"),
+                ZonedDateTime.parse("2022-05-10T19:00:00+03:00")))
                 .thenThrow(new InvalidPassportDataException());
 
-        this.mvc.perform(get("/searches?dateStart=15-05-2022&dateEnd=10-05-2022")
+        this.mvc.perform(get("/searches?dateStart=2022-05-15T19:00:00+02:00&dateEnd=2022-05-10T19:00:00+03:00")
                         .contentType("application/json")
                         .content(personResponse.toString()))
                 .andDo(print())

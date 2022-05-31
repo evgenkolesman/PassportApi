@@ -28,8 +28,8 @@ public class PersonController {
     }
 
     @PutMapping("/{id}")
-    public PersonResponse updatePerson(@PathVariable("id") String id, @RequestBody @Valid PersonRequest person) {
-        return PersonResponse.of(personService.updatePerson(id, person));
+    public PersonResponse updatePerson(@PathVariable("id") String id, @RequestBody @Valid PersonRequest personRequest) {
+        return PersonResponse.of(personService.updatePerson(id, Person.of(personRequest)));
     }
 
     @DeleteMapping("/{id}")

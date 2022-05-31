@@ -1,10 +1,5 @@
 package com.sperasoft.passportapi.controller;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.datatype.jsr310.deser.key.ZonedDateTimeKeyDeserializer;
-import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
-import com.fasterxml.jackson.datatype.jsr310.ser.ZonedDateTimeSerializer;
 import com.sperasoft.passportapi.controller.dto.PassportResponse;
 import com.sperasoft.passportapi.controller.dto.PersonResponse;
 import com.sperasoft.passportapi.model.NumberPassport;
@@ -31,7 +26,8 @@ public class SearchController {
     }
 
     @GetMapping
-    public List<PassportResponse> findAllPassports(@RequestParam(name = "active") @Nullable Boolean active,
+    public List<PassportResponse> findAllPassports(@RequestParam(name = "active")
+                                                   @Nullable Boolean active,
                                                    @RequestParam(name = "dateStart")
                                                    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
                                                    @Nullable ZonedDateTime dateStart,
