@@ -3,7 +3,7 @@ package com.sperasoft.passportapi.repository;
 import com.sperasoft.passportapi.model.Passport;
 import com.sperasoft.passportapi.model.Person;
 
-import java.time.ZonedDateTime;
+import java.time.Instant;
 import java.util.List;
 
 public interface PassportRepository {
@@ -18,9 +18,9 @@ public interface PassportRepository {
 
     Passport deletePassport(String id);
 
-    List<Passport> getPassportsByParams(Boolean active, ZonedDateTime dateStart, ZonedDateTime dateEnd);
+    List<Passport> getPassportsByParams(Boolean active, Instant dateStart, Instant dateEnd);
 
-    List<Passport> getPassportsByParams(ZonedDateTime dateStart, ZonedDateTime dateEnd);
+    List<Passport> getPassportsByParams(Instant dateStart, Instant dateEnd);
 
     List<Passport> getPassportsByParams(Boolean active);
 

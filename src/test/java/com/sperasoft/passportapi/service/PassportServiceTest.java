@@ -15,9 +15,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -47,7 +46,7 @@ class PassportServiceTest {
         DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         passportRequest = new PassportRequest();
         passportRequest.setNumber("1223123113");
-        passportRequest.setGivenDate(LocalDate.now());
+        passportRequest.setGivenDate(Instant.now());
         passportRequest.setDepartmentCode("123123");
         personRequest = new PersonRequest();
         String string = "2010-02-02";
@@ -95,7 +94,7 @@ class PassportServiceTest {
         PassportRequest passportRequest1 = passportRequest;
         passportRequest1.setNumber("2133548212");
         passportRequest1.setDepartmentCode("213123");
-        passportRequest1.setGivenDate(LocalDate.now());
+        passportRequest1.setGivenDate(Instant.now());
         Passport passport1 = Passport.of(passportRequest1);
         passport1.setId(passport1.getId());
         assertEquals(passportService.updatePassport(passport.getId(),
@@ -139,15 +138,15 @@ class PassportServiceTest {
     void testGetPassportsByPersonIdAndParamsWithOutBoolean() {
         assertEquals(new ArrayList<>(Collections.singleton(passport)),
                 passportService.getPassportsByPersonIdAndParams(person.getId(),
-                        null, ZonedDateTime.parse("2022-05-01T19:00:00-02:00"),
-                        ZonedDateTime.now()));
+                        null, Instant.parse("2022-05-01T19:00:00-02:00"),
+                        Instant.now()));
     }
 
     @Test
     void testGetPassportsByPersonIdAndParamsWithOutBooleanWrong() {
         assertThrowsExactly(InvalidPassportDataException.class, () ->
                 passportService.getPassportsByPersonIdAndParams(person.getId(),
-                        null, ZonedDateTime.parse("2022-12-01T19:00:00-02:00"), ZonedDateTime.parse("2022-05-01T19:00:00-02:00")));
+                        null, Instant.parse("2022-12-01T19:00:00-02:00"), Instant.parse("2022-05-01T19:00:00-02:00")));
     }
 
     @Test
@@ -167,9 +166,9 @@ class PassportServiceTest {
     @Test
     void testGetPassportsByPersonIdAndParamsWithOutStartDate() {
         assertEquals(List.of(passport),
-                passportService.getPassportsByPersonIdAndParams(person.getId(),
-                        true, ZonedDateTime.parse("2022-01-01T19:00:00-02:00"),
-                        passport.getGivenDate().atStartOfDay(ZoneId.systemDefault())));
+                Collections.unmodifiableList(passportService.getPassportsByPersonIdAndParams(person.getId(),
+                        true, Instant.parse("2022-01-01T19:00:00-02:00"),
+                        passport.getGivenDate().plusNanos(10))));
     }
 
     @Test
@@ -185,7 +184,7 @@ class PassportServiceTest {
         assertEquals(new ArrayList<>(),
                 passportService.getPassportsByPersonIdAndParams(person.getId(),
                         true, null,
-                        ZonedDateTime.parse("2022-05-11T19:00:00-02:00")));
+                        Instant.parse("2022-05-11T19:00:00-02:00")));
     }
 
     @Test
@@ -198,15 +197,15 @@ class PassportServiceTest {
         Person person2 = personService.addPerson(person1);
         assertThrowsExactly(PassportEmptyException.class, () ->
                 passportService.getPassportsByPersonIdAndParams(person2.getId(),
-                        true, null, ZonedDateTime.parse("2022-04-05T19:00:00-02:00")));
+                        true, null, Instant.parse("2022-04-05T19:00:00-02:00")));
     }
 
     @Test
     void testGetPassportsByPersonIdAndParamsWithBadDate() {
         assertThrowsExactly(InvalidPassportDataException.class,
                 () -> passportService.getPassportsByPersonIdAndParams(person.getId(),
-                        true, ZonedDateTime.parse("2022-08-04T19:00:00+02:00"),
-                        ZonedDateTime.parse("2022-04-05T19:00:00+02:00")));
+                        true, Instant.parse("2022-08-04T19:00:00+02:00"),
+                        Instant.parse("2022-04-05T19:00:00+02:00")));
     }
 
 

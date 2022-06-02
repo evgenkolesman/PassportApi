@@ -21,8 +21,9 @@ import org.springframework.core.env.Environment;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.ZonedDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -61,7 +62,7 @@ class PassportControllerTest {
         LocalDate datePassport = LocalDate.parse("2022-05-05", format);
         passportRequest = new PassportRequest();
         passportRequest.setNumber("1223123113");
-        passportRequest.setGivenDate(datePassport);
+        passportRequest.setGivenDate(datePassport.atStartOfDay().toInstant(ZoneOffset.MIN));
         passportRequest.setDepartmentCode("123123");
         PersonRequest personRequest = new PersonRequest();
         passport = Passport.of(passportRequest);
@@ -87,7 +88,7 @@ class PassportControllerTest {
     @Test
     void testFindPersonPassportsBooleanTrueWrongDates() throws Exception {
         when(passportController.findPersonPassports(person.getId(),
-                true, ZonedDateTime.parse("2022-05-06T19:00:00-02:00"), ZonedDateTime.parse("2022-05-05T19:00:00-02:00")))
+                true, Instant.parse("2022-05-06T19:00:00-02:00"), Instant.parse("2022-05-05T19:00:00-02:00")))
                 .thenThrow(new InvalidPassportDataException());
         this.mvc.perform(get("/person/" + person.getId() +
                         "/passport?active=true&dateStart=2022-05-06T19:00:00-02:00&dateEnd=2022-05-05T19:00:00-02:00")
@@ -102,7 +103,7 @@ class PassportControllerTest {
     @Test
     void testFindPersonPassportsWithoutPassport() throws Exception {
         when(passportController.findPersonPassports(person.getId(),
-                true, ZonedDateTime.parse("2022-05-02T19:00:00-02:00"), ZonedDateTime.parse("2022-05-08T19:00:00-02:00")))
+                true, Instant.parse("2022-05-02T19:00:00-02:00"), Instant.parse("2022-05-08T19:00:00-02:00")))
                 .thenThrow(new PassportEmptyException(person.getId()));
         this.mvc.perform(get("/person/" + person.getId() +
                         "/passport?active=true&dateStart=2022-05-02T19:00:00-02:00&dateEnd=2022-05-08T19:00:00-02:00")

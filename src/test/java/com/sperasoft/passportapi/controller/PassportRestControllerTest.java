@@ -3,7 +3,6 @@ package com.sperasoft.passportapi.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sperasoft.passportapi.PassportApiApplication;
-import com.sperasoft.passportapi.configuration.EnvConfig;
 import com.sperasoft.passportapi.controller.dto.PassportRequest;
 import com.sperasoft.passportapi.controller.dto.PassportResponse;
 import com.sperasoft.passportapi.controller.dto.PersonRequest;
@@ -12,11 +11,14 @@ import com.sperasoft.passportapi.model.Description;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.env.Environment;
 import org.springframework.http.MediaType;
 
 import java.time.LocalDate;
-import java.time.ZonedDateTime;
+import java.time.Instant;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -29,7 +31,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class PassportRestControllerTest {
 
     @Autowired
-    private EnvConfig env;
+    @Qualifier(value = "EnvConfig")
+    private Environment env;
 
     private static PassportRequest passportRequest;
     private static PassportResponse passportResponse;
@@ -46,7 +49,7 @@ public class PassportRestControllerTest {
         int departmentCode = ThreadLocalRandom.current().nextInt(99999);
         int varInt = ThreadLocalRandom.current().nextInt(10000000);
         passportRequest.setNumber(String.valueOf(number));
-        passportRequest.setGivenDate(datePassport);
+        passportRequest.setGivenDate(datePassport.atStartOfDay().toInstant(ZoneOffset.MIN));
         passportRequest.setDepartmentCode(String.valueOf(departmentCode));
         PersonRequest personRequest = new PersonRequest();
         LocalDate date = LocalDate.parse(string, format);
@@ -136,7 +139,7 @@ public class PassportRestControllerTest {
         given()
                 .get("http://localhost:8081/person/" + personResponse.getId() +
                         "/passport/" +
-                        "?active=true&dateStart=2022-05-04T19:00:00-02:00&dateEnd=" + ZonedDateTime.now())
+                        "?active=true&dateStart=2022-05-04T19:00:00-02:00&dateEnd=" + Instant.now())
                 .then()
                 .and()
                 .log()
@@ -150,7 +153,7 @@ public class PassportRestControllerTest {
         var response = given()
                 .get("http://localhost:8081/person/" + personResponse.getId() +
                         "/passport/" +
-                        "?dateStart=2022-05-04T19:00:00-02:00&dateEnd=" + ZonedDateTime.now())
+                        "?dateStart=2022-05-04T19:00:00-02:00&dateEnd=" + Instant.now())
                 .then()
                 .and()
                 .log()

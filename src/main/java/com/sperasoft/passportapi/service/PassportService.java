@@ -1,6 +1,5 @@
 package com.sperasoft.passportapi.service;
 
-import com.sperasoft.passportapi.configuration.PredicateDatesChecking;
 import com.sperasoft.passportapi.exceptions.passportexceptions.*;
 import com.sperasoft.passportapi.model.Description;
 import com.sperasoft.passportapi.model.Passport;
@@ -9,11 +8,13 @@ import com.sperasoft.passportapi.repository.PassportRepositoryImpl;
 import com.sperasoft.passportapi.repository.PersonRepositoryImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
-import java.time.ZonedDateTime;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiPredicate;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -23,7 +24,7 @@ public class PassportService {
 
     private final PassportRepositoryImpl passportRepository;
     private final PersonRepositoryImpl personRepositoryImpl;
-    private final PredicateDatesChecking predicateDatesChecking;
+    private final BiPredicate<Passport, List<Instant>> predicateDatesChecking;
 
     public Passport addPassportToPerson(String personId,
                                         Passport passport) {
@@ -58,8 +59,8 @@ public class PassportService {
 
     public List<Passport> getPassportsByPersonIdAndParams(String personId,
                                                           Boolean active,
-                                                          ZonedDateTime dateStart,
-                                                          ZonedDateTime dateEnd) {
+                                                          @Nullable Instant dateStart,
+                                                          @Nullable Instant dateEnd) {
         Person person = personRepositoryImpl.findPersonById(personId);
         if (person.getList().size() == 0) {
             throw new PassportEmptyException(personId);
@@ -70,8 +71,8 @@ public class PassportService {
             return getPassportsByPersonAndParams(person, active);
         } else if (dateStart == null || dateEnd == null) {
             if (dateStart == null) {
-                dateStart = dateEnd;
-            } else dateEnd = ZonedDateTime.now();
+                dateStart = dateEnd.minusSeconds(1l);
+            } else dateEnd = Instant.now();
         }
 
         if (dateStart.isAfter(dateEnd)) {
@@ -84,8 +85,8 @@ public class PassportService {
     }
 
     private List<Passport> getPassportsByPersonAndParams(Person person,
-                                                         ZonedDateTime dateStart,
-                                                         ZonedDateTime dateEnd) {
+                                                         Instant dateStart,
+                                                         Instant dateEnd) {
         return person.getList().stream().filter(passport ->
                         predicateDatesChecking.test(passport, List.of(dateStart, dateEnd)))
                 .collect(Collectors.toList());
@@ -94,8 +95,8 @@ public class PassportService {
 
     private List<Passport> getPassportsByPersonAndParams(Person person,
                                                          boolean active,
-                                                         ZonedDateTime dateStart,
-                                                         ZonedDateTime dateEnd) {
+                                                         Instant dateStart,
+                                                         Instant dateEnd) {
         return person.getList().stream().filter(a -> a.isActive() == active).filter(passport ->
                         predicateDatesChecking.test(passport, List.of(dateStart, dateEnd)))
                 .collect(Collectors.toList());

@@ -14,8 +14,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -47,7 +47,7 @@ public class SearchServiceTest {
         DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         PassportRequest passportRequest = new PassportRequest();
         passportRequest.setNumber("1223123113");
-        passportRequest.setGivenDate(LocalDate.now());
+        passportRequest.setGivenDate(Instant.now());
         passportRequest.setDepartmentCode("123123");
         PersonRequest personRequest = new PersonRequest();
         String string = "2010-02-02";
@@ -75,33 +75,33 @@ public class SearchServiceTest {
     void testGetAllPassportsAllParams() {
         assertEquals(new ArrayList<>(Collections.singleton(passport)),
                 searchService.getAllPassports(true,
-                        ZonedDateTime.parse("2022-03-05T19:00:00-02:00"), ZonedDateTime.now()));
+                        Instant.parse("2022-03-05T19:00:00-02:00"), Instant.now()));
     }
 
     @Test
     void testGetAllPassportsBadDate() {
         assertThrowsExactly(InvalidPassportDataException.class, () ->
-                searchService.getAllPassports(true, ZonedDateTime.parse("2022-08-04T19:00:00-02:00"),
-                        ZonedDateTime.parse("2022-05-04T19:00:00-02:00")));
+                searchService.getAllPassports(true, Instant.parse("2022-08-04T19:00:00-02:00"),
+                        Instant.parse("2022-05-04T19:00:00-02:00")));
     }
 
     @Test
     void testGetAllPassportsWithoutBoolean() {
         assertEquals(new ArrayList<>(Collections.singleton(passport)),
-                searchService.getAllPassports(null, ZonedDateTime.parse("2022-03-05T19:00:00-02:00"),
-                        ZonedDateTime.now()));
+                searchService.getAllPassports(null, Instant.parse("2022-03-05T19:00:00-02:00"),
+                        Instant.now()));
     }
 
     @Test
     void testGetAllPassportsWithoutBooleanWithEmptyStartDate() {
         assertEquals(new ArrayList<>(),
-                searchService.getAllPassports(null, null, ZonedDateTime.parse("2022-05-04T19:00:00-02:00")));
+                searchService.getAllPassports(null, null, Instant.parse("2022-05-04T19:00:00-02:00")));
     }
 
     @Test
     void testGetAllPassportsWithoutBooleanWithEmptyEndDate() {
         assertEquals(new ArrayList<>(Collections.singleton(passport)),
-                searchService.getAllPassports(null, ZonedDateTime.parse("2022-05-04T19:00:00-02:00"), null));
+                searchService.getAllPassports(null, Instant.parse("2022-05-04T19:00:00-02:00"), null));
     }
 
     @Test
