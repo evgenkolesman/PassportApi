@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.time.ZonedDateTime;
+import java.time.Instant;
 import java.util.List;
 
 @Slf4j
@@ -33,8 +33,8 @@ public class SearchService {
     }
 
     public List<Passport> getAllPassports(Boolean active,
-                                          ZonedDateTime dateStart,
-                                          ZonedDateTime dateEnd) {
+                                          Instant dateStart,
+                                          Instant dateEnd) {
         if (active == null && dateStart == null && dateEnd == null) {
             return passportRepository.getPassportsByParams();
         } else if (dateStart == null && dateEnd == null) {
@@ -42,7 +42,7 @@ public class SearchService {
         } else if (dateStart == null || dateEnd == null) {
             if (dateStart == null) {
                 dateStart = dateEnd;
-            } else dateEnd = ZonedDateTime.now();
+            } else dateEnd = Instant.now();
         }
         if (dateStart.isAfter(dateEnd)) {
             throw new InvalidPassportDataException();

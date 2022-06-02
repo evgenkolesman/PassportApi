@@ -18,6 +18,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.env.Environment;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
@@ -50,10 +51,9 @@ class PersonControllerTest {
     @BeforeEach
     private void testDataProduce() {
         String string = "2010-02-02";
-        LocalDate dateToday = LocalDate.now();
         PassportRequest passport = new PassportRequest();
         passport.setNumber("1223123113");
-        passport.setGivenDate(dateToday);
+        passport.setGivenDate(Instant.now());
         passport.setDepartmentCode("123123");
         personRequest = new PersonRequest();
         DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -91,7 +91,7 @@ class PersonControllerTest {
     @Test
     void testFindPersonById() throws Exception {
         when(personController.findPersonById(person.getId())).thenReturn(personResponse);
-        String req = mapper.writer().writeValueAsString(person);
+        String req = mapper.writer().writeValueAsString(personRequest);
         this.mvc.perform(get("/person/" + person.getId()).contentType("application/json")
                         .content(req))
                 .andDo(print())
@@ -135,7 +135,7 @@ class PersonControllerTest {
 
     @Test
     void testDeletePersonCorrect() throws Exception {
-        String req = mapper.writer().writeValueAsString(person);
+        String req = mapper.writer().writeValueAsString(personRequest);
         this.mvc.perform(delete("/person/" + person.getId()).contentType("application/json")
                         .content(req))
                 .andDo(print())

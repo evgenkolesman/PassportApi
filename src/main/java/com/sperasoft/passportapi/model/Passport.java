@@ -7,7 +7,7 @@ import com.sperasoft.passportapi.configuration.ModelMapperMaker;
 import com.sperasoft.passportapi.controller.dto.PassportRequest;
 import lombok.Data;
 
-import java.time.LocalDate;
+import java.time.Instant;
 
 @Data
 public class Passport {
@@ -16,8 +16,7 @@ public class Passport {
 
     private String number;
 
-    @JsonSerialize(using = LocalDateSerializer.class)
-    private LocalDate givenDate;
+    private Instant givenDate;
 
     private String departmentCode;
 

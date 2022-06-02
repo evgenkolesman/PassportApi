@@ -1,12 +1,12 @@
 package com.sperasoft.passportapi.exceptions;
 
 import com.devskiller.friendly_id.FriendlyId;
-import com.sperasoft.passportapi.configuration.EnvConfig;
 import com.sperasoft.passportapi.exceptions.passportexceptions.*;
 import com.sperasoft.passportapi.exceptions.personexceptions.InvalidPersonDataException;
 import com.sperasoft.passportapi.exceptions.personexceptions.PersonNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +21,7 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class RestResponseEntityExceptionHandler {
 
-    private final EnvConfig environment;
+    private final Environment environment;
 
     @ExceptionHandler(value = {InvalidPassportDataException.class,
             PassportDeactivatedException.class,

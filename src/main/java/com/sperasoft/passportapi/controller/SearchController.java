@@ -9,7 +9,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.ZonedDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,10 +30,10 @@ public class SearchController {
                                                    @Nullable Boolean active,
                                                    @RequestParam(name = "dateStart")
                                                    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-                                                   @Nullable ZonedDateTime dateStart,
+                                                   @Nullable Instant dateStart,
                                                    @RequestParam(name = "dateEnd")
                                                    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-                                                   @Nullable ZonedDateTime dateEnd) {
+                                                   @Nullable Instant dateEnd) {
         return searchService.getAllPassports(active,
                         dateStart,
                         dateEnd)

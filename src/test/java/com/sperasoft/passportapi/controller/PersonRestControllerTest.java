@@ -3,7 +3,6 @@ package com.sperasoft.passportapi.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sperasoft.passportapi.PassportApiApplication;
-import com.sperasoft.passportapi.configuration.EnvConfig;
 import com.sperasoft.passportapi.controller.dto.PassportRequest;
 import com.sperasoft.passportapi.controller.dto.PersonRequest;
 import com.sperasoft.passportapi.controller.dto.PersonResponse;
@@ -12,9 +11,12 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.env.Environment;
 import org.springframework.http.MediaType;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.ThreadLocalRandom;
@@ -31,15 +33,15 @@ public class PersonRestControllerTest {
     private static PersonResponse personResponse;
 
     @Autowired
-    private EnvConfig env;
+    @Qualifier(value = "EnvConfig")
+    private Environment env;
 
     @BeforeAll
     static void testDataProduce() throws JsonProcessingException {
         String string = "2010-02-02";
-        LocalDate dateToday = LocalDate.now();
         PassportRequest passport = new PassportRequest();
         passport.setNumber("1223123113");
-        passport.setGivenDate(dateToday);
+        passport.setGivenDate(Instant.now());
         passport.setDepartmentCode("123123");
         personRequest = new PersonRequest();
         DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd");

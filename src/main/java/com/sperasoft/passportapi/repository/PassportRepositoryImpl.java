@@ -1,6 +1,5 @@
 package com.sperasoft.passportapi.repository;
 
-import com.sperasoft.passportapi.configuration.PredicateDatesChecking;
 import com.sperasoft.passportapi.exceptions.passportexceptions.PassportBadStatusException;
 import com.sperasoft.passportapi.model.Passport;
 import com.sperasoft.passportapi.model.Person;
@@ -8,18 +7,19 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import java.time.ZonedDateTime;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiPredicate;
 import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class PassportRepositoryImpl implements PassportRepository {
 
-    private final PredicateDatesChecking predicateDatesChecking;
+    private final BiPredicate<Passport, List<Instant>> predicateDatesChecking;
     private static final Map<String, Passport> passportRepo = new ConcurrentHashMap<>();
 
     @Override
@@ -55,7 +55,7 @@ public class PassportRepositoryImpl implements PassportRepository {
     }
 
     @Override
-    public List<Passport> getPassportsByParams(Boolean active, ZonedDateTime dateStart, ZonedDateTime dateEnd) {
+    public List<Passport> getPassportsByParams(Boolean active, Instant dateStart, Instant dateEnd) {
         return passportRepo.values().stream().filter(a -> a.isActive() == active)
                 .filter(passport ->
                         predicateDatesChecking.test(passport, List.of(dateStart, dateEnd)))
@@ -63,7 +63,7 @@ public class PassportRepositoryImpl implements PassportRepository {
     }
 
     @Override
-    public List<Passport> getPassportsByParams(ZonedDateTime dateStart, ZonedDateTime dateEnd) {
+    public List<Passport> getPassportsByParams(Instant dateStart, Instant dateEnd) {
         return passportRepo.values().stream()
                 .filter(passport ->
                         predicateDatesChecking.test(passport, List.of(dateStart, dateEnd)))

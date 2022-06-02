@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.time.ZonedDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,13 +25,14 @@ public class PassportController {
 
     @GetMapping
     public List<PassportResponse> findPersonPassports(@PathVariable(name ="personId") String personId,
-                                                      @RequestParam(name = "active") @Nullable Boolean active,
+                                                      @RequestParam(name = "active")
+                                                      @Nullable Boolean active,
                                                       @RequestParam(name = "dateStart")
                                                       @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-                                                      @Nullable ZonedDateTime dateStart,
+                                                      @Nullable Instant dateStart,
                                                       @RequestParam(name = "dateEnd")
                                                       @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-                                                      @Nullable ZonedDateTime dateEnd) {
+                                                      @Nullable Instant dateEnd) {
         return passportService.getPassportsByPersonIdAndParams(personId, active, dateStart, dateEnd)
                 .stream().map(PassportResponse::of)
                 .collect(Collectors.toList());
@@ -46,7 +47,8 @@ public class PassportController {
 
     @GetMapping("/{id}")
     public PassportResponse findPassport(@PathVariable("id") String id,
-                                         @RequestParam(name = "active") @Nullable Boolean active) {
+                                         @RequestParam(name = "active")
+                                         @Nullable Boolean active) {
         return PassportResponse.of(passportService.findPassportById(id, active));
     }
 

@@ -18,7 +18,6 @@ public class Person {
 
     private String name;
 
-    @JsonSerialize(using = LocalDateSerializer.class)
     private LocalDate birthday;
 
     private String birthdayCountry;

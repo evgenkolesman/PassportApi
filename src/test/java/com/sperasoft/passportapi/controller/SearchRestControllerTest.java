@@ -3,7 +3,6 @@ package com.sperasoft.passportapi.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sperasoft.passportapi.PassportApiApplication;
-import com.sperasoft.passportapi.configuration.EnvConfig;
 import com.sperasoft.passportapi.controller.dto.PassportRequest;
 import com.sperasoft.passportapi.controller.dto.PassportResponse;
 import com.sperasoft.passportapi.controller.dto.PersonRequest;
@@ -12,10 +11,13 @@ import com.sperasoft.passportapi.model.NumberPassport;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.env.Environment;
 import org.springframework.http.MediaType;
 
 import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -29,7 +31,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class SearchRestControllerTest {
 
     @Autowired
-    private EnvConfig env;
+    @Qualifier(value = "EnvConfig")
+    private Environment env;
 
     private static PassportRequest passportRequest;
     private static PassportResponse passportResponse;
@@ -47,7 +50,7 @@ public class SearchRestControllerTest {
         int departmentCode = ThreadLocalRandom.current().nextInt(899999) + 100000;
         int varInt = ThreadLocalRandom.current().nextInt(10000000);
         passportRequest.setNumber(String.valueOf(number));
-        passportRequest.setGivenDate(datePassport);
+        passportRequest.setGivenDate(datePassport.atStartOfDay().toInstant(ZoneOffset.MIN));
         passportRequest.setDepartmentCode(String.valueOf(departmentCode));
         personRequest = new PersonRequest();
         LocalDate date = LocalDate.parse("2022-05-05", DateTimeFormatter.ISO_DATE);
