@@ -2,16 +2,18 @@ package com.sperasoft.passportapi.configuration;
 
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.stereotype.Component;
 
-@Component
+/**
+ * All config was replaced to common config
+ */
+
+//@Configuration
+@Deprecated
 public class ModelMapperMaker {
     private static ModelMapper model;
 
-    @Bean
+
     public ModelMapper getMapper() {
         model = new ModelMapper();
         model.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
