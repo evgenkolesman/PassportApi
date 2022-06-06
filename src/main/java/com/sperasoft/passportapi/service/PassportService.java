@@ -71,7 +71,7 @@ public class PassportService {
             return getPassportsByPersonAndParams(person, active);
         } else if (dateStart == null || dateEnd == null) {
             if (dateStart == null) {
-                dateStart = dateEnd.minusSeconds(1l);
+                dateStart = dateEnd.minusSeconds(1L);
             } else dateEnd = Instant.now();
         }
 

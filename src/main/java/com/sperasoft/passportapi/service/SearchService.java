@@ -29,7 +29,7 @@ public class SearchService {
                                 person1.getList().stream().anyMatch(
                                         p -> p.getNumber().equals(number))).findFirst()
                         .orElseThrow(PassportWrongNumberException::new))
-                .findFirst().get();
+                .findFirst().orElseThrow();
     }
 
     public List<Passport> getAllPassports(Boolean active,

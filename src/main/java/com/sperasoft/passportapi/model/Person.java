@@ -1,9 +1,7 @@
 package com.sperasoft.passportapi.model;
 
 import com.devskiller.friendly_id.FriendlyId;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
-import com.sperasoft.passportapi.configuration.ModelMapperMaker;
+import com.sperasoft.passportapi.configuration.CommonConfiguration;
 import com.sperasoft.passportapi.controller.dto.PersonRequest;
 import lombok.Data;
 
@@ -25,7 +23,7 @@ public class Person {
     private List<Passport> list = new ArrayList<>();
 
     public static Person of(PersonRequest personRequest) {
-        Person person = ModelMapperMaker.configMapper().map(personRequest, Person.class);
+        Person person = CommonConfiguration.configMapper().map(personRequest, Person.class);
         person.setId(FriendlyId.createFriendlyId());
         return person;
     }

@@ -2,7 +2,7 @@ package com.sperasoft.passportapi.controller.dto;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
-import com.sperasoft.passportapi.configuration.ModelMapperMaker;
+import com.sperasoft.passportapi.configuration.CommonConfiguration;
 import com.sperasoft.passportapi.model.Person;
 import lombok.Data;
 
@@ -21,6 +21,6 @@ public class PersonResponse {
     private String birthdayCountry;
 
     public static PersonResponse of(Person person) {
-        return ModelMapperMaker.configMapper().map(person, PersonResponse.class);
+        return CommonConfiguration.configMapper().map(person, PersonResponse.class);
     }
 }
