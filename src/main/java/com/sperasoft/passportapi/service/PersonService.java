@@ -36,7 +36,6 @@ public class PersonService {
 
     public Person updatePerson(String id, Person person) {
         checkPersonPresentInRepository(id);
-        person.setId(id);
         return personRepositoryImpl.updatePerson(id, person);
     }
 

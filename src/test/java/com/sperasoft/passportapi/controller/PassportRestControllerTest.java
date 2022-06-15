@@ -2,7 +2,6 @@ package com.sperasoft.passportapi.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sperasoft.passportapi.PassportApiApplication;
 import com.sperasoft.passportapi.controller.dto.PassportRequest;
 import com.sperasoft.passportapi.controller.dto.PassportResponse;
 import com.sperasoft.passportapi.controller.dto.PersonRequest;
@@ -11,13 +10,12 @@ import com.sperasoft.passportapi.model.Description;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.env.Environment;
 import org.springframework.http.MediaType;
 
-import java.time.LocalDate;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.ThreadLocalRandom;
@@ -26,12 +24,10 @@ import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Slf4j
-@SpringBootTest(classes = PassportApiApplication.class)
+@SpringBootTest
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class PassportRestControllerTest {
-
     @Autowired
-    @Qualifier(value = "EnvConfig")
     private Environment env;
 
     private static PassportRequest passportRequest;
@@ -42,21 +38,15 @@ public class PassportRestControllerTest {
     @BeforeAll
     static void testDataProduce() throws JsonProcessingException {
         String string = "2010-02-02";
-        DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate date = LocalDate.parse(string, DateTimeFormatter.ISO_DATE);
         LocalDate datePassport = LocalDate.parse("2022-05-05");
-        passportRequest = new PassportRequest();
         int number = ThreadLocalRandom.current().nextInt(999999999);
         int departmentCode = ThreadLocalRandom.current().nextInt(99999);
         int varInt = ThreadLocalRandom.current().nextInt(10000000);
-        passportRequest.setNumber(String.valueOf(number));
-        passportRequest.setGivenDate(datePassport.atStartOfDay().toInstant(ZoneOffset.MIN));
-        passportRequest.setDepartmentCode(String.valueOf(departmentCode));
-        PersonRequest personRequest = new PersonRequest();
-        LocalDate date = LocalDate.parse(string, format);
-        personRequest.setName("Alex Frolov" + varInt);
-        personRequest.setBirthday(date);
-        personRequest.setBirthdayCountry("UK");
-
+        passportRequest = new PassportRequest(String.valueOf(number),
+                datePassport.atStartOfDay().toInstant(ZoneOffset.MIN),
+                String.valueOf(departmentCode));
+        PersonRequest personRequest = new PersonRequest("Alex Frolov" + varInt, date, "UK");
         String reqPerson = mapper.writeValueAsString(personRequest);
         String reqPassport = mapper.writeValueAsString(passportRequest);
         personResponse = given()
@@ -247,7 +237,6 @@ public class PassportRestControllerTest {
                 .assertThat().statusCode(409)
                 .extract()
                 .response().print();
-
         assertEquals(env.getProperty("exception.PassportDeactivatedException"), response);
     }
 }

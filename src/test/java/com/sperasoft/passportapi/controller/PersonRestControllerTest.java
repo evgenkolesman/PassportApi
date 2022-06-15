@@ -11,7 +11,6 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.env.Environment;
 import org.springframework.http.MediaType;
@@ -25,7 +24,7 @@ import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Slf4j
-@SpringBootTest(classes = PassportApiApplication.class)
+@SpringBootTest
 public class PersonRestControllerTest {
 
     private static final ObjectMapper mapper = new ObjectMapper();
@@ -33,23 +32,15 @@ public class PersonRestControllerTest {
     private static PersonResponse personResponse;
 
     @Autowired
-    @Qualifier(value = "EnvConfig")
     private Environment env;
 
     @BeforeAll
     static void testDataProduce() throws JsonProcessingException {
         String string = "2010-02-02";
-        PassportRequest passport = new PassportRequest();
-        passport.setNumber("1223123113");
-        passport.setGivenDate(Instant.now());
-        passport.setDepartmentCode("123123");
-        personRequest = new PersonRequest();
-        DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        LocalDate date = LocalDate.parse(string, format);
+        LocalDate date = LocalDate.parse(string, DateTimeFormatter.ISO_DATE);
         int intVar = ThreadLocalRandom.current().nextInt(10000);
-        personRequest.setName("Alex Frolov" + intVar);
-        personRequest.setBirthday(date);
-        personRequest.setBirthdayCountry("UK");
+//        PassportRequest passport = new PassportRequest("1223123113", Instant.now(), "123123");
+        personRequest = new PersonRequest("Alex Frolov" + intVar, date, "UK");
         String req = mapper.writeValueAsString(personRequest);
         personResponse = given()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -101,8 +92,9 @@ public class PersonRestControllerTest {
 
     @Test
     void testUpdatePersonByIdCorrect() throws JsonProcessingException {
-        PersonRequest personRequest1 = personRequest;
-        personRequest1.setName("Egor");
+        PersonRequest personRequest1 = new PersonRequest("Egor",
+                personRequest.getBirthday(),
+                personRequest.getBirthdayCountry());
         String req = mapper.writeValueAsString(personRequest1);
         personResponse = given()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -118,8 +110,9 @@ public class PersonRestControllerTest {
 
     @Test
     void testUpdatePersonByIdNotCorrect() throws JsonProcessingException {
-        PersonRequest personRequest1 = personRequest;
-        personRequest1.setName("Egor");
+        PersonRequest personRequest1 = new PersonRequest("Egor",
+                personRequest.getBirthday(),
+                personRequest.getBirthdayCountry());
         String req = mapper.writeValueAsString(personRequest1);
         personResponse = given()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)

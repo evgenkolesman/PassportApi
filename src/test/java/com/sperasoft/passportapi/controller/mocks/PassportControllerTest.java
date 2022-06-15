@@ -1,7 +1,9 @@
 package com.sperasoft.passportapi.controller.mocks;
 
+import com.devskiller.friendly_id.FriendlyId;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sperasoft.passportapi.PassportApiApplication;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.sperasoft.passportapi.controller.PassportController;
 import com.sperasoft.passportapi.controller.dto.PassportRequest;
 import com.sperasoft.passportapi.controller.dto.PassportResponse;
@@ -36,7 +38,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest(classes = PassportApiApplication.class)
+@SpringBootTest
 @AutoConfigureMockMvc
 class PassportControllerTest {
 
@@ -53,24 +55,22 @@ class PassportControllerTest {
     private PassportResponse passportResponse;
     private Person person;
     private Passport passport;
-    private final ObjectMapper mapper = new ObjectMapper();
+    @Autowired
+    private ObjectMapper mapper;
 
     @BeforeEach
     private void testDataProduce() {
         String string = "2010-02-02";
-        DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        LocalDate datePassport = LocalDate.parse("2022-05-05", format);
-        passportRequest = new PassportRequest();
-        passportRequest.setNumber("1223123113");
-        passportRequest.setGivenDate(datePassport.atStartOfDay().toInstant(ZoneOffset.MIN));
-        passportRequest.setDepartmentCode("123123");
-        PersonRequest personRequest = new PersonRequest();
-        passport = Passport.of(passportRequest);
-        LocalDate date = LocalDate.parse(string, format);
-        personRequest.setName("Alex Frolov");
-        personRequest.setBirthday(date);
-        personRequest.setBirthdayCountry("UK");
-        person = Person.of(personRequest);
+        LocalDate dateToday = LocalDate.now();
+        LocalDate date = LocalDate.parse(string, DateTimeFormatter.ISO_DATE);
+        passportRequest = new PassportRequest("1223123113",
+                dateToday.atStartOfDay().toInstant(ZoneOffset.MIN),
+                "123123");
+        PersonRequest personRequest = new PersonRequest("Alex Frolov",
+                date,
+                "UK");
+        passport = Passport.of(FriendlyId.createFriendlyId(), passportRequest);
+        person = Person.of(FriendlyId.createFriendlyId(), personRequest);
         passportResponse = PassportResponse.of(passport);
     }
 
@@ -159,8 +159,10 @@ class PassportControllerTest {
 
     @Test
     void testCreatePassportNotCorrectBadData() throws Exception {
-        PassportRequest passportRequest1 = passportRequest;
-        passportRequest1.setNumber("233");
+        PassportRequest passportRequest1 = new PassportRequest("233",
+                passportRequest.getGivenDate(),
+                passportRequest.getDepartmentCode());
+
         when(passportController.createPassport(person.getId(), passportRequest1))
                 .thenThrow(new PassportWasAddedException());
         String req = mapper.writer().writeValueAsString(passportRequest1);
@@ -206,8 +208,9 @@ class PassportControllerTest {
 
     @Test
     void testUpdatePassportNotCorrectNotFound() throws Exception {
-        PassportRequest passportForTest = passportRequest;
-        passportForTest.setDepartmentCode("111111");
+        PassportRequest passportForTest = new PassportRequest(passportRequest.getNumber(),
+                passportRequest.getGivenDate(),
+                "111111");
         when(passportController.updatePassport(person.getId(), passportForTest))
                 .thenThrow(new PersonNotFoundException(person.getId()));
         String req = mapper.writer().writeValueAsString(passportForTest);
@@ -225,9 +228,10 @@ class PassportControllerTest {
 
     @Test
     void testUpdatePassportCorrect() throws Exception {
-        PassportRequest passportForTest = passportRequest;
-        passportForTest.setDepartmentCode("111111");
-        Passport passport1 = Passport.of(passportForTest);
+        PassportRequest passportForTest = new PassportRequest(passportRequest.getNumber(),
+                passportRequest.getGivenDate(),
+                "111111");
+        Passport passport1 = Passport.of(FriendlyId.createFriendlyId(), passportForTest);
         when(passportController.updatePassport(passport.getId(), passportForTest))
                 .thenReturn(PassportResponse.of(passport1));
         String req = mapper.writer().writeValueAsString(passportForTest);

@@ -1,6 +1,6 @@
 package com.sperasoft.passportapi.service;
 
-import com.sperasoft.passportapi.PassportApiApplication;
+import com.devskiller.friendly_id.FriendlyId;
 import com.sperasoft.passportapi.controller.dto.PassportRequest;
 import com.sperasoft.passportapi.controller.dto.PersonRequest;
 import com.sperasoft.passportapi.exceptions.passportexceptions.InvalidPassportDataException;
@@ -24,7 +24,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 
-@SpringBootTest(classes = PassportApiApplication.class)
+@SpringBootTest
 public class SearchServiceTest {
 
     @Autowired
@@ -44,19 +44,12 @@ public class SearchServiceTest {
 
     @BeforeEach
     private void testDataProduce() {
-        DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        PassportRequest passportRequest = new PassportRequest();
-        passportRequest.setNumber("1223123113");
-        passportRequest.setGivenDate(Instant.now());
-        passportRequest.setDepartmentCode("123123");
-        PersonRequest personRequest = new PersonRequest();
         String string = "2010-02-02";
-        LocalDate date = LocalDate.parse(string, format);
-        personRequest.setName("Alex Frolov");
-        personRequest.setBirthday(date);
-        personRequest.setBirthdayCountry("UK");
-        person = personService.addPerson(Person.of(personRequest));
-        passport = passportService.addPassportToPerson(person.getId(), Passport.of(passportRequest));
+        LocalDate date = LocalDate.parse(string, DateTimeFormatter.ISO_DATE);
+        PassportRequest passportRequest = new PassportRequest("1223123113",Instant.now(),"123123");
+        PersonRequest personRequest = new PersonRequest("Alex Frolov", date, "UK");
+        person = personService.addPerson(Person.of(FriendlyId.createFriendlyId(), personRequest));
+        passport = passportService.addPassportToPerson(person.getId(), Passport.of(FriendlyId.createFriendlyId(), passportRequest));
     }
 
     @AfterEach

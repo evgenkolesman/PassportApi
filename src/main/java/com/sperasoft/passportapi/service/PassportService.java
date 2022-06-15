@@ -1,5 +1,6 @@
 package com.sperasoft.passportapi.service;
 
+import com.google.common.collect.Range;
 import com.sperasoft.passportapi.exceptions.passportexceptions.*;
 import com.sperasoft.passportapi.model.Description;
 import com.sperasoft.passportapi.model.Passport;
@@ -24,7 +25,7 @@ public class PassportService {
 
     private final PassportRepositoryImpl passportRepository;
     private final PersonRepositoryImpl personRepositoryImpl;
-    private final BiPredicate<Passport, List<Instant>> predicateDatesChecking;
+//    private final BiPredicate<Passport, List<Instant>> predicateDatesChecking;
 
     public Passport addPassportToPerson(String personId,
                                         Passport passport) {
@@ -48,7 +49,6 @@ public class PassportService {
     public Passport updatePassport(String id,
                                    Passport passport) {
         checkPassportPresentWithId(id);
-        passport.setId(id);
         return passportRepository.updatePassport(passport);
     }
 
@@ -87,8 +87,9 @@ public class PassportService {
     private List<Passport> getPassportsByPersonAndParams(Person person,
                                                          Instant dateStart,
                                                          Instant dateEnd) {
+        Range<Instant> dateRange = Range.closed(dateStart, dateEnd);
         return person.getList().stream().filter(passport ->
-                        predicateDatesChecking.test(passport, List.of(dateStart, dateEnd)))
+                        dateRange.test(passport.getGivenDate()))
                 .collect(Collectors.toList());
     }
 
@@ -97,8 +98,9 @@ public class PassportService {
                                                          boolean active,
                                                          Instant dateStart,
                                                          Instant dateEnd) {
+        Range<Instant> dateRange = Range.closed(dateStart, dateEnd);
         return person.getList().stream().filter(a -> a.isActive() == active).filter(passport ->
-                        predicateDatesChecking.test(passport, List.of(dateStart, dateEnd)))
+                        dateRange.test(passport.getGivenDate()))
                 .collect(Collectors.toList());
     }
 

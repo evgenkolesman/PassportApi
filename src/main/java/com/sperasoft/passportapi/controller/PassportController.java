@@ -42,7 +42,8 @@ public class PassportController {
     public PassportResponse createPassport(@PathVariable("personId") String personId,
                                            @RequestBody @Valid PassportRequest passportRequest) {
 
-        return PassportResponse.of(passportService.addPassportToPerson(personId, Passport.of(passportRequest)));
+        return PassportResponse.of(passportService.addPassportToPerson(personId,
+                Passport.of(personId, passportRequest)));
     }
 
     @GetMapping("/{id}")
@@ -55,7 +56,7 @@ public class PassportController {
     @PutMapping("/{id}")
     public PassportResponse updatePassport(@PathVariable("id") String id,
                                            @RequestBody @Valid PassportRequest passportRequest) {
-        return PassportResponse.of(passportService.updatePassport(id, Passport.of(passportRequest)));
+        return PassportResponse.of(passportService.updatePassport(id, Passport.of(id, passportRequest)));
     }
 
     @DeleteMapping("/{id}")

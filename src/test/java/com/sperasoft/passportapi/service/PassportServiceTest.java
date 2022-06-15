@@ -1,6 +1,6 @@
 package com.sperasoft.passportapi.service;
 
-import com.sperasoft.passportapi.PassportApiApplication;
+import com.devskiller.friendly_id.FriendlyId;
 import com.sperasoft.passportapi.controller.dto.PassportRequest;
 import com.sperasoft.passportapi.controller.dto.PersonRequest;
 import com.sperasoft.passportapi.exceptions.passportexceptions.*;
@@ -24,7 +24,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest(classes = PassportApiApplication.class)
+@SpringBootTest
 class PassportServiceTest {
 
     @Autowired
@@ -43,19 +43,13 @@ class PassportServiceTest {
 
     @BeforeEach
     private void testDataProduce() {
-        DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        passportRequest = new PassportRequest();
-        passportRequest.setNumber("1223123113");
-        passportRequest.setGivenDate(Instant.now());
-        passportRequest.setDepartmentCode("123123");
-        personRequest = new PersonRequest();
         String string = "2010-02-02";
-        LocalDate date = LocalDate.parse(string, format);
-        personRequest.setName("Alex Frolov");
-        personRequest.setBirthday(date);
-        personRequest.setBirthdayCountry("UK");
-        person = personService.addPerson(Person.of(personRequest));
-        passport = passportService.addPassportToPerson(person.getId(), Passport.of(passportRequest));
+        LocalDate date = LocalDate.parse(string, DateTimeFormatter.ISO_DATE);
+        passportRequest = new PassportRequest("1223123113",Instant.now(),"123123");
+        personRequest = new PersonRequest("Alex Frolov", date, "UK");
+        person = personService.addPerson(Person.of(FriendlyId.createFriendlyId(), personRequest));
+        passport = passportService.addPassportToPerson(person.getId(),
+                Passport.of(FriendlyId.createFriendlyId(), passportRequest));
     }
 
     @AfterEach
@@ -91,12 +85,8 @@ class PassportServiceTest {
 
     @Test
     void testUpdatePassportCorrect() {
-        PassportRequest passportRequest1 = passportRequest;
-        passportRequest1.setNumber("2133548212");
-        passportRequest1.setDepartmentCode("213123");
-        passportRequest1.setGivenDate(Instant.now());
-        Passport passport1 = Passport.of(passportRequest1);
-        passport1.setId(passport1.getId());
+        PassportRequest passportRequest1 = new PassportRequest("2133548212", Instant.now(), "213123");
+        Passport passport1 = Passport.of(FriendlyId.createFriendlyId(), passportRequest1);
         assertEquals(passportService.updatePassport(passport.getId(),
                 passport1).getDepartmentCode(), passportRequest1.getDepartmentCode(),
                 "Update problems with department code");
@@ -110,7 +100,8 @@ class PassportServiceTest {
 
     @Test
     void testUpdatePassportNotCorrect() {
-        passport.setDepartmentCode("288");
+        Passport passport = new Passport(this.passport.getId(), this.passport.getNumber(),
+                this.passport.getGivenDate(),"288");
         assertThrowsExactly(PassportNotFoundException.class,
                 () -> passportService.updatePassport("231", passport),
                 "wrong id passed need to check");
@@ -189,11 +180,7 @@ class PassportServiceTest {
 
     @Test
     void testGetPassportsByPersonIdAndParamsWithOutPassport() {
-        Person person1 = new Person();
-        person1.setId("1323jafjsf-3213sdk");
-        person1.setName("Elkin Vasiliy");
-        person1.setBirthday(LocalDate.now());
-        person1.setBirthdayCountry("Ru");
+        Person person1 = new Person("1323jafjsf-3213sdk", "Elkin Vasiliy", LocalDate.now(), "Ru");
         Person person2 = personService.addPerson(person1);
         assertThrowsExactly(PassportEmptyException.class, () ->
                 passportService.getPassportsByPersonIdAndParams(person2.getId(),
