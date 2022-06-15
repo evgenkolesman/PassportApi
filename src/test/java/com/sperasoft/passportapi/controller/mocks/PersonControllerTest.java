@@ -1,7 +1,9 @@
 package com.sperasoft.passportapi.controller.mocks;
 
+import com.devskiller.friendly_id.FriendlyId;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sperasoft.passportapi.PassportApiApplication;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.sperasoft.passportapi.controller.PersonController;
 import com.sperasoft.passportapi.controller.dto.PassportRequest;
 import com.sperasoft.passportapi.controller.dto.PersonRequest;
@@ -11,6 +13,7 @@ import com.sperasoft.passportapi.exceptions.personexceptions.PersonNotFoundExcep
 import com.sperasoft.passportapi.model.Person;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnJre;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -18,7 +21,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.env.Environment;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
@@ -30,7 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest(classes = PassportApiApplication.class)
+@SpringBootTest
 @AutoConfigureMockMvc
 class PersonControllerTest {
 
@@ -46,27 +48,25 @@ class PersonControllerTest {
     private PersonResponse personResponse;
     private PersonRequest personRequest;
     private Person person;
-    private final ObjectMapper mapper = new ObjectMapper();
+    @Autowired
+    private ObjectMapper mapper;
 
     @BeforeEach
     private void testDataProduce() {
         String string = "2010-02-02";
-        PassportRequest passport = new PassportRequest();
-        passport.setNumber("1223123113");
-        passport.setGivenDate(Instant.now());
-        passport.setDepartmentCode("123123");
-        personRequest = new PersonRequest();
-        DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        LocalDate date = LocalDate.parse(string, format);
-        personRequest.setName("Alex Frolov");
-        personRequest.setBirthday(date);
-        personRequest.setBirthdayCountry("UK");
-        person = Person.of(personRequest);
+        LocalDate date = LocalDate.parse(string, DateTimeFormatter.ISO_DATE);
+        personRequest = new PersonRequest("Alex Frolov",
+                date,
+                "UK");
+        person = Person.of(FriendlyId.createFriendlyId(), personRequest);
         personResponse = PersonResponse.of(person);
     }
 
     @Test
     void testCreatePersonCorrect() throws Exception {
+//        PersonRequest personRequest = new PersonRequest("Alex Frolov1",
+//                LocalDate.now(),
+//                "US");
         when(personController.createPerson(personRequest)).thenReturn(personResponse);
         String req = mapper.writeValueAsString(personRequest);
         this.mvc.perform(post("/person").contentType("application/json")

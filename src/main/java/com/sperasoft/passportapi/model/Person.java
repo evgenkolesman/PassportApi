@@ -1,7 +1,5 @@
 package com.sperasoft.passportapi.model;
 
-import com.devskiller.friendly_id.FriendlyId;
-import com.sperasoft.passportapi.configuration.CommonConfiguration;
 import com.sperasoft.passportapi.controller.dto.PersonRequest;
 import lombok.Data;
 
@@ -12,19 +10,20 @@ import java.util.List;
 @Data
 public class Person {
 
-    private String id;
+    private final String id;
 
-    private String name;
+    private final String name;
 
-    private LocalDate birthday;
+    private final LocalDate birthday;
 
-    private String birthdayCountry;
+    private final String birthdayCountry;
 
     private List<Passport> list = new ArrayList<>();
 
-    public static Person of(PersonRequest personRequest) {
-        Person person = CommonConfiguration.configMapper().map(personRequest, Person.class);
-        person.setId(FriendlyId.createFriendlyId());
-        return person;
+    public static Person of(final String id, final PersonRequest personRequest) {
+        return new Person(id,
+                personRequest.getName(),
+                personRequest.getBirthday(),
+                personRequest.getBirthdayCountry());
     }
 }

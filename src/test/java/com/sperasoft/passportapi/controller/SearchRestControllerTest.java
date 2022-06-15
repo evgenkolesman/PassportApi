@@ -11,7 +11,6 @@ import com.sperasoft.passportapi.model.NumberPassport;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.env.Environment;
 import org.springframework.http.MediaType;
@@ -31,7 +30,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class SearchRestControllerTest {
 
     @Autowired
-    @Qualifier(value = "EnvConfig")
     private Environment env;
 
     private static PassportRequest passportRequest;
@@ -43,21 +41,15 @@ public class SearchRestControllerTest {
 
     @BeforeAll
     static void testDataProduce() throws JsonProcessingException {
-
         LocalDate datePassport = LocalDate.parse("2022-05-05");
-        passportRequest = new PassportRequest();
+        LocalDate date = LocalDate.parse("2022-05-05", DateTimeFormatter.ISO_DATE);
         number = ThreadLocalRandom.current().nextInt(899999999) + 1000000000;
         int departmentCode = ThreadLocalRandom.current().nextInt(899999) + 100000;
         int varInt = ThreadLocalRandom.current().nextInt(10000000);
-        passportRequest.setNumber(String.valueOf(number));
-        passportRequest.setGivenDate(datePassport.atStartOfDay().toInstant(ZoneOffset.MIN));
-        passportRequest.setDepartmentCode(String.valueOf(departmentCode));
-        personRequest = new PersonRequest();
-        LocalDate date = LocalDate.parse("2022-05-05", DateTimeFormatter.ISO_DATE);
-        personRequest.setName("Alex Frolov" + varInt);
-        personRequest.setBirthday(date);
-        personRequest.setBirthdayCountry("UK");
-
+        passportRequest = new PassportRequest(String.valueOf(number),
+                datePassport.atStartOfDay().toInstant(ZoneOffset.MIN),
+                String.valueOf(departmentCode));
+        personRequest = new PersonRequest("Alex Frolov" + varInt, date, "UK");
         String reqPerson = mapper.writeValueAsString(personRequest);
         String reqPassport = mapper.writeValueAsString(passportRequest);
         personResponse = given()

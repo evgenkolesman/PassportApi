@@ -1,5 +1,6 @@
 package com.sperasoft.passportapi.controller;
 
+import com.devskiller.friendly_id.FriendlyId;
 import com.sperasoft.passportapi.controller.dto.PersonRequest;
 import com.sperasoft.passportapi.controller.dto.PersonResponse;
 import com.sperasoft.passportapi.model.Person;
@@ -19,7 +20,7 @@ public class PersonController {
 
     @PostMapping
     public PersonResponse createPerson(@RequestBody @Valid PersonRequest person) {
-        return PersonResponse.of(personService.addPerson(Person.of(person)));
+        return PersonResponse.of(personService.addPerson(Person.of(FriendlyId.createFriendlyId(), person)));
     }
 
     @GetMapping("/{id}")
@@ -29,7 +30,7 @@ public class PersonController {
 
     @PutMapping("/{id}")
     public PersonResponse updatePerson(@PathVariable("id") String id, @RequestBody @Valid PersonRequest personRequest) {
-        return PersonResponse.of(personService.updatePerson(id, Person.of(personRequest)));
+        return PersonResponse.of(personService.updatePerson(id, Person.of(id, personRequest)));
     }
 
     @DeleteMapping("/{id}")

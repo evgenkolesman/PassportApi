@@ -1,7 +1,6 @@
 package com.sperasoft.passportapi.service;
 
 import com.devskiller.friendly_id.FriendlyId;
-import com.sperasoft.passportapi.PassportApiApplication;
 import com.sperasoft.passportapi.controller.dto.PersonRequest;
 import com.sperasoft.passportapi.exceptions.personexceptions.InvalidPersonDataException;
 import com.sperasoft.passportapi.exceptions.personexceptions.PersonNotFoundException;
@@ -19,7 +18,7 @@ import java.time.format.DateTimeFormatter;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest(classes = PassportApiApplication.class)
+@SpringBootTest
 public class PersonServiceTest {
 
     @Autowired
@@ -29,17 +28,14 @@ public class PersonServiceTest {
     private PersonRepositoryImpl personRepositoryImpl;
 
     private Person person;
-    private final PersonRequest personRequest = new PersonRequest();
+    private PersonRequest personRequest;
 
     @BeforeEach
     private void beforeData() {
         String string = "2010-02-02";
-        DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        LocalDate date = LocalDate.parse(string, format);
-        personRequest.setName("Alex Frolov");
-        personRequest.setBirthday(date);
-        personRequest.setBirthdayCountry("UK");
-        person = personService.addPerson(Person.of(personRequest));
+        LocalDate date = LocalDate.parse(string, DateTimeFormatter.ISO_DATE);
+        personRequest = new PersonRequest("Alex Frolov", date, "UK");
+        person = personService.addPerson(Person.of(FriendlyId.createFriendlyId(), personRequest));
     }
 
     @AfterEach
@@ -80,14 +76,10 @@ public class PersonServiceTest {
 
     @Test
     public void testUpdatePersonCorrect() {
-        PersonRequest personRequest = new PersonRequest();
-        personRequest.setName("Alex Frol");
         LocalDate date = LocalDate.now();
-        personRequest.setBirthday(date);
-        personRequest.setBirthdayCountry("US");
-
+        PersonRequest personRequest = new PersonRequest("Alex Frol", date, "US");
         Person pr = personService.updatePerson(person.getId(),
-                Person.of(personRequest));
+                Person.of(person.getId(), personRequest));
         assertEquals("Alex Frol", pr.getName(), "Problems with updating person name field");
         assertTrue(pr.getBirthday().isEqual(date), "Problems with updating person birthday field");
         assertEquals("US", pr.getBirthdayCountry(), "Problems with updating person birthday country field");
@@ -97,12 +89,9 @@ public class PersonServiceTest {
     public void testUpdatePersonNotCorrect() {
 
         String id = FriendlyId.createFriendlyId();
-        PersonRequest personUpdate = new PersonRequest();
-        personUpdate.setName("Alex Frol");
-        personUpdate.setBirthday(LocalDate.now());
-        personUpdate.setBirthdayCountry("US");
+        PersonRequest personUpdate = new PersonRequest("Alex Frol", LocalDate.now(), "US");
         assertThrowsExactly(PersonNotFoundException.class, () ->
-                        personService.updatePerson(id, Person.of(personUpdate)),
+                        personService.updatePerson(id, Person.of(id, personUpdate)),
                 "Problems with updating person wrong id" + id + " passed ");
     }
 

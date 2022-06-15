@@ -1,5 +1,6 @@
 package com.sperasoft.passportapi.controller.mocks;
 
+import com.devskiller.friendly_id.FriendlyId;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sperasoft.passportapi.PassportApiApplication;
 import com.sperasoft.passportapi.controller.SearchController;
@@ -35,7 +36,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest(classes = PassportApiApplication.class)
+@SpringBootTest
 @AutoConfigureMockMvc
 class SearchControllerTest {
 
@@ -58,19 +59,16 @@ class SearchControllerTest {
     @BeforeEach
     private void testDataProduce() {
         String string = "2010-02-02";
-        DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         LocalDate dateToday = LocalDate.now();
-        PassportRequest passportRequest = new PassportRequest();
-        passportRequest.setNumber("1223123113");
-        passportRequest.setGivenDate(dateToday.atStartOfDay().toInstant(ZoneOffset.MIN));
-        passportRequest.setDepartmentCode("123123");
-        PersonRequest personRequest = new PersonRequest();
-        passport = Passport.of(passportRequest);
-        LocalDate date = LocalDate.parse(string, format);
-        personRequest.setName("Alex Frolov");
-        personRequest.setBirthday(date);
-        personRequest.setBirthdayCountry("UK");
-        person = Person.of(personRequest);
+        LocalDate date = LocalDate.parse(string, DateTimeFormatter.ISO_DATE);
+        PassportRequest passportRequest = new PassportRequest("1223123113",
+                dateToday.atStartOfDay().toInstant(ZoneOffset.MIN),
+                "123123");
+        PersonRequest personRequest = new PersonRequest("Alex Frolov",
+                date,
+                "UK");
+        passport = Passport.of(FriendlyId.createFriendlyId(), passportRequest);
+        person = Person.of(FriendlyId.createFriendlyId(), personRequest);
         personResponse = PersonResponse.of(person);
         passportResponse = PassportResponse.of(passport);
     }

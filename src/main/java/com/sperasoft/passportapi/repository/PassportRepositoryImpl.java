@@ -1,5 +1,6 @@
 package com.sperasoft.passportapi.repository;
 
+import com.google.common.collect.Range;
 import com.sperasoft.passportapi.exceptions.passportexceptions.PassportBadStatusException;
 import com.sperasoft.passportapi.model.Passport;
 import com.sperasoft.passportapi.model.Person;
@@ -12,14 +13,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.BiPredicate;
 import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class PassportRepositoryImpl implements PassportRepository {
 
-    private final BiPredicate<Passport, List<Instant>> predicateDatesChecking;
+//    private final BiPredicate<Passport, List<Instant>> predicateDatesChecking;
     private static final Map<String, Passport> passportRepo = new ConcurrentHashMap<>();
 
     @Override
@@ -56,17 +56,19 @@ public class PassportRepositoryImpl implements PassportRepository {
 
     @Override
     public List<Passport> getPassportsByParams(Boolean active, Instant dateStart, Instant dateEnd) {
+        Range<Instant> dateRange = Range.closed(dateStart, dateEnd);
         return passportRepo.values().stream().filter(a -> a.isActive() == active)
                 .filter(passport ->
-                        predicateDatesChecking.test(passport, List.of(dateStart, dateEnd)))
+                        dateRange.test(passport.getGivenDate()))
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<Passport> getPassportsByParams(Instant dateStart, Instant dateEnd) {
+        Range<Instant> dateRange = Range.closed(dateStart, dateEnd);
         return passportRepo.values().stream()
                 .filter(passport ->
-                        predicateDatesChecking.test(passport, List.of(dateStart, dateEnd)))
+                        dateRange.test(passport.getGivenDate()))
                 .collect(Collectors.toList());
     }
 
