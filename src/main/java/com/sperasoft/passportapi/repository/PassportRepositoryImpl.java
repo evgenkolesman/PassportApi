@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class PassportRepositoryImpl implements PassportRepository {
 
-//    private final BiPredicate<Passport, List<Instant>> predicateDatesChecking;
+    //    private final BiPredicate<Passport, List<Instant>> predicateDatesChecking;
     private static final Map<String, Passport> passportRepo = new ConcurrentHashMap<>();
 
     @Override
@@ -44,8 +44,11 @@ public class PassportRepositoryImpl implements PassportRepository {
     }
 
     @Override
-    public Passport updatePassport(Passport passport) {
+    public Passport updatePassport(Person person, Passport passport) {
+        person.getList().remove(findPassportById(passport.getId()));
         passportRepo.replace(passport.getId(), passport);
+        person.getList().add(passport);
+
         return passport;
     }
 

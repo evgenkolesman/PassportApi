@@ -2,8 +2,6 @@ package com.sperasoft.passportapi.controller.mocks;
 
 import com.devskiller.friendly_id.FriendlyId;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.sperasoft.passportapi.controller.PassportController;
 import com.sperasoft.passportapi.controller.dto.PassportRequest;
 import com.sperasoft.passportapi.controller.dto.PassportResponse;
@@ -13,6 +11,7 @@ import com.sperasoft.passportapi.exceptions.personexceptions.PersonNotFoundExcep
 import com.sperasoft.passportapi.model.Description;
 import com.sperasoft.passportapi.model.Passport;
 import com.sperasoft.passportapi.model.Person;
+import io.restassured.module.mockmvc.RestAssuredMockMvc;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +21,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.env.Environment;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -29,6 +29,7 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.Mockito.doThrow;
@@ -42,6 +43,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 class PassportControllerTest {
 
+    private static final String HTTP_LOCALHOST = "http://localhost";
+    private static final String PERSON_ENDPOINT = "/person";
+    private static final String PASSPORT_ENDPOINT = "/passport";
+    private static final String LOST_PASSPORT_ENDPOINT = "/lostPassport";
+
     @Autowired
     private MockMvc mvc;
 
@@ -51,15 +57,19 @@ class PassportControllerTest {
     @Autowired
     private Environment environment;
 
+    @Autowired
+    private ObjectMapper mapper;
+
     private PassportRequest passportRequest;
     private PassportResponse passportResponse;
     private Person person;
     private Passport passport;
-    @Autowired
-    private ObjectMapper mapper;
+
+
 
     @BeforeEach
     private void testDataProduce() {
+        RestAssuredMockMvc.mockMvc(mvc);
         String string = "2010-02-02";
         LocalDate dateToday = LocalDate.now();
         LocalDate date = LocalDate.parse(string, DateTimeFormatter.ISO_DATE);
@@ -78,7 +88,11 @@ class PassportControllerTest {
     void testFindPersonPassportsBooleanTrue() throws Exception {
         when(passportController.findPersonPassports(person.getId(), true, null, null))
                 .thenReturn(List.of(passportResponse));
-        this.mvc.perform(get("/person/" + person.getId() + "/passport?active=true")
+        this.mvc.perform(get(UriComponentsBuilder.fromHttpUrl(HTTP_LOCALHOST)
+                        .path(PERSON_ENDPOINT)
+                        .path("/")
+                        .path(person.getId())
+                        .path(PASSPORT_ENDPOINT).queryParam("active", "true").toUriString())
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json"))
@@ -90,13 +104,17 @@ class PassportControllerTest {
         when(passportController.findPersonPassports(person.getId(),
                 true, Instant.parse("2022-05-06T19:00:00-02:00"), Instant.parse("2022-05-05T19:00:00-02:00")))
                 .thenThrow(new InvalidPassportDataException());
-        this.mvc.perform(get("/person/" + person.getId() +
-                        "/passport?active=true&dateStart=2022-05-06T19:00:00-02:00&dateEnd=2022-05-05T19:00:00-02:00")
+        this.mvc.perform(get(UriComponentsBuilder.fromHttpUrl(HTTP_LOCALHOST).path(PERSON_ENDPOINT)
+                        .path("/").path(person.getId())
+                        .path(PASSPORT_ENDPOINT)
+                        .queryParam("active", "true")
+                        .queryParam("dateStart", "2022-05-06T19:00:00-02:00")
+                        .queryParam("dateEnd", "2022-05-05T19:00:00-02:00").toUriString())
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(a -> a.getResponse().getContentAsString()
                         .equals(String.format(
-                                        environment.getProperty("exception.InvalidPassportDataException"),
+                                environment.getProperty("exception.InvalidPassportDataException"),
                                 person.getId())));
     }
 
@@ -105,8 +123,12 @@ class PassportControllerTest {
         when(passportController.findPersonPassports(person.getId(),
                 true, Instant.parse("2022-05-02T19:00:00-02:00"), Instant.parse("2022-05-08T19:00:00-02:00")))
                 .thenThrow(new PassportEmptyException(person.getId()));
-        this.mvc.perform(get("/person/" + person.getId() +
-                        "/passport?active=true&dateStart=2022-05-02T19:00:00-02:00&dateEnd=2022-05-08T19:00:00-02:00")
+        this.mvc.perform(get(UriComponentsBuilder.fromHttpUrl(HTTP_LOCALHOST).path(PERSON_ENDPOINT)
+                        .path("/").path(person.getId())
+                        .path(PASSPORT_ENDPOINT)
+                        .queryParam("active", "true")
+                        .queryParam("dateStart", "2022-05-02T19:00:00-02:00")
+                        .queryParam("dateEnd", "2022-05-08T19:00:00-02:00").toUriString())
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(a -> a.getResponse().getContentAsString()
@@ -119,7 +141,11 @@ class PassportControllerTest {
     void testFindPersonPassportsBooleanFalse() throws Exception {
         when(passportController.findPersonPassports(person.getId(), false, null, null))
                 .thenReturn(new ArrayList<>());
-        this.mvc.perform(get("/person/" + person.getId() + "/passport?active=false")
+        this.mvc.perform(get(UriComponentsBuilder.fromHttpUrl(HTTP_LOCALHOST)
+                        .path(PERSON_ENDPOINT)
+                        .path("/")
+                        .path(person.getId())
+                        .path(PASSPORT_ENDPOINT).queryParam("active", "false").toUriString())
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
@@ -128,7 +154,11 @@ class PassportControllerTest {
     void testFindPersonPassportsWithoutParams() throws Exception {
         when(passportController.findPersonPassports(person.getId(), null, null, null))
                 .thenReturn(List.of(passportResponse));
-        this.mvc.perform(get("/person/" + person.getId() + "/passport")
+        this.mvc.perform(get(UriComponentsBuilder.fromHttpUrl(HTTP_LOCALHOST)
+                        .path(PERSON_ENDPOINT)
+                        .path("/")
+                        .path(person.getId())
+                        .path(PASSPORT_ENDPOINT).toUriString())
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json"))
@@ -140,7 +170,11 @@ class PassportControllerTest {
         when(passportController.createPassport(person.getId(), passportRequest))
                 .thenReturn(passportResponse);
         String req = mapper.writer().writeValueAsString(passportRequest);
-        this.mvc.perform(post("/person/" + person.getId() + "/passport")
+        this.mvc.perform(post(UriComponentsBuilder.fromHttpUrl(HTTP_LOCALHOST)
+                        .path(PERSON_ENDPOINT)
+                        .path("/")
+                        .path(person.getId())
+                        .path(PASSPORT_ENDPOINT).toUriString())
                         .contentType("application/json")
                         .content(req))
                 .andDo(print())
@@ -150,7 +184,11 @@ class PassportControllerTest {
 
     @Test
     void testCreatePassportNotCorrect() throws Exception {
-        this.mvc.perform(post("/person/" + person.getId() + "/passport")
+        this.mvc.perform(post(UriComponentsBuilder.fromHttpUrl(HTTP_LOCALHOST)
+                        .path(PERSON_ENDPOINT)
+                        .path("/")
+                        .path(person.getId())
+                        .path(PASSPORT_ENDPOINT).toUriString())
                         .contentType("application/json")
                         .content(""))
                 .andDo(print())
@@ -159,14 +197,19 @@ class PassportControllerTest {
 
     @Test
     void testCreatePassportNotCorrectBadData() throws Exception {
-        PassportRequest passportRequest1 = new PassportRequest("233",
+        PassportRequest passportRequest1 = new PassportRequest(
+                String.valueOf(ThreadLocalRandom.current().nextInt(999999999) + 1000000000),
                 passportRequest.getGivenDate(),
                 passportRequest.getDepartmentCode());
 
         when(passportController.createPassport(person.getId(), passportRequest1))
                 .thenThrow(new PassportWasAddedException());
         String req = mapper.writer().writeValueAsString(passportRequest1);
-        this.mvc.perform(post("/person/" + person.getId() + "/passport")
+        this.mvc.perform(post(UriComponentsBuilder.fromHttpUrl(HTTP_LOCALHOST)
+                        .path(PERSON_ENDPOINT)
+                        .path("/")
+                        .path(person.getId())
+                        .path(PASSPORT_ENDPOINT).toUriString())
                         .contentType("application/json")
                         .content(req))
                 .andDo(print())
@@ -179,8 +222,11 @@ class PassportControllerTest {
     void testFindPassportWithBoolean() throws Exception {
         when(passportController.findPassport(passport.getId(), true))
                 .thenReturn(passportResponse);
-        this.mvc.perform(get("/person/" + person.getId() + "/passport/" +
-                        passport.getId() + "?active=true")
+        this.mvc.perform(get(UriComponentsBuilder.fromHttpUrl(HTTP_LOCALHOST).path(PERSON_ENDPOINT)
+                        .path("/").path(person.getId())
+                        .path(PASSPORT_ENDPOINT)
+                        .path("/").path(passportResponse.getId())
+                        .queryParam("active", "true").toUriString())
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("1223123113")));
@@ -190,7 +236,10 @@ class PassportControllerTest {
     void testFindPassportWithOutBoolean() throws Exception {
         when(passportController.findPassport(passport.getId(), null))
                 .thenReturn(passportResponse);
-        this.mvc.perform(get("/person/" + person.getId() + "/passport/" + passport.getId())
+        this.mvc.perform(get(UriComponentsBuilder.fromHttpUrl(HTTP_LOCALHOST).path(PERSON_ENDPOINT)
+                        .path("/").path(person.getId())
+                        .path(PASSPORT_ENDPOINT)
+                        .path("/").path(passportResponse.getId()).toUriString())
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("1223123113")));
@@ -199,7 +248,10 @@ class PassportControllerTest {
 
     @Test
     void testUpdatePassportNotCorrect() throws Exception {
-        this.mvc.perform(put("/person/" + person.getId() + "/passport/" + passport.getId())
+        this.mvc.perform(put(UriComponentsBuilder.fromHttpUrl(HTTP_LOCALHOST).path(PERSON_ENDPOINT)
+                        .path("/").path(person.getId())
+                        .path(PASSPORT_ENDPOINT)
+                        .path("/").path(passportResponse.getId()).toUriString())
                         .contentType("application/json")
                         .content(""))
                 .andDo(print())
@@ -211,10 +263,13 @@ class PassportControllerTest {
         PassportRequest passportForTest = new PassportRequest(passportRequest.getNumber(),
                 passportRequest.getGivenDate(),
                 "111111");
-        when(passportController.updatePassport(person.getId(), passportForTest))
+        when(passportController.updatePassport(person.getId(), person.getId(), passportForTest))
                 .thenThrow(new PersonNotFoundException(person.getId()));
         String req = mapper.writer().writeValueAsString(passportForTest);
-        this.mvc.perform(put("/person/" + person.getId() + "/passport/" + person.getId())
+        this.mvc.perform(put(UriComponentsBuilder.fromHttpUrl(HTTP_LOCALHOST).path(PERSON_ENDPOINT)
+                        .path("/").path(person.getId())
+                        .path(PASSPORT_ENDPOINT)
+                        .path("/").path(person.getId()).toUriString())
                         .contentType("application/json")
                         .content(req))
                 .andDo(print())
@@ -222,7 +277,7 @@ class PassportControllerTest {
                 .andExpect((a) ->
                         a.getResponse().getContentAsString()
                                 .equals((String.format(
-                                                environment.getProperty("exception.PersonNotFoundException"),
+                                        environment.getProperty("exception.PersonNotFoundException"),
                                         person.getId()))));
     }
 
@@ -232,10 +287,13 @@ class PassportControllerTest {
                 passportRequest.getGivenDate(),
                 "111111");
         Passport passport1 = Passport.of(FriendlyId.createFriendlyId(), passportForTest);
-        when(passportController.updatePassport(passport.getId(), passportForTest))
+        when(passportController.updatePassport(person.getId(), passport.getId(), passportForTest))
                 .thenReturn(PassportResponse.of(passport1));
         String req = mapper.writer().writeValueAsString(passportForTest);
-        this.mvc.perform(put("/person/" + person.getId() + "/passport/" + passport.getId())
+        this.mvc.perform(put(UriComponentsBuilder.fromHttpUrl(HTTP_LOCALHOST).path(PERSON_ENDPOINT)
+                        .path("/").path(person.getId())
+                        .path(PASSPORT_ENDPOINT)
+                        .path("/").path(passportResponse.getId()).toUriString())
                         .contentType("application/json")
                         .content(req))
                 .andDo(print())
@@ -245,7 +303,10 @@ class PassportControllerTest {
 
     @Test
     void deletePassport() throws Exception {
-        this.mvc.perform(delete("/person/" + person.getId() + "/passport/" + passport.getId())
+        this.mvc.perform(delete(UriComponentsBuilder.fromHttpUrl(HTTP_LOCALHOST).path(PERSON_ENDPOINT)
+                        .path("/").path(person.getId())
+                        .path(PASSPORT_ENDPOINT)
+                        .path("/").path(passportResponse.getId()).toUriString())
                         .contentType("application/json")
                         .content(""))
                 .andDo(print())
@@ -255,7 +316,10 @@ class PassportControllerTest {
     @Test
     void testDeletePassportNotCorrect() throws Exception {
         doThrow(new PassportNotFoundException(passport.getId())).when(passportController).deletePassport(passport.getId());
-        this.mvc.perform(delete("/person/" + person.getId() + "/passport/" + passport.getId())
+        this.mvc.perform(delete(UriComponentsBuilder.fromHttpUrl(HTTP_LOCALHOST).path(PERSON_ENDPOINT)
+                        .path("/").path(person.getId())
+                        .path(PASSPORT_ENDPOINT)
+                        .path("/").path(passportResponse.getId()).toUriString())
                         .contentType("application/json")
                         .content(""))
                 .andDo(print())
@@ -264,17 +328,21 @@ class PassportControllerTest {
                         .equals(String.format(
                                 environment.getProperty("exception.PassportNotFoundException"),
                                 passport.getId())
-                ));
+                        ));
     }
 
     @Test
     void lostPassportDeactivate() throws Exception {
         when(passportController.lostPassportDeactivate(passportResponse.getId(),
-                passportResponse.getId(), false, new Description()))
+                passportResponse.getId(), false, new Description("new Desc")))
                 .thenReturn(true);
-        String req = mapper.writer().writeValueAsString(new Description());
-        this.mvc.perform(post("/person/" + person.getId()
-                        + "/passport/" + passport.getId() + "/lostPassport?active=false")
+        String req = mapper.writer().writeValueAsString("new Desc");
+        this.mvc.perform(post(UriComponentsBuilder.fromHttpUrl(HTTP_LOCALHOST).path(PERSON_ENDPOINT)
+                        .path("/").path(person.getId())
+                        .path(PASSPORT_ENDPOINT)
+                        .path("/").path(passportResponse.getId())
+                        .path(LOST_PASSPORT_ENDPOINT)
+                        .queryParam("active", "false").toUriString())
                         .contentType("application/json")
                         .content(req))
                 .andDo(print())
@@ -283,11 +351,15 @@ class PassportControllerTest {
 
     @Test
     void lostPassportDeactivateConflict() throws Exception {
-        when(passportController.lostPassportDeactivate(person.getId(), passport.getId(), false, new Description()))
+        when(passportController.lostPassportDeactivate(person.getId(), passport.getId(), false, new Description("new Desc")))
                 .thenThrow(new PassportDeactivatedException());
-        String req = mapper.writer().writeValueAsString(new Description());
-        this.mvc.perform(post("/person/" + person.getId() + "/passport/"
-                        + passport.getId() + "/lostPassport?active=false")
+        String req = mapper.writer().writeValueAsString("new Desc");
+        this.mvc.perform(post(UriComponentsBuilder.fromHttpUrl(HTTP_LOCALHOST).path(PERSON_ENDPOINT)
+                        .path("/").path(person.getId())
+                        .path(PASSPORT_ENDPOINT)
+                        .path("/").path(passportResponse.getId())
+                        .path(LOST_PASSPORT_ENDPOINT)
+                        .queryParam("active", "false").toUriString())
                         .contentType("application/json")
                         .content(req))
                 .andDo(print())
