@@ -45,7 +45,7 @@ class PassportServiceTest {
     private void testDataProduce() {
         String string = "2010-02-02";
         LocalDate date = LocalDate.parse(string, DateTimeFormatter.ISO_DATE);
-        passportRequest = new PassportRequest("1223123113",Instant.now(),"123123");
+        passportRequest = new PassportRequest("1223123113", Instant.now(), "123123");
         personRequest = new PersonRequest("Alex Frolov", date, "UK");
         person = personService.addPerson(Person.of(FriendlyId.createFriendlyId(), personRequest));
         passport = passportService.addPassportToPerson(person.getId(),
@@ -87,13 +87,13 @@ class PassportServiceTest {
     void testUpdatePassportCorrect() {
         PassportRequest passportRequest1 = new PassportRequest("2133548212", Instant.now(), "213123");
         Passport passport1 = Passport.of(FriendlyId.createFriendlyId(), passportRequest1);
-        assertEquals(passportService.updatePassport(passport.getId(),
-                passport1).getDepartmentCode(), passportRequest1.getDepartmentCode(),
+        assertEquals(passportService.updatePassport(person.getId(), passport.getId(),
+                        passport1).getDepartmentCode(), passportRequest1.getDepartmentCode(),
                 "Update problems with department code");
-        assertEquals(passportService.updatePassport(passport.getId(),
+        assertEquals(passportService.updatePassport(person.getId(), passport.getId(),
                         passport1).getNumber(), passportRequest1.getNumber(),
                 "Update problems with number");
-        assertEquals(passportService.updatePassport(passport.getId(),
+        assertEquals(passportService.updatePassport(person.getId(), passport.getId(),
                         passport1).getGivenDate(), passportRequest1.getGivenDate(),
                 "Update problems with given date");
     }
@@ -101,9 +101,9 @@ class PassportServiceTest {
     @Test
     void testUpdatePassportNotCorrect() {
         Passport passport = new Passport(this.passport.getId(), this.passport.getNumber(),
-                this.passport.getGivenDate(),"288");
+                this.passport.getGivenDate(), "288");
         assertThrowsExactly(PassportNotFoundException.class,
-                () -> passportService.updatePassport("231", passport),
+                () -> passportService.updatePassport(FriendlyId.createFriendlyId(), FriendlyId.createFriendlyId(), passport),
                 "wrong id passed need to check");
     }
 
@@ -199,17 +199,22 @@ class PassportServiceTest {
     @Test
     public void testDeactivatePassportCorrect() {
         assertTrue(passportService.deactivatePassport(person.getId(),
-                        person.getList().get(0).getId(), false, new Description()),
+                        person.getList().get(0).getId(), false, new Description("NO DESC")),
                 "Problems with deactivating passport");
     }
 
     @Test
     public void testDeactivatePassportNotCorrect() {
         Person person1 = personRepositoryImpl.findById(person.getId());
-        person1.getList().get(0).setActive(false);
+        Passport passport2 = passportRepository.updatePassport(person1, new Passport(passport.getId(),
+                passport.getNumber(), passport.getGivenDate(), passport.getDepartmentCode(), false, passport.getDescription()));
+        person1.getList().remove(0);
+        person1.getList().add(passport2);
         assertThrowsExactly(PassportDeactivatedException.class, () ->
                         passportService.deactivatePassport(person1.getId(),
-                        person1.getList().get(0).getId(), false, new Description()),
+                                person1.getList().get(0).getId(),
+                                false,
+                                new Description("New Desc")),
                 "Passport should be deactivated but not");
     }
 }

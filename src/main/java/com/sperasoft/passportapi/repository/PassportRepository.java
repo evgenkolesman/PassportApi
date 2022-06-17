@@ -14,7 +14,7 @@ public interface PassportRepository {
 
     Passport findPassportById(String id, boolean active);
 
-    Passport updatePassport(Passport passport);
+    Passport updatePassport(Person person, Passport passport);
 
     Passport deletePassport(String id);
 

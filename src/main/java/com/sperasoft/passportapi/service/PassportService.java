@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BiPredicate;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -25,12 +24,11 @@ public class PassportService {
 
     private final PassportRepositoryImpl passportRepository;
     private final PersonRepositoryImpl personRepositoryImpl;
-//    private final BiPredicate<Passport, List<Instant>> predicateDatesChecking;
 
     public Passport addPassportToPerson(String personId,
                                         Passport passport) {
         if (personRepositoryImpl.findPersonById(personId).getList().stream().anyMatch(p ->
-                p.getNumber().equals(passport.getNumber()))) {
+                passport.getNumber().equals(p.getNumber()))) {
             throw new PassportWasAddedException();
         }
         Person person = personRepositoryImpl.findPersonById(personId);
@@ -46,10 +44,13 @@ public class PassportService {
             return passportRepository.findPassportById(id, active);
     }
 
-    public Passport updatePassport(String id,
+    public Passport updatePassport(String personId,
+                                   String id,
                                    Passport passport) {
         checkPassportPresentWithId(id);
-        return passportRepository.updatePassport(passport);
+        Person person = personRepositoryImpl.findPersonById(personId);
+
+        return passportRepository.updatePassport(person, passport);
     }
 
     public Passport deletePassport(String id) {
@@ -115,7 +116,7 @@ public class PassportService {
                                       Boolean active,
                                       Description description) {
         if (description == null) {
-            description = new Description();
+            description = new Description("new desc");
         }
         Passport passportPerson =
                 personRepositoryImpl.findById(personId).getList().stream()
@@ -125,9 +126,13 @@ public class PassportService {
                         .orElseThrow(() -> {
                             throw new PassportNotFoundException(id);
                         });
-        if (passportPerson.isActive()) {
-            passportPerson.setActive(active);
-            passportPerson.setDescription(description.getDescription());
+        if (passportPerson.isActive() && !active) {
+            passportRepository.updatePassport(personRepositoryImpl.findById(personId),
+                    new Passport(passportPerson.getId(), passportPerson.getNumber(),
+                            passportPerson.getGivenDate(),
+                            passportPerson.getDepartmentCode(),
+                            false,
+                            description.getDescription()));
             return true;
         } else {
             throw new PassportDeactivatedException();

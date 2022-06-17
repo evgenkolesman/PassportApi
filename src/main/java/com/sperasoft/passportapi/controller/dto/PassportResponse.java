@@ -1,15 +1,14 @@
 package com.sperasoft.passportapi.controller.dto;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.datatype.jsr310.ser.InstantSerializer;
 import com.sperasoft.passportapi.model.Passport;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NonNull;
 
-import javax.validation.constraints.NotNull;
 import java.time.Instant;
 
 @Data
+@AllArgsConstructor
 public class PassportResponse {
 
     @NonNull
@@ -21,10 +20,13 @@ public class PassportResponse {
     @NonNull
     private final String departmentCode;
 
+    private PassportResponse(Passport passport) {
+        this.id = passport.getId();
+        this.number = passport.getNumber();
+        this.givenDate = passport.getGivenDate();
+        this.departmentCode = passport.getDepartmentCode();
+    }
     public static PassportResponse of(final Passport passport) {
-        return new PassportResponse(passport.getId(),
-                passport.getNumber(),
-                passport.getGivenDate(),
-                passport.getDepartmentCode());
+        return new PassportResponse(passport);
     }
 }

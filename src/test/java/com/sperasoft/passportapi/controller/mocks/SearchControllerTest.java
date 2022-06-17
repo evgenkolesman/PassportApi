@@ -2,7 +2,6 @@ package com.sperasoft.passportapi.controller.mocks;
 
 import com.devskiller.friendly_id.FriendlyId;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sperasoft.passportapi.PassportApiApplication;
 import com.sperasoft.passportapi.controller.SearchController;
 import com.sperasoft.passportapi.controller.dto.PassportRequest;
 import com.sperasoft.passportapi.controller.dto.PassportResponse;
@@ -21,6 +20,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.env.Environment;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -40,11 +40,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 class SearchControllerTest {
 
+    private static final String SEARCHES_ENDPOINT = "/searches";
+    private static final String HTTP_LOCALHOST = "http://localhost";
+
     @Autowired
     private MockMvc mvc;
 
     @Autowired
     private Environment environment;
+
+    @Autowired
+    private ObjectMapper mapper;
 
     @MockBean
     private SearchController searchController;
@@ -53,7 +59,7 @@ class SearchControllerTest {
     private PersonResponse personResponse;
     private PassportResponse passportResponse;
     private Passport passport;
-    private final ObjectMapper mapper = new ObjectMapper();
+
 
 
     @BeforeEach
@@ -80,7 +86,7 @@ class SearchControllerTest {
         when(searchController.findPersonByPassportNumber(numberPassport)).thenReturn(personResponse);
 
         String req = mapper.writer().writeValueAsString(numberPassport);
-        this.mvc.perform(post("/searches")
+        this.mvc.perform(post(SEARCHES_ENDPOINT)
                         .contentType("application/json")
                         .content(req))
                 .andDo(print())
@@ -95,7 +101,7 @@ class SearchControllerTest {
         number.setNumber("2313");
         when(searchController.findPersonByPassportNumber(number)).thenThrow(new PassportWrongNumberException());
         String req = mapper.writer().writeValueAsString(number);
-        this.mvc.perform(post("/searches")
+        this.mvc.perform(post(SEARCHES_ENDPOINT)
                         .contentType("application/json")
                         .content(req))
                 .andDo(print())
@@ -108,7 +114,7 @@ class SearchControllerTest {
     @Test
     void testFindAllPassportsCorrect() throws Exception {
         when(searchController.findAllPassports(null, null, null)).thenReturn(List.of(passportResponse));
-        this.mvc.perform(get("/searches")
+        this.mvc.perform(get(SEARCHES_ENDPOINT)
                         .contentType("application/json")
                         .content(personResponse.toString()))
                 .andDo(print())
@@ -118,11 +124,16 @@ class SearchControllerTest {
 
     @Test
     void testFindAllPassportsCorrectBadDates() throws Exception {
-        when(searchController.findAllPassports(null, Instant.parse("2022-05-15T19:00:00+02:00"),
-                Instant.parse("2022-05-10T19:00:00+03:00")))
+        var startDate = "2022-05-15T19:00:00+02:00";
+        var endDate = "2022-05-10T19:00:00+03:00";
+        when(searchController.findAllPassports(null, Instant.parse(startDate),
+                Instant.parse(endDate)))
                 .thenThrow(new InvalidPassportDataException());
 
-        this.mvc.perform(get("/searches?dateStart=2022-05-15T19:00:00+02:00&dateEnd=2022-05-10T19:00:00+03:00")
+        this.mvc.perform(get(UriComponentsBuilder.fromHttpUrl(HTTP_LOCALHOST)
+                                .path(SEARCHES_ENDPOINT)
+                                .queryParam("dateStart", startDate)
+                                .queryParam("dateEnd", endDate).toUriString())
                         .contentType("application/json")
                         .content(personResponse.toString()))
                 .andDo(print())

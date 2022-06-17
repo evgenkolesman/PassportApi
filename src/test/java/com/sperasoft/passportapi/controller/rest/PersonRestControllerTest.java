@@ -1,21 +1,25 @@
-package com.sperasoft.passportapi.controller;
+package com.sperasoft.passportapi.controller.rest;
 
+import com.devskiller.friendly_id.FriendlyId;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sperasoft.passportapi.PassportApiApplication;
-import com.sperasoft.passportapi.controller.dto.PassportRequest;
 import com.sperasoft.passportapi.controller.dto.PersonRequest;
 import com.sperasoft.passportapi.controller.dto.PersonResponse;
+import io.restassured.RestAssured;
+import io.restassured.config.EncoderConfig;
+import io.restassured.internal.http.URIBuilder;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.core.env.Environment;
 import org.springframework.http.MediaType;
+import org.springframework.web.util.UriComponentsBuilder;
 
-import java.time.Instant;
+import java.net.URI;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.ThreadLocalRandom;
@@ -24,39 +28,54 @@ import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Slf4j
-@SpringBootTest
+@SpringBootTest(webEnvironment =
+        SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class PersonRestControllerTest {
 
-    private static final ObjectMapper mapper = new ObjectMapper();
-    private static PersonRequest personRequest;
-    private static PersonResponse personResponse;
+    private static final String HTTP_LOCALHOST = "http://localhost";
+    private static final String PERSON_URI = "/person";
 
     @Autowired
     private Environment env;
 
-    @BeforeAll
-    static void testDataProduce() throws JsonProcessingException {
+    @Autowired
+    private ObjectMapper mapper;
+
+    @LocalServerPort
+    private int port;
+
+    private PersonRequest personRequest;
+    private PersonResponse personResponse;
+    UriComponentsBuilder builder;
+
+    @BeforeEach
+    void testDataProduce() throws Exception {
+        builder = UriComponentsBuilder.fromHttpUrl(HTTP_LOCALHOST).port(port);
+        RestAssured.port = port;
         String string = "2010-02-02";
         LocalDate date = LocalDate.parse(string, DateTimeFormatter.ISO_DATE);
         int intVar = ThreadLocalRandom.current().nextInt(10000);
-//        PassportRequest passport = new PassportRequest("1223123113", Instant.now(), "123123");
         personRequest = new PersonRequest("Alex Frolov" + intVar, date, "UK");
         String req = mapper.writeValueAsString(personRequest);
+
         personResponse = given()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .body(req)
-                .when().post("http://localhost:8081/person")
+                .when().post(builder.path(PERSON_URI).toUriString())
                 .then()
                 .and().log()
                 .all()
                 .assertThat().statusCode(200)
                 .extract().body().as(PersonResponse.class);
+
     }
 
-    @AfterAll
-    public static void testDataClear() {
+    @AfterEach
+    public void testDataClear() {
         given()
-                .delete("http://localhost:8081/person/" + personResponse.getId())
+                .delete(builder.replacePath(PERSON_URI)
+                        .path("/")
+                        .path(personResponse.getId()).toUriString())
                 .then()
                 .log().all()
                 .statusCode(204);
@@ -64,8 +83,12 @@ public class PersonRestControllerTest {
 
     @Test
     void testFindPersonById() {
+        String path = builder.replacePath(PERSON_URI)
+                .path("/")
+                .path(personResponse.getId()).toUriString();
         var response = given()
-                .when().get("http://localhost:8081/person/" + personResponse.getId())
+                .when()
+                .get(path)
                 .then()
                 .assertThat().statusCode(200)
                 .and().log()
@@ -77,9 +100,11 @@ public class PersonRestControllerTest {
 
     @Test
     void testFindPersonByIdNotCorrect() {
-        String id = "2332323sd1";
+        String id = FriendlyId.createFriendlyId();
         var response = given()
-                .when().get("http://localhost:8081/person/" + id)
+                .when().get(builder.replacePath(PERSON_URI)
+                        .path("/")
+                        .path(id).toUriString())
                 .then()
                 .assertThat().statusCode(404)
                 .and().log()
@@ -91,7 +116,7 @@ public class PersonRestControllerTest {
     }
 
     @Test
-    void testUpdatePersonByIdCorrect() throws JsonProcessingException {
+    void testUpdatePersonByIdCorrect() throws Exception {
         PersonRequest personRequest1 = new PersonRequest("Egor",
                 personRequest.getBirthday(),
                 personRequest.getBirthdayCountry());
@@ -99,7 +124,9 @@ public class PersonRestControllerTest {
         personResponse = given()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .body(req)
-                .when().put("http://localhost:8081/person/" + personResponse.getId())
+                .when().put(builder.replacePath(PERSON_URI)
+                        .path("/")
+                        .path(personResponse.getId()).toUriString())
                 .then()
                 .and().log()
                 .all()
@@ -109,7 +136,7 @@ public class PersonRestControllerTest {
     }
 
     @Test
-    void testUpdatePersonByIdNotCorrect() throws JsonProcessingException {
+    void testUpdatePersonByIdNotCorrect() throws Exception {
         PersonRequest personRequest1 = new PersonRequest("Egor",
                 personRequest.getBirthday(),
                 personRequest.getBirthdayCountry());
@@ -117,7 +144,7 @@ public class PersonRestControllerTest {
         personResponse = given()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .body(req)
-                .when().put("http://localhost:8081/person/" + personResponse.getId())
+                .when().put(builder.replacePath(PERSON_URI).path("/").path(personResponse.getId()).toUriString())
                 .then()
                 .and().log()
                 .all()
@@ -133,7 +160,7 @@ public class PersonRestControllerTest {
         var response = given()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .body(req).
-                when().post("http://localhost:8081/person")
+                when().post(builder.replacePath(PERSON_URI).toUriString())
                 .then()
                 .assertThat().statusCode(400).extract().response().body().peek();
         assertEquals(response.print(), env.getProperty("exception.InvalidPersonDataException"));

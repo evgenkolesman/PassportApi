@@ -36,6 +36,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 class PersonControllerTest {
 
+    private static final String PERSON_ENDPOINT = "/person";
+
     @Autowired
     private MockMvc mvc;
 
@@ -64,12 +66,9 @@ class PersonControllerTest {
 
     @Test
     void testCreatePersonCorrect() throws Exception {
-//        PersonRequest personRequest = new PersonRequest("Alex Frolov1",
-//                LocalDate.now(),
-//                "US");
         when(personController.createPerson(personRequest)).thenReturn(personResponse);
         String req = mapper.writeValueAsString(personRequest);
-        this.mvc.perform(post("/person").contentType("application/json")
+        this.mvc.perform(post(PERSON_ENDPOINT).contentType("application/json")
                         .content(req))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -80,7 +79,7 @@ class PersonControllerTest {
     void testCreatePersonNotCorrect() throws Exception {
         when(personController.createPerson(personRequest)).thenThrow(new InvalidPersonDataException());
         String req = mapper.writer().writeValueAsString(personRequest);
-        this.mvc.perform(post("/person").contentType("application/json")
+        this.mvc.perform(post(PERSON_ENDPOINT).contentType("application/json")
                         .content(req))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
@@ -92,7 +91,7 @@ class PersonControllerTest {
     void testFindPersonById() throws Exception {
         when(personController.findPersonById(person.getId())).thenReturn(personResponse);
         String req = mapper.writer().writeValueAsString(personRequest);
-        this.mvc.perform(get("/person/" + person.getId()).contentType("application/json")
+        this.mvc.perform(get(PERSON_ENDPOINT + "/" + person.getId()).contentType("application/json")
                         .content(req))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -104,7 +103,7 @@ class PersonControllerTest {
         String id = "23";
         when(personController.findPersonById(id))
                 .thenThrow(new PersonNotFoundException(id));
-        this.mvc.perform(get("/person/" + id).contentType("application/json")
+        this.mvc.perform(get(PERSON_ENDPOINT + id).contentType("application/json")
                         .content(""))
                 .andDo(print())
                 .andExpect(status().isNotFound())
@@ -117,7 +116,7 @@ class PersonControllerTest {
     void testUpdatePersonCorrect() throws Exception {
         when(personController.updatePerson(person.getId(), personRequest)).thenReturn(personResponse);
         String req = mapper.writer().writeValueAsString(personRequest);
-        this.mvc.perform(put("/person/" + person.getId()).contentType("application/json")
+        this.mvc.perform(put(PERSON_ENDPOINT + "/" + person.getId()).contentType("application/json")
                         .content(req))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -127,7 +126,7 @@ class PersonControllerTest {
     @Test
     void testUpdatePersonNotCorrect() throws Exception {
         String req = mapper.writer().writeValueAsString("");
-        this.mvc.perform(put("/person/" + person.getId()).contentType("application/json")
+        this.mvc.perform(put(PERSON_ENDPOINT + "/" + person.getId()).contentType("application/json")
                         .content(req))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
@@ -136,7 +135,7 @@ class PersonControllerTest {
     @Test
     void testDeletePersonCorrect() throws Exception {
         String req = mapper.writer().writeValueAsString(personRequest);
-        this.mvc.perform(delete("/person/" + person.getId()).contentType("application/json")
+        this.mvc.perform(delete(PERSON_ENDPOINT + "/" + person.getId()).contentType("application/json")
                         .content(req))
                 .andDo(print())
                 .andExpect(status().isNoContent());
@@ -146,7 +145,7 @@ class PersonControllerTest {
     void testDeletePersonNotCorrect() throws Exception {
         String id = "23";
         doThrow(new PersonNotFoundException(id)).when(personController).deletePerson(id);
-        this.mvc.perform(delete("/person/" + id).contentType("application/json")
+        this.mvc.perform(delete(PERSON_ENDPOINT + "/" + id).contentType("application/json")
                         .content(""))
                 .andDo(print())
                 .andExpect(status().isNotFound())

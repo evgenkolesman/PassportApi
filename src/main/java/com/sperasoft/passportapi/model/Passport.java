@@ -1,17 +1,19 @@
 package com.sperasoft.passportapi.model;
 
-import com.devskiller.friendly_id.FriendlyId;
-import com.sperasoft.passportapi.configuration.CommonConfiguration;
 import com.sperasoft.passportapi.controller.dto.PassportRequest;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NonNull;
 
 import java.time.Instant;
 
 @Data
+@AllArgsConstructor
 public class Passport {
+
     @NonNull
     private final String id;
+
     @NonNull
     private final String number;
     @NonNull
@@ -19,14 +21,33 @@ public class Passport {
     @NonNull
     private final String departmentCode;
 
-    private boolean active = true;
+    private final boolean active;
 
-    private String description;
+    private final String description;
+
+    public Passport(@NonNull String id,
+                    @NonNull String number,
+                    @NonNull Instant givenDate,
+                    @NonNull String departmentCode) {
+        this.id = id;
+        this.number = number;
+        this.givenDate = givenDate;
+        this.departmentCode = departmentCode;
+        this.active = true;
+        this.description = "No description";
+    }
+
+    private Passport(String id, PassportRequest passportRequest) {
+        this.id = id;
+        this.number = passportRequest.getNumber();
+        this.givenDate = passportRequest.getGivenDate();
+        this.departmentCode = passportRequest.getDepartmentCode();
+        this.active = true;
+        this.description = "No description";
+    }
 
     public static Passport of(final String id, final PassportRequest passportRequest) {
         return new Passport(id,
-                passportRequest.getNumber(),
-                passportRequest.getGivenDate(),
-                passportRequest.getDepartmentCode());
+                passportRequest);
     }
 }
