@@ -1,19 +1,22 @@
-package com.sperasoft.passportapi.controller;
+package com.sperasoft.passportapi.controller.rest;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sperasoft.passportapi.PassportApiApplication;
 import com.sperasoft.passportapi.controller.dto.PassportRequest;
 import com.sperasoft.passportapi.controller.dto.PassportResponse;
 import com.sperasoft.passportapi.controller.dto.PersonRequest;
 import com.sperasoft.passportapi.controller.dto.PersonResponse;
 import com.sperasoft.passportapi.model.NumberPassport;
+import io.restassured.RestAssured;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.core.env.Environment;
 import org.springframework.http.MediaType;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.time.LocalDate;
 import java.time.ZoneOffset;
@@ -25,22 +28,32 @@ import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Slf4j
-@SpringBootTest(classes = PassportApiApplication.class)
+@SpringBootTest(webEnvironment =
+        SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class SearchRestControllerTest {
 
+    private static final String PERSON_ENDPOINT = "/person";
+    private static final String PASSPORT_ENDPOINT = "/passport";
+    private static final String SEARCHES_ENDPOINT = "/searches";
+    private static final String HTTP_LOCALHOST = "http://localhost";
+
     @Autowired
     private Environment env;
+    @Autowired
+    private ObjectMapper mapper;
+    private PassportRequest passportRequest;
+    private PassportResponse passportResponse;
+    private PersonResponse personResponse;
+    private PersonRequest personRequest;
 
-    private static PassportRequest passportRequest;
-    private static PassportResponse passportResponse;
-    private static PersonResponse personResponse;
-    private static PersonRequest personRequest;
-    private static final ObjectMapper mapper = new ObjectMapper();
-    private static int number;
+    @LocalServerPort
+    private int port;
+    private int number;
 
-    @BeforeAll
-    static void testDataProduce() throws JsonProcessingException {
+    @BeforeEach
+    void testDataProduce() throws Exception {
+        RestAssured.port = port;
         LocalDate datePassport = LocalDate.parse("2022-05-05");
         LocalDate date = LocalDate.parse("2022-05-05", DateTimeFormatter.ISO_DATE);
         number = ThreadLocalRandom.current().nextInt(899999999) + 1000000000;
@@ -55,7 +68,9 @@ public class SearchRestControllerTest {
         personResponse = given()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .body(reqPerson)
-                .when().post("http://localhost:8081/person")
+                .when().post(UriComponentsBuilder
+                        .fromHttpUrl(HTTP_LOCALHOST).port(port)
+                        .path(PERSON_ENDPOINT).toUriString())
                 .then()
                 .and().log()
                 .all()
@@ -64,7 +79,10 @@ public class SearchRestControllerTest {
         passportResponse = given()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .body(reqPassport)
-                .when().post("http://localhost:8081/person/" + personResponse.getId() + "/passport")
+                .when().post(UriComponentsBuilder.fromHttpUrl(HTTP_LOCALHOST).port(port)
+                        .path(PERSON_ENDPOINT).path("/")
+                        .path(personResponse.getId())
+                        .path(PASSPORT_ENDPOINT).toUriString())
                 .then()
                 .and().log()
                 .all()
@@ -72,23 +90,29 @@ public class SearchRestControllerTest {
                 .extract().body().as(PassportResponse.class);
     }
 
-    @AfterAll
-    public static void testDataClear() {
-        given().delete("http://localhost:8081/person/" + personResponse.getId())
-                .then().assertThat().statusCode(204);
-        given().delete("http://localhost:8081/person/" + personResponse.getId() + "/passport/" + passportResponse.getId())
-                .then().assertThat().statusCode(204);
+    @AfterEach
+    public void testDataClear() {
+        given().delete(UriComponentsBuilder.fromHttpUrl(HTTP_LOCALHOST).port(port)
+                .path(PERSON_ENDPOINT).path("/")
+                .path(personResponse.getId())
+                .path(PASSPORT_ENDPOINT).path("/").path(passportResponse.getId()).toUriString());
+        given().delete(UriComponentsBuilder.fromHttpUrl(HTTP_LOCALHOST).port(port)
+                .path(PERSON_ENDPOINT).path("/")
+                .path(personResponse.getId())
+                .toUriString());
+
     }
 
     @Test
-    void testFindPersonByPassportNumberCorrect() throws JsonProcessingException {
+    void testFindPersonByPassportNumberCorrect() throws Exception {
         var number1 = new NumberPassport();
         number1.setNumber(String.valueOf(number));
         String req = mapper.writer().writeValueAsString(number1);
         var response = given()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .body(req)
-                .post("http://localhost:8081/searches")
+                .post(UriComponentsBuilder.fromHttpUrl(HTTP_LOCALHOST).port(port)
+                        .path(SEARCHES_ENDPOINT).toUriString())
                 .then()
                 .and()
                 .log()
@@ -100,14 +124,15 @@ public class SearchRestControllerTest {
     }
 
     @Test
-    void testFindPersonByPassportNumberNotCorrect() throws JsonProcessingException {
+    void testFindPersonByPassportNumberNotCorrect() throws Exception {
         var number1 = new NumberPassport();
         number1.setNumber(String.valueOf(number - 100));
         String req = mapper.writer().writeValueAsString(number1);
         var response = given()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .body(req)
-                .post("http://localhost:8081/searches")
+                .post(UriComponentsBuilder.fromHttpUrl(HTTP_LOCALHOST).port(port)
+                        .path(SEARCHES_ENDPOINT).toUriString())
                 .then()
                 .and()
                 .log()
@@ -124,7 +149,8 @@ public class SearchRestControllerTest {
         number1.setNumber(String.valueOf(number));
         var response = given()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .get("http://localhost:8081/searches")
+                .get(UriComponentsBuilder.fromHttpUrl(HTTP_LOCALHOST).port(port)
+                        .path(SEARCHES_ENDPOINT).toUriString())
                 .then()
                 .and()
                 .log()
@@ -141,7 +167,9 @@ public class SearchRestControllerTest {
         number1.setNumber(String.valueOf(number));
         var response = given()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .get("http://localhost:8081/searches?active=true")
+                .get(UriComponentsBuilder.fromHttpUrl(HTTP_LOCALHOST).port(port)
+                        .path(SEARCHES_ENDPOINT)
+                        .queryParam("active", "true").toUriString())
                 .then()
                 .and()
                 .log()
@@ -153,12 +181,16 @@ public class SearchRestControllerTest {
     }
 
     @Test
-    void testFindAllPassportsWithDates() {
+    void testFindAllPassportsWithDates() throws Exception {
         var number1 = new NumberPassport();
         number1.setNumber(String.valueOf(number));
         var response = given()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .get("http://localhost:8081/searches?dateStart=2022-05-01T19:00:00+09:00&dateEnd=2022-07-01T19:00:00+10:00")
+                .get(UriComponentsBuilder.fromHttpUrl(HTTP_LOCALHOST).port(port)
+                        .path(SEARCHES_ENDPOINT)
+                        .queryParam("dateStart", "2022-05-01T19:00:00+09:00")
+                        .queryParam("dateEnd", "2022-07-01T19:00:00+10:00").toUriString()
+                )
                 .then()
                 .and()
                 .log()
@@ -170,12 +202,18 @@ public class SearchRestControllerTest {
     }
 
     @Test
-    void testFindAllPassportsWithActiveAndDates() {
+    void testFindAllPassportsWithActiveAndDates() throws Exception {
         var number1 = new NumberPassport();
         number1.setNumber(String.valueOf(number));
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.addIfAbsent("dateStart", "2022-05-01T19:00:00+09:00");
+        params.addIfAbsent("dateEnd", "2022-07-01T19:00:00+10:00");
+        params.addIfAbsent("active", "true");
         var response = given()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .get("http://localhost:8081/searches?active=true&dateStart=2022-05-01T19:00:00-10:00&dateEnd=2022-07-01T19:00:00-10:00")
+                .get(UriComponentsBuilder.fromHttpUrl(HTTP_LOCALHOST).port(port)
+                        .path(SEARCHES_ENDPOINT)
+                        .queryParams(params).toUriString())
                 .then()
                 .and()
                 .log()
@@ -187,12 +225,18 @@ public class SearchRestControllerTest {
     }
 
     @Test
-    void testFindAllPassportsWithActiveAndBadDates() {
+    void testFindAllPassportsWithActiveAndBadDates() throws Exception {
         var number1 = new NumberPassport();
         number1.setNumber(String.valueOf(number));
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.addIfAbsent("dateStart", "2022-10-01T19:00:00-10:00");
+        params.addIfAbsent("dateEnd", "2022-07-01T19:00:00-10:00");
+        params.addIfAbsent("active", "true");
         var response = given()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .get("http://localhost:8081/searches?active=true&dateStart=2022-10-01T19:00:00-10:00&dateEnd=2022-07-01T19:00:00-10:00")
+                .get(UriComponentsBuilder.fromHttpUrl(HTTP_LOCALHOST).port(port)
+                        .path(SEARCHES_ENDPOINT)
+                        .queryParams(params).toUriString())
                 .then()
                 .and()
                 .log()

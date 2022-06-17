@@ -1,13 +1,9 @@
 package com.sperasoft.passportapi.controller.dto;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.datatype.jsr310.ser.InstantSerializer;
-import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.sperasoft.passportapi.model.Person;
 import lombok.Data;
 import lombok.NonNull;
 
-import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 
 @Data
