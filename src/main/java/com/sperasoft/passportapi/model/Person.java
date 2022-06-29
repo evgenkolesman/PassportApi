@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
-@AllArgsConstructor
 public class Person {
     @NonNull
     private final String id;

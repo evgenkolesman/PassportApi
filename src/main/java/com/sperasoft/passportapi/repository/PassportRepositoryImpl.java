@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class PassportRepositoryImpl implements PassportRepository {
 
-    //    private final BiPredicate<Passport, List<Instant>> predicateDatesChecking;
     private static final Map<String, Passport> passportRepo = new ConcurrentHashMap<>();
 
     @Override
