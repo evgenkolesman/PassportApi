@@ -13,40 +13,22 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class PersonService {
 
-    private final PersonRepository personRepositoryImpl;
+    private final PersonRepository personRepository;
 
 
     public Person addPerson(Person person) {
-        if (personRepositoryImpl.findAll().stream().anyMatch(person1 ->
-                person1.getName().equals(person.getName())
-                        && person1.getBirthday().isEqual(person.getBirthday())
-                        && person1.getBirthdayCountry().equals(person.getBirthdayCountry())
-        )) {
-           throw new InvalidPersonDataException();
-        }
-        return personRepositoryImpl.addPerson(person);
+        return personRepository.addPerson(person);
     }
 
     public Person findById(String id) {
-        if (personRepositoryImpl.findById(id) == null) {
-            throw new PersonNotFoundException(id);
-        }
-            return personRepositoryImpl.findById(id);
+            return personRepository.findById(id);
     }
 
     public Person updatePerson(String id, Person person) {
-        checkPersonPresentInRepository(id);
-        return personRepositoryImpl.updatePerson(id, person);
+        return personRepository.updatePerson(id, person);
     }
 
     public Person deletePerson(String id) {
-        checkPersonPresentInRepository(id);
-        return personRepositoryImpl.deletePerson(id);
-    }
-
-    private void checkPersonPresentInRepository(String id) {
-        if (findById(id) == null) {
-            throw new PersonNotFoundException(id);
-        }
+        return personRepository.deletePerson(id);
     }
 }

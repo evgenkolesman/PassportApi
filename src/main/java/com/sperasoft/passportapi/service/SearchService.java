@@ -1,11 +1,10 @@
 package com.sperasoft.passportapi.service;
 
 import com.sperasoft.passportapi.exceptions.passportexceptions.InvalidPassportDataException;
-import com.sperasoft.passportapi.exceptions.passportexceptions.PassportWrongNumberException;
 import com.sperasoft.passportapi.model.Passport;
 import com.sperasoft.passportapi.model.Person;
-import com.sperasoft.passportapi.repository.PassportRepositoryImpl;
-import com.sperasoft.passportapi.repository.PersonRepositoryImpl;
+import com.sperasoft.passportapi.repository.PassportRepository;
+import com.sperasoft.passportapi.repository.PersonRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,18 +17,13 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SearchService {
 
-    private final PassportRepositoryImpl passportRepository;
-    private final PersonRepositoryImpl personRepositoryImpl;
+    private final PassportRepository passportRepository;
+    private final PersonRepository personRepository;
 
 
     public Person findPersonByPassportNumber(String number) {
-        return personRepositoryImpl.findAll().stream().map(person -> personRepositoryImpl.findAll()
-                        .stream()
-                        .filter(person1 ->
-                                person1.getList().stream().anyMatch(
-                                        p -> p.getNumber().equals(number))).findFirst()
-                        .orElseThrow(PassportWrongNumberException::new))
-                .findFirst().orElseThrow();
+        Passport passport = passportRepository.getPassportByNumber(number);
+        return personRepository.findById(passport.getPersonId());
     }
 
     public List<Passport> getAllPassports(Boolean active,

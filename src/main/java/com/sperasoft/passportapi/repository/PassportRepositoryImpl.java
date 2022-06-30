@@ -2,8 +2,9 @@ package com.sperasoft.passportapi.repository;
 
 import com.google.common.collect.Range;
 import com.sperasoft.passportapi.exceptions.passportexceptions.PassportBadStatusException;
+import com.sperasoft.passportapi.exceptions.passportexceptions.PassportNotFoundException;
+import com.sperasoft.passportapi.exceptions.passportexceptions.PassportWrongNumberException;
 import com.sperasoft.passportapi.model.Passport;
-import com.sperasoft.passportapi.model.Person;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -22,8 +23,7 @@ public class PassportRepositoryImpl implements PassportRepository {
     private static final Map<String, Passport> passportRepo = new ConcurrentHashMap<>();
 
     @Override
-    public Passport addPassport(Passport passport, Person person) {
-        person.getList().add(passport);
+    public synchronized Passport addPassport(Passport passport) {
         passportRepo.put(passport.getId(), passport);
         return passport;
     }
@@ -37,22 +37,21 @@ public class PassportRepositoryImpl implements PassportRepository {
     public Passport findPassportById(String id, boolean active) {
         Passport passport = passportRepo.get(id);
         if (passport.isActive() == active) {
-            return passportRepo.get(id);
+            return passport;
         } else
             throw new PassportBadStatusException();
     }
 
     @Override
-    public Passport updatePassport(Person person, Passport passport) {
-        person.getList().remove(findPassportById(passport.getId()));
+    public synchronized Passport updatePassport(Passport passport) {
+        checkPassportPresentWithId(passport.getId());
         passportRepo.replace(passport.getId(), passport);
-        person.getList().add(passport);
-
         return passport;
     }
 
     @Override
-    public Passport deletePassport(String id) {
+    public synchronized Passport deletePassport(String id) {
+        checkPassportPresentWithId(id);
         return passportRepo.remove(id);
     }
 
@@ -82,8 +81,59 @@ public class PassportRepositoryImpl implements PassportRepository {
     }
 
     @Override
+    public Passport getPassportByNumber(String number) {
+        return passportRepo.values().stream()
+                .filter(passport -> passport.getNumber().equals(number))
+                .findFirst()
+                .orElseThrow(PassportWrongNumberException::new);
+    }
+
+    @Override
     public List<Passport> getPassportsByParams() {
         return new ArrayList<>(passportRepo.values());
+    }
+
+    @Override
+    public List<Passport> getPassportsByParams(String personId, Boolean active, Instant startDate, Instant endDate) {
+        Range<Instant> dateRange = Range.closed(startDate, endDate);
+        return passportRepo.values().stream()
+                .filter(passportFromRepo -> passportFromRepo.getPersonId().equals(personId))
+                .filter(a -> a.isActive() == active)
+                .filter(passport ->
+                        dateRange.test(passport.getGivenDate()))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Passport> getPassportsByParams(String personId, Instant startDate, Instant endDate) {
+        Range<Instant> dateRange = Range.closed(startDate, endDate);
+        return passportRepo.values().stream()
+                .filter(passportFromRepo -> passportFromRepo.getPersonId().equals(personId))
+                .filter(passport ->
+                        dateRange.test(passport.getGivenDate()))
+                .collect(Collectors.toList());
+    }
+
+
+    @Override
+    public List<Passport> getPassportsByParams(String personId, Boolean active) {
+        return passportRepo.values().stream()
+                .filter(passportFromRepo -> passportFromRepo.getPersonId().equals(personId))
+                .filter(a -> a.isActive() == active)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Passport> getPassportsByParams(String personId) {
+        return passportRepo.values().stream()
+                .filter(passportFromRepo -> passportFromRepo.getPersonId().equals(personId))
+                .collect(Collectors.toList());
+    }
+
+    private void checkPassportPresentWithId(String id) {
+        if (!passportRepo.containsKey(id)) {
+            throw new PassportNotFoundException(id);
+        }
     }
 
 }

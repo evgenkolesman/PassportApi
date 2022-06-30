@@ -10,6 +10,7 @@ import com.sperasoft.passportapi.controller.dto.PersonRequest;
 import com.sperasoft.passportapi.controller.dto.PersonResponse;
 import com.sperasoft.passportapi.exceptions.personexceptions.InvalidPersonDataException;
 import com.sperasoft.passportapi.exceptions.personexceptions.PersonNotFoundException;
+import com.sperasoft.passportapi.model.Passport;
 import com.sperasoft.passportapi.model.Person;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -61,7 +62,9 @@ class PersonControllerTest {
         personRequest = new PersonRequest("Alex Frolov",
                 date,
                 "UK");
-        person = Person.of(FriendlyId.createFriendlyId(), personRequest);
+        person = new Person(FriendlyId.createFriendlyId(),
+                personRequest.getName(), personRequest.getBirthday(),
+                personRequest.getBirthdayCountry());
         personResponse = PersonResponse.of(person);
     }
 

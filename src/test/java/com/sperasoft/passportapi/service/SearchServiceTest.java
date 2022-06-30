@@ -4,10 +4,13 @@ import com.devskiller.friendly_id.FriendlyId;
 import com.sperasoft.passportapi.controller.dto.PassportRequest;
 import com.sperasoft.passportapi.controller.dto.PersonRequest;
 import com.sperasoft.passportapi.exceptions.passportexceptions.InvalidPassportDataException;
+import com.sperasoft.passportapi.exceptions.passportexceptions.PassportNotFoundException;
+import com.sperasoft.passportapi.exceptions.personexceptions.PersonNotFoundException;
 import com.sperasoft.passportapi.model.Passport;
 import com.sperasoft.passportapi.model.Person;
 import com.sperasoft.passportapi.repository.PassportRepository;
 import com.sperasoft.passportapi.repository.PersonRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,6 +27,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 
+@Slf4j
 @SpringBootTest
 public class SearchServiceTest {
 
@@ -48,14 +52,29 @@ public class SearchServiceTest {
         LocalDate date = LocalDate.parse(string, DateTimeFormatter.ISO_DATE);
         PassportRequest passportRequest = new PassportRequest("1223123113",Instant.now(),"123123");
         PersonRequest personRequest = new PersonRequest("Alex Frolov", date, "UK");
-        person = personService.addPerson(Person.of(FriendlyId.createFriendlyId(), personRequest));
-        passport = passportService.addPassportToPerson(person.getId(), Passport.of(FriendlyId.createFriendlyId(), passportRequest));
+        person = personService.addPerson(new Person(FriendlyId.createFriendlyId(),
+                personRequest.getName(),
+                personRequest.getBirthday(),
+                personRequest.getBirthdayCountry()));
+        passport = passportService.createPassport(new Passport(FriendlyId.createFriendlyId(),
+                person.getId(),
+                passportRequest.getNumber(),
+                passportRequest.getGivenDate(),
+                passportRequest.getDepartmentCode()));
     }
 
     @AfterEach
     private void testDataClear() {
-        passportRepository.deletePassport(passport.getId());
-        personRepository.deletePerson(person.getId());
+        try {
+            passportRepository.deletePassport(passport.getId());
+        } catch (PassportNotFoundException e) {
+            log.info("Passport was deleted " + passport.getId());
+        }
+        try {
+            personRepository.deletePerson(person.getId());
+        } catch (PersonNotFoundException e) {
+            log.info("Person was deleted " + person.getId());
+        }
     }
 
     @Test
