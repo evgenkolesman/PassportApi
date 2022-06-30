@@ -4,6 +4,7 @@ import com.sperasoft.passportapi.controller.dto.PassportResponse;
 import com.sperasoft.passportapi.controller.dto.PersonResponse;
 import com.sperasoft.passportapi.model.NumberPassport;
 import com.sperasoft.passportapi.service.SearchService;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.lang.Nullable;
@@ -21,7 +22,7 @@ public class SearchController {
     private final SearchService searchService;
 
     @PostMapping
-    public PersonResponse findPersonByPassportNumber(@RequestBody NumberPassport number) {
+    public PersonResponse findPersonByPassportNumber(@NonNull @RequestBody NumberPassport number) {
         return PersonResponse.of(searchService.findPersonByPassportNumber(number.getNumber()));
     }
 

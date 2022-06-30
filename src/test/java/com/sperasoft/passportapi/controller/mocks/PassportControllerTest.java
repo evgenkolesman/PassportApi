@@ -65,9 +65,6 @@ class PassportControllerTest {
     private Person person;
     private Passport passport;
 
-
-
-
     @BeforeEach
     private void testDataProduce() {
         RestAssuredMockMvc.mockMvc(mvc);
@@ -80,8 +77,14 @@ class PassportControllerTest {
         PersonRequest personRequest = new PersonRequest("Alex Frolov",
                 date,
                 "UK");
-        passport = Passport.of(FriendlyId.createFriendlyId(), passportRequest);
-        person = Person.of(FriendlyId.createFriendlyId(), personRequest);
+        person = new Person(FriendlyId.createFriendlyId(),
+                personRequest.getName(), personRequest.getBirthday(),
+                personRequest.getBirthdayCountry());
+        passport = new Passport(FriendlyId.createFriendlyId(),
+                person.getId(),
+                passportRequest.getNumber(),
+                passportRequest.getGivenDate(),
+                passportRequest.getDepartmentCode());
         passportResponse = PassportResponse.of(passport);
     }
 
@@ -287,7 +290,11 @@ class PassportControllerTest {
         PassportRequest passportForTest = new PassportRequest(passportRequest.getNumber(),
                 passportRequest.getGivenDate(),
                 "111111");
-        Passport passport1 = Passport.of(FriendlyId.createFriendlyId(), passportForTest);
+        Passport passport1 = new Passport(FriendlyId.createFriendlyId(),
+                        person.getId(),
+                        passportForTest.getNumber(),
+                        passportForTest.getGivenDate(),
+                        passportForTest.getDepartmentCode());
         when(passportController.updatePassport(person.getId(), passport.getId(), passportForTest))
                 .thenReturn(PassportResponse.of(passport1));
         String req = mapper.writer().writeValueAsString(passportForTest);

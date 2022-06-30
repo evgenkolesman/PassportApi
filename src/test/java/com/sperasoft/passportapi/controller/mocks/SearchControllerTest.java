@@ -73,8 +73,15 @@ class SearchControllerTest {
         PersonRequest personRequest = new PersonRequest("Alex Frolov",
                 date,
                 "UK");
-        passport = Passport.of(FriendlyId.createFriendlyId(), passportRequest);
-        person = Person.of(FriendlyId.createFriendlyId(), personRequest);
+        person = new Person(FriendlyId.createFriendlyId(),
+                personRequest.getName(), personRequest.getBirthday(),
+                personRequest.getBirthdayCountry());
+        passport = new Passport(FriendlyId.createFriendlyId(),
+                person.getId(),
+                passportRequest.getNumber(),
+                passportRequest.getGivenDate(),
+                passportRequest.getDepartmentCode());
+
         personResponse = PersonResponse.of(person);
         passportResponse = PassportResponse.of(passport);
     }

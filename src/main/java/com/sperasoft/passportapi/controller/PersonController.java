@@ -19,8 +19,12 @@ public class PersonController {
     private final PersonService personService;
 
     @PostMapping
-    public PersonResponse createPerson(@RequestBody @Valid PersonRequest person) {
-        return PersonResponse.of(personService.addPerson(Person.of(FriendlyId.createFriendlyId(), person)));
+    public PersonResponse createPerson(@RequestBody @Valid PersonRequest personRequest) {
+        return PersonResponse.of(personService.addPerson(
+                new Person(FriendlyId.createFriendlyId(),
+                personRequest.getName(),
+                personRequest.getBirthday(),
+                personRequest.getBirthdayCountry())));
     }
 
     @GetMapping("/{id}")
@@ -30,7 +34,11 @@ public class PersonController {
 
     @PutMapping("/{id}")
     public PersonResponse updatePerson(@PathVariable("id") String id, @RequestBody @Valid PersonRequest personRequest) {
-        return PersonResponse.of(personService.updatePerson(id, Person.of(id, personRequest)));
+        return PersonResponse.of(personService.updatePerson(id,
+                new Person(FriendlyId.createFriendlyId(),
+                personRequest.getName(),
+                personRequest.getBirthday(),
+                personRequest.getBirthdayCountry())));
     }
 
     @DeleteMapping("/{id}")
