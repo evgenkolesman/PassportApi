@@ -68,12 +68,13 @@ public class PassportService {
 
     public boolean deactivatePassport(String personId,
                                       String id,
+                                      Boolean active,
                                       Description description) {
         if (description == null) {
             description = new Description("new desc");
         }
         Passport passportPerson =
-                passportRepository.findPassportById(id);
+                passportRepository.findPassportById(id, active);
         if (passportPerson != null && passportPerson.isActive()) {
             passportRepository.updatePassport(
                     new Passport(passportPerson.getId(),

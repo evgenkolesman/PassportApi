@@ -197,6 +197,7 @@ class PassportServiceTest {
     public void testDeactivatePassportCorrect() {
         assertTrue(passportService.deactivatePassport(person.getId(),
                         passportRepository.getPassportsByParams(person.getId(), true).get(0).getId(),
+                        true,
                         new Description("NO DESC")),
                 "Problems with deactivating passport");
     }
@@ -206,10 +207,12 @@ class PassportServiceTest {
         Person person1 = personRepository.findById(person.getId());
         passportService.deactivatePassport(person1.getId(),
                 passportRepository.getPassportsByParams(person.getId(), true).get(0).getId(),
+                true,
                 new Description("New Desc"));
         assertThrowsExactly(PassportDeactivatedException.class, () ->
                         passportService.deactivatePassport(person1.getId(),
                                 passportRepository.getPassportsByParams(person.getId(), false).get(0).getId(),
+                                false,
                                 new Description("New Desc")),
                 "Passport should be deactivated but not");
     }
