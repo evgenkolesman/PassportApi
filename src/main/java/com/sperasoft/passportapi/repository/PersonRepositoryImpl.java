@@ -1,5 +1,7 @@
 package com.sperasoft.passportapi.repository;
 
+import com.sperasoft.passportapi.exceptions.personexceptions.InvalidPersonDataException;
+import com.sperasoft.passportapi.exceptions.personexceptions.PersonNotFoundException;
 import com.sperasoft.passportapi.model.Person;
 import org.springframework.stereotype.Repository;
 
@@ -9,7 +11,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Repository
-public class PersonRepositoryImpl implements PersonRepository{
+public class PersonRepositoryImpl implements PersonRepository {
 
     private static final Map<String, Person> personRepo = new ConcurrentHashMap<>();
 
@@ -19,7 +21,14 @@ public class PersonRepositoryImpl implements PersonRepository{
     }
 
     @Override
-    public Person addPerson(Person person) {
+    public synchronized Person addPerson(Person person) {
+        if (findAll().stream().anyMatch(person1 ->
+                person1.getName().equals(person.getName())
+                        && person1.getBirthday().isEqual(person.getBirthday())
+                        && person1.getBirthdayCountry().equals(person.getBirthdayCountry())
+        ) || personRepo.containsKey(person.getId())) {
+            throw new InvalidPersonDataException();
+        }
         personRepo.put(person.getId(), person);
         return person;
     }
@@ -27,27 +36,25 @@ public class PersonRepositoryImpl implements PersonRepository{
     @Override
     public Person findById(String id) {
         if (!personRepo.containsKey(id)) {
-            return null;
+            throw new PersonNotFoundException(id);
         }
         return personRepo.get(id);
     }
 
     @Override
-    public Person findPersonById(String id) {
+    public synchronized Person updatePerson(String id, Person person) {
         if (!personRepo.containsKey(id)) {
-            return null;
+            throw new PersonNotFoundException(id);
         }
-        return personRepo.get(id);
-    }
-
-    @Override
-    public Person updatePerson(String id, Person person) {
         personRepo.replace(id, person);
         return person;
     }
 
     @Override
-    public Person deletePerson(String id) {
+    public synchronized Person deletePerson(String id) {
+        if (!personRepo.containsKey(id)) {
+            throw new PersonNotFoundException(id);
+        }
         return personRepo.remove(id);
     }
 }

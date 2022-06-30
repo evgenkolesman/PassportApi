@@ -42,9 +42,12 @@ public class PassportController {
     @PostMapping
     public PassportResponse createPassport(@PathVariable("personId") String personId,
                                            @RequestBody @Valid PassportRequest passportRequest) {
-        Passport passport = passportService.addPassportToPerson(personId,
-                Passport.of(FriendlyId.createFriendlyId(), passportRequest));
-        return PassportResponse.of(passport);
+        return PassportResponse.of(passportService.createPassport(
+                new Passport(FriendlyId.createFriendlyId(),
+                        personId,
+                        passportRequest.getNumber(),
+                        passportRequest.getGivenDate(),
+                        passportRequest.getDepartmentCode())));
     }
 
     @GetMapping("/{id}")
@@ -58,7 +61,12 @@ public class PassportController {
     public PassportResponse updatePassport(@PathVariable("personId") String personId,
                                            @PathVariable("id") String id,
                                            @RequestBody @Valid PassportRequest passportRequest) {
-        return PassportResponse.of(passportService.updatePassport(personId, id, Passport.of(id, passportRequest)));
+        return PassportResponse.of(passportService.updatePassport(
+                new Passport(id,
+                personId,
+                passportRequest.getNumber(),
+                passportRequest.getGivenDate(),
+                passportRequest.getDepartmentCode())));
     }
 
     @DeleteMapping("/{id}")
@@ -70,8 +78,8 @@ public class PassportController {
     @PostMapping("/{id}/lostPassport")
     public boolean lostPassportDeactivate(@PathVariable("personId") String personId,
                                           @PathVariable("id") String id,
-                                          @RequestParam(name = "active", defaultValue = "false") @NotNull Boolean active,
+//                                          @RequestParam(name = "active", defaultValue = "false") @NotNull Boolean active,
                                           @RequestBody(required = false) Description description) {
-        return passportService.deactivatePassport(personId, id, active, description);
+        return passportService.deactivatePassport(personId, id, description);
     }
 }

@@ -5,9 +5,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sperasoft.passportapi.controller.dto.PersonRequest;
 import com.sperasoft.passportapi.controller.dto.PersonResponse;
+import com.sperasoft.passportapi.exceptions.personexceptions.PersonNotFoundException;
 import io.restassured.RestAssured;
-import io.restassured.config.EncoderConfig;
-import io.restassured.internal.http.URIBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,7 +18,6 @@ import org.springframework.core.env.Environment;
 import org.springframework.http.MediaType;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.net.URI;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.ThreadLocalRandom;
@@ -72,13 +70,12 @@ public class PersonRestControllerTest {
 
     @AfterEach
     public void testDataClear() {
-        given()
-                .delete(builder.replacePath(PERSON_URI)
-                        .path("/")
-                        .path(personResponse.getId()).toUriString())
-                .then()
-                .log().all()
-                .statusCode(204);
+            given()
+                    .delete(builder.path(PERSON_URI)
+                            .path("/")
+                            .path(personResponse.getId()).toUriString())
+                    .then()
+                    .log().all();
     }
 
     @Test
@@ -141,16 +138,16 @@ public class PersonRestControllerTest {
                 personRequest.getBirthday(),
                 personRequest.getBirthdayCountry());
         String req = mapper.writeValueAsString(personRequest1);
-        personResponse = given()
+        given()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .body(req)
-                .when().put(builder.replacePath(PERSON_URI).path("/").path(personResponse.getId()).toUriString())
+                .when().put(builder.replacePath(PERSON_URI).path("/")
+                        .path(FriendlyId.createFriendlyId()).toUriString())
                 .then()
                 .and().log()
                 .all()
-                .assertThat().statusCode(200)
-                .extract().body().as(PersonResponse.class);
-        assertEquals(personRequest1.getName(), personResponse.getName());
+                .assertThat().statusCode(404);
+
     }
 
 
