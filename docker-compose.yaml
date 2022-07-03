@@ -1,0 +1,19 @@
+version: "3.5"
+services:
+    postgres:
+        image: postgres:14.3-alpine
+        container_name: postgresdb
+        ports:
+          - "54333:5432"
+        environment:
+          POSTGRES_DB: "passportapi1"
+          POSTGRES_USER: "postgres"
+          POSTGRES_PASSWORD: "PassworD1"
+          PG_DATA: ./snap/postgres/data/pgdata
+        volumes:
+          - "./Загрузки/IdeaProjects/PassportApi/init.db.sql"
+          - "./Загрузки/IdeaProjects/PassportApi/src/main/resources/schema.sql"
+      #    - "./docs/sql/conf.d:/etc/mysql/conf.d"
+      #    - "./docs/sql/mysql-files.d:/var/lib/mysql-files"
+      #    - "./scp-persistence/src/main/resources/db/migration:/var/lib/mysql-files/migration"
+
