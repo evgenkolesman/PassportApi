@@ -84,7 +84,7 @@ public class PersonServiceTest {
     public void testUpdatePersonCorrect() {
         LocalDate date = LocalDate.now();
         PersonRequest personRequest = new PersonRequest("Alex Frol", date, "US");
-        Person updatePerson = personService.updatePerson(person.getId(),
+        Person updatePerson = personService.updatePerson(
                 new Person(person.getId(),
                         personRequest.getName(),
                         personRequest.getBirthday(),
@@ -100,7 +100,7 @@ public class PersonServiceTest {
         String id = FriendlyId.createFriendlyId();
         PersonRequest personUpdate = new PersonRequest("Alex Frol", LocalDate.now(), "US");
         assertThrowsExactly(PersonNotFoundException.class, () ->
-                        personService.updatePerson(id, new Person(id,
+                        personService.updatePerson(new Person(id,
                                 personRequest.getName(),
                                 personRequest.getBirthday(),
                                 personRequest.getBirthdayCountry())),

@@ -42,11 +42,11 @@ public class PersonRepositoryImpl implements PersonRepository {
     }
 
     @Override
-    public synchronized Person updatePerson(String id, Person person) {
-        if (!personRepo.containsKey(id)) {
-            throw new PersonNotFoundException(id);
+    public synchronized Person updatePerson(Person person) {
+        if (!personRepo.containsKey(person.getId())) {
+            throw new PersonNotFoundException(person.getId());
         }
-        personRepo.replace(id, person);
+        personRepo.replace(person.getId(), person);
         return person;
     }
 
