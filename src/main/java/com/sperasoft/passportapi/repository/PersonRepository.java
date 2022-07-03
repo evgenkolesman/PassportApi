@@ -11,7 +11,7 @@ public interface PersonRepository {
 
     Person findById(String id);
 
-    Person updatePerson(String id, Person person);
+    Person updatePerson(Person person);
 
     Person deletePerson(String id);
 }

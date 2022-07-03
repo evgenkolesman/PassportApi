@@ -33,9 +33,9 @@ public class PersonController {
     }
 
     @PutMapping("/{id}")
-    public PersonResponse updatePerson(@PathVariable("id") String id, @RequestBody @Valid PersonRequest personRequest) {
-        return PersonResponse.of(personService.updatePerson(id,
-                new Person(FriendlyId.createFriendlyId(),
+    public PersonResponse updatePerson(@PathVariable("id") String personId, @RequestBody @Valid PersonRequest personRequest) {
+        return PersonResponse.of(personService.updatePerson(
+                new Person(personId,
                 personRequest.getName(),
                 personRequest.getBirthday(),
                 personRequest.getBirthdayCountry())));
