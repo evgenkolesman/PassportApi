@@ -11,7 +11,7 @@ services:
           POSTGRES_PASSWORD: "PassworD1"
           PG_DATA: ./snap/postgres/data/pgdata
         volumes:
-          - "./Загрузки/IdeaProjects/PassportApi/init.db.sql"
+          - "./Загрузки/IdeaProjects/PassportApi/src/main/resources/init.db.sql"
           - "./Загрузки/IdeaProjects/PassportApi/src/main/resources/schema.sql"
       #    - "./docs/sql/conf.d:/etc/mysql/conf.d"
       #    - "./docs/sql/mysql-files.d:/var/lib/mysql-files"
