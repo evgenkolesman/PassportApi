@@ -3,6 +3,7 @@ package com.sperasoft.passportapi.repository;
 import com.sperasoft.passportapi.exceptions.personexceptions.InvalidPersonDataException;
 import com.sperasoft.passportapi.exceptions.personexceptions.PersonNotFoundException;
 import com.sperasoft.passportapi.model.Person;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -11,6 +12,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Repository
+@Primary
 public class PersonRepositoryImpl implements PersonRepository {
 
     private static final Map<String, Person> personRepo = new ConcurrentHashMap<>();

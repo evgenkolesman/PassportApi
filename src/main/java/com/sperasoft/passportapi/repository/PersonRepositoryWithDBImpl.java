@@ -17,10 +17,9 @@ public class PersonRepositoryWithDBImpl implements PersonRepository {
 
     private final JdbcTemplate jdbcTemplate;
 
-
     @Override
     public ArrayList<Person> findAll() {
-        return new ArrayList<>(jdbcTemplate.query("SELECT*FROM passportapi1.public.Person",
+        return new ArrayList<>(jdbcTemplate.query("SELECT*FROM passportapi1.public.Person;",
                 this::mapToPerson));
     }
 
@@ -42,7 +41,7 @@ public class PersonRepositoryWithDBImpl implements PersonRepository {
 
     @Override
     public Person findById(String id) {
-        return (Person) jdbcTemplate.query("SELECT*FROM passportapi1.public.Person WHERE id = ?",
+        return (Person) jdbcTemplate.query("SELECT*FROM passportapi1.public.Person WHERE id = ?;",
                 this::mapToPerson,
                 id);
     }
@@ -65,7 +64,7 @@ public class PersonRepositoryWithDBImpl implements PersonRepository {
     public synchronized Person deletePerson(String id) {
         Person person = findById(id);
         if(person != null) {
-            jdbcTemplate.update("DELETE FROM passportapi1.public.Person WHERE id = ?",
+            jdbcTemplate.update("DELETE FROM passportapi1.public.Person WHERE id = ?;",
                     id);
         }
         else throw new InvalidPersonDataException();

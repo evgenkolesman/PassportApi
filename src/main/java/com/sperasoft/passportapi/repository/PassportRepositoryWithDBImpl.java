@@ -1,139 +1,163 @@
 package com.sperasoft.passportapi.repository;
 
-import com.google.common.collect.Range;
-import com.sperasoft.passportapi.exceptions.passportexceptions.PassportBadStatusException;
-import com.sperasoft.passportapi.exceptions.passportexceptions.PassportNotFoundException;
-import com.sperasoft.passportapi.exceptions.passportexceptions.PassportWrongNumberException;
+import com.sperasoft.passportapi.exceptions.passportexceptions.InvalidPassportDataException;
+import com.sperasoft.passportapi.exceptions.personexceptions.InvalidPersonDataException;
 import com.sperasoft.passportapi.model.Passport;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class PassportRepositoryWithDBImpl implements PassportRepository {
 
-    private static final Map<String, Passport> passportRepo = new ConcurrentHashMap<>();
+    private final JdbcTemplate jdbcTemplate;
 
     @Override
     public synchronized Passport addPassport(Passport passport) {
-        passportRepo.put(passport.getId(), passport);
+        if(findPassportById(passport.getId()) == null) {
+            jdbcTemplate.update(
+        "INSERT INTO passportapi1.public.Passport(id, number, givenDate, departmentCode, active, description, person_id) " +
+                            "values(?, ?, ?, ?, ?, ?, ?);",
+                    passport.getId(),
+                    passport.getNumber(),
+                    passport.getGivenDate(),
+                    passport.getDepartmentCode(),
+                    passport.isActive(),
+                    passport.getDescription(),
+                    passport.getPersonId());
+        }
+        else throw new InvalidPassportDataException();
         return passport;
     }
 
     @Override
-    public Passport findPassportById(String id) {
-        return passportRepo.get(id);
-    }
-
-    @Override
-    public Passport findPassportById(String id, boolean active) {
-        Passport passport = passportRepo.get(id);
-        if (passport.isActive() == active) {
-            return passport;
-        } else
-            throw new PassportBadStatusException();
-    }
-
-    @Override
     public synchronized Passport updatePassport(Passport passport) {
-        checkPassportPresentWithId(passport.getId());
-        passportRepo.replace(passport.getId(), passport);
+        if(findPassportById(passport.getId()) != null) {
+            jdbcTemplate.update(
+                    "INSERT INTO passportapi1.public.Passport(id, number, givenDate, departmentCode, active, description, person_id) " +
+                            "values(?, ?, ?, ?, ?, ?, ?);",
+                    passport.getId(),
+                    passport.getNumber(),
+                    passport.getGivenDate(),
+                    passport.getDepartmentCode(),
+                    passport.isActive(),
+                    passport.getDescription(),
+                    passport.getPersonId());
+        }
+        else throw new InvalidPassportDataException();
         return passport;
     }
 
     @Override
     public synchronized Passport deletePassport(String id) {
-        checkPassportPresentWithId(id);
-        return passportRepo.remove(id);
+        Passport passport = findPassportById(id);
+        if(passport != null) {
+            jdbcTemplate.update("DELETE FROM passportapi1.public.Passport WHERE id = ?;",
+                    id);
+        }
+        else throw new InvalidPersonDataException();
+        return passport;
     }
 
     @Override
-    public List<Passport> getPassportsByParams(Boolean active, Instant dateStart, Instant dateEnd) {
-        Range<Instant> dateRange = Range.closed(dateStart, dateEnd);
-        return passportRepo.values().stream().filter(a -> a.isActive() == active)
-                .filter(passport ->
-                        dateRange.test(passport.getGivenDate()))
-                .collect(Collectors.toList());
+    public Passport findPassportById(String id) {
+        return (Passport) jdbcTemplate.query("SELECT*FROM passportapi1.public.Passport WHERE id = ?;",
+                this::mapToPassport,
+                id);
     }
 
     @Override
-    public List<Passport> getPassportsByParams(Instant dateStart, Instant dateEnd) {
-        Range<Instant> dateRange = Range.closed(dateStart, dateEnd);
-        return passportRepo.values().stream()
-                .filter(passport ->
-                        dateRange.test(passport.getGivenDate()))
-                .collect(Collectors.toList());
+    public Passport findPassportById(String id, boolean active) {
+        return (Passport) jdbcTemplate.query("SELECT*FROM passportapi1.public.Passport WHERE id = ? AND active = ?;",
+                this::mapToPassport,
+                id, active);
     }
 
-    @Override
-    public List<Passport> getPassportsByParams(Boolean active) {
-        return passportRepo.values().stream()
-                .filter(a -> a.isActive() == active)
-                .collect(Collectors.toList());
-    }
 
     @Override
-    public Passport getPassportByNumber(String number) {
-        return passportRepo.values().stream()
-                .filter(passport -> passport.getNumber().equals(number))
-                .findFirst()
-                .orElseThrow(PassportWrongNumberException::new);
-    }
-
-    @Override
-    public List<Passport> getPassportsByParams() {
-        return new ArrayList<>(passportRepo.values());
+    public ArrayList<Passport> getPassportsByParams() {
+        return new ArrayList<>(jdbcTemplate.query("SELECT*FROM passportapi1.public.Passport;",
+                this::mapToPassport));
     }
 
     @Override
     public List<Passport> getPassportsByParams(String personId, Boolean active, Instant startDate, Instant endDate) {
-        Range<Instant> dateRange = Range.closed(startDate, endDate);
-        return passportRepo.values().stream()
-                .filter(passportFromRepo -> passportFromRepo.getPersonId().equals(personId))
-                .filter(a -> a.isActive() == active)
-                .filter(passport ->
-                        dateRange.test(passport.getGivenDate()))
-                .collect(Collectors.toList());
+        return new ArrayList<>(
+                jdbcTemplate.query
+                        ("SELECT*FROM passportapi1.public.Passport WHERE person_id = ? AND active = ? AND givendate BETWEEN ? AND ?;",
+                this::mapToPassport, personId, active, startDate, endDate));
     }
 
     @Override
     public List<Passport> getPassportsByParams(String personId, Instant startDate, Instant endDate) {
-        Range<Instant> dateRange = Range.closed(startDate, endDate);
-        return passportRepo.values().stream()
-                .filter(passportFromRepo -> passportFromRepo.getPersonId().equals(personId))
-                .filter(passport ->
-                        dateRange.test(passport.getGivenDate()))
-                .collect(Collectors.toList());
+        return new ArrayList<>(
+                jdbcTemplate.query
+                        ("SELECT*FROM passportapi1.public.Passport WHERE person_id = ? AND givendate BETWEEN ? AND ?;",
+                                this::mapToPassport, personId, startDate, endDate));
     }
-
 
     @Override
     public List<Passport> getPassportsByParams(String personId, Boolean active) {
-        return passportRepo.values().stream()
-                .filter(passportFromRepo -> passportFromRepo.getPersonId().equals(personId))
-                .filter(a -> a.isActive() == active)
-                .collect(Collectors.toList());
+        return jdbcTemplate.query("SELECT*FROM passportapi1.public.Passport WHERE person_id = ? AND active = ?;",
+                this::mapToPassport,
+                personId, active);
     }
 
     @Override
     public List<Passport> getPassportsByParams(String personId) {
-        return passportRepo.values().stream()
-                .filter(passportFromRepo -> passportFromRepo.getPersonId().equals(personId))
-                .collect(Collectors.toList());
+        return jdbcTemplate.query("SELECT*FROM passportapi1.public.Passport WHERE person_id = ?;",
+                this::mapToPassport,
+                personId);
     }
 
-    private void checkPassportPresentWithId(String id) {
-        if (!passportRepo.containsKey(id)) {
-            throw new PassportNotFoundException(id);
-        }
+    @Override
+    public List<Passport> getPassportsByParams(Boolean active, Instant startDate, Instant endDate) {
+        return new ArrayList<>(
+                jdbcTemplate.query
+                        ("SELECT*FROM passportapi1.public.Passport WHERE active = ? AND givendate BETWEEN ? AND ?;",
+                                this::mapToPassport, active, startDate, endDate));
     }
 
+    @Override
+    public List<Passport> getPassportsByParams(Instant startDate, Instant endDate) {
+        return new ArrayList<>(
+                jdbcTemplate.query
+                        ("SELECT*FROM passportapi1.public.Passport WHERE givendate BETWEEN ? AND ?;",
+                                this::mapToPassport,  startDate, endDate));
+    }
+
+    @Override
+    public List<Passport> getPassportsByParams(Boolean active) {
+        return new ArrayList<>(
+                jdbcTemplate.query
+                        ("SELECT*FROM passportapi1.public.Passport WHERE active = ?;",
+                                this::mapToPassport, active));
+    }
+
+    @Override
+    public Passport getPassportByNumber(String number) {
+        return (Passport) jdbcTemplate.query
+                        ("SELECT*FROM passportapi1.public.Passport WHERE number = ?;",
+                                this::mapToPassport, number);
+    }
+
+    private Passport mapToPassport(ResultSet resultSet, int i) throws SQLException {
+        return new Passport(
+                resultSet.getString("id"),
+                resultSet.getString("personId"),
+                resultSet.getString("number"),
+                resultSet.getDate("givenDate").toInstant(),
+                resultSet.getString("departmentCode"),
+                resultSet.getBoolean("active"),
+                resultSet.getString("description")
+        );
+    }
 }
