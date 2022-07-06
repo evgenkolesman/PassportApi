@@ -24,8 +24,8 @@ public class PersonService {
             return personRepository.findById(id);
     }
 
-    public Person updatePerson(String id, Person person) {
-        return personRepository.updatePerson(id, person);
+    public Person updatePerson(Person person) {
+        return personRepository.updatePerson(person);
     }
 
     public Person deletePerson(String id) {

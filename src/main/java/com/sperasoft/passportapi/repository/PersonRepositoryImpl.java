@@ -1,7 +1,5 @@
 package com.sperasoft.passportapi.repository;
 
-import com.sperasoft.passportapi.exceptions.personexceptions.InvalidPersonDataException;
-import com.sperasoft.passportapi.exceptions.personexceptions.PersonNotFoundException;
 import com.sperasoft.passportapi.model.Person;
 import org.springframework.stereotype.Repository;
 
@@ -11,6 +9,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Repository
+@Primary
 public class PersonRepositoryImpl implements PersonRepository {
 
     private static final Map<String, Person> personRepo = new ConcurrentHashMap<>();
@@ -42,11 +41,11 @@ public class PersonRepositoryImpl implements PersonRepository {
     }
 
     @Override
-    public synchronized Person updatePerson(String id, Person person) {
-        if (!personRepo.containsKey(id)) {
-            throw new PersonNotFoundException(id);
+    public synchronized Person updatePerson(Person person) {
+        if (!personRepo.containsKey(person.getId())) {
+            throw new PersonNotFoundException(person.getId());
         }
-        personRepo.replace(id, person);
+        personRepo.replace(person.getId(), person);
         return person;
     }
 
