@@ -4,6 +4,7 @@ import com.sperasoft.passportapi.exceptions.personexceptions.InvalidPersonDataEx
 import com.sperasoft.passportapi.model.Person;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -13,6 +14,7 @@ import java.util.ArrayList;
 
 @Repository
 @RequiredArgsConstructor(onConstructor_= {@Autowired})
+@Profile(value = "dev")
 public class PersonRepositoryWithDBImpl implements PersonRepository {
 
     private final JdbcTemplate jdbcTemplate;
