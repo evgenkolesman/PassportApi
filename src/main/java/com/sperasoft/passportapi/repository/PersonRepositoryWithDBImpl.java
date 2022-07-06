@@ -12,7 +12,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 @Repository
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
+@RequiredArgsConstructor(onConstructor_= {@Autowired})
 public class PersonRepositoryWithDBImpl implements PersonRepository {
 
     private final JdbcTemplate jdbcTemplate;
