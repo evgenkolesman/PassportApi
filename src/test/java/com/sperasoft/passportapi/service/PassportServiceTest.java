@@ -1,5 +1,6 @@
 package com.sperasoft.passportapi.service;
 
+import ch.qos.logback.core.pattern.parser.Parser;
 import com.devskiller.friendly_id.FriendlyId;
 import com.sperasoft.passportapi.controller.dto.PassportRequest;
 import com.sperasoft.passportapi.controller.dto.PersonRequest;
@@ -16,6 +17,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -43,6 +45,7 @@ class PassportServiceTest {
     private PassportRequest passportRequest;
     private PersonRequest personRequest;
     private Passport passport;
+    private final DateTimeFormatter isoOffsetDateTime = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 
     @BeforeEach
     private void testDataProduce() {
@@ -181,14 +184,14 @@ class PassportServiceTest {
         assertEquals(new ArrayList<>(),
                 passportService.getPassportsByPersonIdAndParams(person.getId(),
                         true, null,
-                        Instant.parse("2022-05-11T19:00:00-02:00")));
+                        Instant.from(DateTimeFormatter.ISO_OFFSET_DATE_TIME.parse("2022-05-11T19:00:00-02:00"))));
     }
 
     @Test
     void testGetPassportsByPersonIdAndParamsWithBadDate() {
         assertThrowsExactly(InvalidPassportDataException.class,
                 () -> passportService.getPassportsByPersonIdAndParams(person.getId(),
-                        true, Instant.parse("2022-08-04T19:00:00+02:00"),
+                        true, Instant.from(isoOffsetDateTime.parse("2022-08-04T19:00:00+02:00")),
                         Instant.parse("2022-04-05T19:00:00+02:00")));
     }
 

@@ -1,4 +1,4 @@
-package com.sperasoft.passportapi.controller.rest;
+package com.sperasoft.passportapi.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sperasoft.passportapi.controller.dto.PassportRequest;

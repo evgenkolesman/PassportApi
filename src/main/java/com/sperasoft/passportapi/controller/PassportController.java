@@ -13,7 +13,6 @@ import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
