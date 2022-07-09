@@ -2,7 +2,6 @@ package com.sperasoft.passportapi.controller;
 
 import com.devskiller.friendly_id.FriendlyId;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sperasoft.passportapi.controller.dto.PersonRequest;
 import com.sperasoft.passportapi.controller.dto.PersonResponse;
 import com.sperasoft.passportapi.controller.rest.abstracts.PersonTestMethodContainer;
@@ -36,9 +35,6 @@ public class PersonRestControllerTest {
     @Autowired
     private Environment env;
 
-    @Autowired
-    private ObjectMapper mapper;
-
     @LocalServerPort
     private int port;
 
@@ -52,7 +48,6 @@ public class PersonRestControllerTest {
     PersonRepository personRepository;
 
     private PersonRequest personRequest;
-    private PersonResponse personResponse;
 
     @BeforeEach
     void testDataProduce() {

@@ -20,9 +20,7 @@ import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.core.env.Environment;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,6 +52,7 @@ public class PassportRestControllerTest {
     private PassportResponse passportResponse;
     private PersonResponse personResponse;
     private PersonRequest personRequest;
+    private final DateTimeFormatter isoOffsetDateTime = DateTimeFormatter.ISO_DATE_TIME;
 
     @BeforeEach
     void testDataProduce() throws Exception {
@@ -63,7 +62,8 @@ public class PassportRestControllerTest {
         int departmentCode = ThreadLocalRandom.current().nextInt(99999) + 100000;
         int varInt = ThreadLocalRandom.current().nextInt(10000000);
         passportRequest = new PassportRequest(String.valueOf(number),
-                ZonedDateTime.now().minusMonths(1).toInstant(),
+                ZonedDateTime.of(LocalDate.of(2022, 5, 01),
+                        LocalTime.of(20, 20, 20), ZoneId.systemDefault()).toInstant(),
                 String.valueOf(departmentCode));
         personRequest = new PersonRequest("Alex Frolov" + varInt,
                 LocalDate.now().minusYears(18),
@@ -71,16 +71,16 @@ public class PassportRestControllerTest {
         personResponse = personTestMethodContainer.createPerson(personRequest).extract().as(PersonResponse.class);
     }
 
-    @AfterEach
-    void testDataClear() {
-        personTestMethodContainer.deletePerson(personResponse.getId());
-        try {
-            passportTestMethodContainer.deletePassport(personResponse.getId(), passportResponse.getId());
-        } catch (Exception e) {
-            log.info("passport was already removed");
-        }
-        //TODO need to make universal way to clear test data may be that way
-    }
+//    @AfterEach
+//    void testDataClear() {
+//        personTestMethodContainer.deletePerson(personResponse.getId());
+//        try {
+//            passportTestMethodContainer.deletePassport(personResponse.getId(), passportResponse.getId());
+//        } catch (Exception e) {
+//            log.info("passport was already removed");
+//        }
+//        //TODO need to make universal way to clear test data may be that way
+//    }
 
     @Test
     void createPassportWithCorrectData() throws JsonProcessingException {
@@ -95,13 +95,19 @@ public class PassportRestControllerTest {
 
     @Test
     void createPassportWithNotCorrectDataBadNumber() throws JsonProcessingException {
-        passportTestMethodContainer.createPassport(personResponse.getId(), "123", Instant.now(), "123123")
+        passportTestMethodContainer.createPassport(personResponse.getId(),
+                        "123",
+                        Instant.now(),
+                        "123123")
                 .assertThat().statusCode(400);
     }
 
     @Test
     void createPassportWithNotCorrectDataBadDepartmentCode() throws JsonProcessingException {
-        passportTestMethodContainer.createPassport(personResponse.getId(), "1234675678", Instant.now(), "123")
+        passportTestMethodContainer.createPassport(personResponse.getId(),
+                        "1234675678",
+                        Instant.now(),
+                        "123")
                 .assertThat().statusCode(400);
     }
 
@@ -224,11 +230,98 @@ public class PassportRestControllerTest {
         String id = FriendlyId.createFriendlyId();
         var response = passportTestMethodContainer.findPersonPassports(id,
                         null,
-                        Instant.from(DateTimeFormatter.ISO_OFFSET_DATE_TIME.parse("2022-05-10T19:00:00-02:00")),
-                        Instant.from(DateTimeFormatter.ISO_OFFSET_DATE_TIME.parse("2022-05-08T19:00:00-02:00")))
+                        Instant.from(isoOffsetDateTime.parse("2022-05-10T19:00:00-02:00")),
+                        Instant.from(isoOffsetDateTime.parse("2022-05-08T19:00:00-02:00")))
                 .assertThat().statusCode(400)
                 .extract()
                 .response().print();
+    }
+
+    @Test
+    void testFindPersonPassportsWithStartDate() throws JsonProcessingException {
+        passportResponse = passportTestMethodContainer.createPassport(personResponse.getId(), passportRequest)
+                .extract().as(PassportResponse.class);
+        var response = passportTestMethodContainer.findPersonPassports(personResponse.getId(),
+                        null,
+                        Instant.from(isoOffsetDateTime.parse("2022-05-01T01:00:00-02:00")),
+                        null)
+                .assertThat().statusCode(200)
+                .extract()
+                .jsonPath().getList("", PassportResponse.class);
+        assertEquals(List.of(passportResponse), response);
+    }
+
+    @Test
+    void testFindPersonPassportsWithEndDate() throws JsonProcessingException {
+        passportResponse = passportTestMethodContainer.createPassport(personResponse.getId(), passportRequest)
+                .extract().as(PassportResponse.class);
+        var response = passportTestMethodContainer.findPersonPassports(personResponse.getId(),
+                        null,
+                        null,
+                        ZonedDateTime.of(LocalDate.of(2022, 5, 01),
+                                LocalTime.of(20, 30, 30), ZoneId.systemDefault()).toInstant())
+                .assertThat().statusCode(200)
+                .extract()
+                .jsonPath().getList("", PassportResponse.class);
+        assertEquals(List.of(passportResponse), response);
+    }
+
+    @Test
+    void testFindPersonPassportsWithStartDateWithTrue() throws JsonProcessingException {
+        passportResponse = passportTestMethodContainer.createPassport(personResponse.getId(), passportRequest)
+                .extract().as(PassportResponse.class);
+        var response = passportTestMethodContainer.findPersonPassports(personResponse.getId(),
+                        true,
+                        Instant.from(isoOffsetDateTime.parse("2022-05-01T01:00:00-02:00")),
+                        null)
+                .assertThat().statusCode(200)
+                .extract()
+                .jsonPath().getList("", PassportResponse.class);
+        assertEquals(List.of(passportResponse), response);
+    }
+
+    @Test
+    void testFindPersonPassportsWithEndDateWithTrue() throws JsonProcessingException {
+        passportResponse = passportTestMethodContainer.createPassport(personResponse.getId(), passportRequest)
+                .extract().as(PassportResponse.class);
+        var response = passportTestMethodContainer.findPersonPassports(personResponse.getId(),
+                        true,
+                        null,
+                        ZonedDateTime.of(LocalDate.of(2022, 5, 01),
+                                LocalTime.of(20, 30, 30), ZoneId.systemDefault()).toInstant())
+                .assertThat().statusCode(200)
+                .extract()
+                .jsonPath().getList("", PassportResponse.class);
+        assertEquals(List.of(passportResponse), response);
+    }
+
+    @Test
+    void testFindPersonPassportsWithStartDateWithFalse() throws JsonProcessingException {
+        passportResponse = passportTestMethodContainer.createPassport(personResponse.getId(), passportRequest)
+                .extract().as(PassportResponse.class);
+        var response = passportTestMethodContainer.findPersonPassports(personResponse.getId(),
+                        false,
+                        Instant.from(isoOffsetDateTime.parse("2022-05-01T01:00:00-02:00")),
+                        null)
+                .assertThat().statusCode(200)
+                .extract()
+                .jsonPath().getList("", PassportResponse.class);
+        assertEquals(new ArrayList<>(), response);
+    }
+
+    @Test
+    void testFindPersonPassportsWithEndDateWithFalse() throws JsonProcessingException {
+        passportResponse = passportTestMethodContainer.createPassport(personResponse.getId(), passportRequest)
+                .extract().as(PassportResponse.class);
+        var response = passportTestMethodContainer.findPersonPassports(personResponse.getId(),
+                        false,
+                        null,
+                        ZonedDateTime.of(LocalDate.of(2022, 5, 01),
+                                LocalTime.of(20, 30, 30), ZoneId.systemDefault()).toInstant())
+                .assertThat().statusCode(200)
+                .extract()
+                .jsonPath().getList("", PassportResponse.class);
+        assertEquals(new ArrayList<>(), response);
     }
 
     @Test

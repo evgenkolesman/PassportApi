@@ -53,7 +53,7 @@ public class PassportService {
             return passportRepository.getPassportsByParams(personId, active);
         } else if (dateStart == null || dateEnd == null) {
             if (dateStart == null) {
-                dateStart = dateEnd.minusSeconds(1L);
+                dateStart = dateEnd.minusSeconds(360000L);
             } else dateEnd = Instant.now();
         }
 
