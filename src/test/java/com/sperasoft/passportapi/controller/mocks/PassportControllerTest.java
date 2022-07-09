@@ -125,7 +125,7 @@ class PassportControllerTest {
                                 person.getId())));
     }
 
-    //TODO fix tests and rewrite all in RestAssured
+
     @Test
     void testFindPersonPassportsWithoutPassport() throws Exception {
         when(passportController.findPersonPassports(person.getId(),
