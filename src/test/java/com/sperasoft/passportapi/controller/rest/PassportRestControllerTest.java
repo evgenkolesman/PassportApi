@@ -190,7 +190,8 @@ public class PassportRestControllerTest {
     @Test
     public void testFindPassportsWithDatesCorrect() {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.addIfAbsent("dateStart", "2022-05-04T19:00:00-02:00");
+        params.addIfAbsent("dateStart",
+                Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2022-05-04T19:00:00-02:00")).toString());
         params.addIfAbsent("dateEnd", Instant.now().toString());
         var response = given()
                 .get(UriComponentsBuilder.fromHttpUrl(HTTP_LOCALHOST).port(port)
@@ -212,8 +213,10 @@ public class PassportRestControllerTest {
     @Test
     public void testFindPassportsWithDatesNotCorrect() {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.addIfAbsent("dateStart", "2022-05-10T19:00:00-02:00");
-        params.addIfAbsent("dateEnd", "2022-05-08T19:00:00-02:00");
+        params.addIfAbsent("dateStart",  Instant.from(
+                DateTimeFormatter.ISO_DATE_TIME.parse("2022-05-10T19:00:00-02:00")).toString());
+        params.addIfAbsent("dateEnd",
+                Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2022-05-08T19:00:00-02:00")).toString());
         var response = given()
                 .get(UriComponentsBuilder.fromHttpUrl(HTTP_LOCALHOST).port(port)
                         .path(PERSON_URI)

@@ -61,7 +61,6 @@ class SearchControllerTest {
     private Passport passport;
 
 
-
     @BeforeEach
     private void testDataProduce() {
         String string = "2010-02-02";
@@ -133,14 +132,15 @@ class SearchControllerTest {
     void testFindAllPassportsCorrectBadDates() throws Exception {
         var startDate = "2022-05-15T19:00:00+02:00";
         var endDate = "2022-05-10T19:00:00+03:00";
-        when(searchController.findAllPassports(null, Instant.parse(startDate),
-                Instant.parse(endDate)))
+        when(searchController.findAllPassports(null,
+                Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse(startDate)),
+                Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse(endDate))))
                 .thenThrow(new InvalidPassportDataException());
 
         this.mvc.perform(get(UriComponentsBuilder.fromHttpUrl(HTTP_LOCALHOST)
-                                .path(SEARCHES_ENDPOINT)
-                                .queryParam("dateStart", startDate)
-                                .queryParam("dateEnd", endDate).toUriString())
+                        .path(SEARCHES_ENDPOINT)
+                        .queryParam("dateStart", startDate)
+                        .queryParam("dateEnd", endDate).toUriString())
                         .contentType("application/json")
                         .content(personResponse.toString()))
                 .andDo(print())
