@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
+import static java.lang.annotation.ElementType.*;
+
 @RestController
 @RequestMapping("/person")
 @RequiredArgsConstructor
@@ -19,7 +21,7 @@ public class PersonController {
     private final PersonService personService;
 
     @PostMapping
-    public PersonResponse createPerson(@RequestBody @Valid PersonRequest personRequest) {
+    public PersonResponse createPerson(@Valid  @RequestBody PersonRequest personRequest) {
         return PersonResponse.of(personService.addPerson(
                 new Person(FriendlyId.createFriendlyId(),
                 personRequest.getName(),
