@@ -1,3 +1,4 @@
+[![Java CI with Maven](https://github.com/evgenkolesman/PassportApi/actions/workflows/maven.yml/badge.svg)](https://github.com/evgenkolesman/PassportApi/actions/workflows/maven.yml)
 1) REST API
 
 Describe OpenAPI for passport office (a person has several passports of different types)
