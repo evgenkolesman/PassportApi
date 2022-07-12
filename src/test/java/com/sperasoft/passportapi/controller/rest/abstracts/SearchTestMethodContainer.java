@@ -2,7 +2,7 @@ package com.sperasoft.passportapi.controller.rest.abstracts;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sperasoft.passportapi.model.NumberPassport;
+import com.sperasoft.passportapi.model.Number;
 import io.restassured.response.ValidatableResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -25,7 +25,7 @@ public class SearchTestMethodContainer {
 
     private static final String SEARCHES_ENDPOINT = "/searches";
 
-    public ValidatableResponse findPersonByPassportNumber(NumberPassport number) throws JsonProcessingException {
+    public ValidatableResponse findPersonByPassportNumber(Number number) throws JsonProcessingException {
         String req = mapper.writer().writeValueAsString(number);
         return given()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)

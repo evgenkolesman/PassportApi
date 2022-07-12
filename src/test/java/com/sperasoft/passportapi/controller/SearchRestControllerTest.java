@@ -7,7 +7,7 @@ import com.sperasoft.passportapi.controller.dto.PersonResponse;
 import com.sperasoft.passportapi.controller.rest.abstracts.PassportTestMethodContainer;
 import com.sperasoft.passportapi.controller.rest.abstracts.PersonTestMethodContainer;
 import com.sperasoft.passportapi.controller.rest.abstracts.SearchTestMethodContainer;
-import com.sperasoft.passportapi.model.NumberPassport;
+import com.sperasoft.passportapi.model.Number;
 import io.restassured.RestAssured;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.*;
@@ -84,7 +84,7 @@ public class SearchRestControllerTest {
 
     @Test
     void testFindPersonByPassportNumberCorrect() throws Exception {
-        var number1 = new NumberPassport();
+        var number1 = new Number();
         number1.setNumber(String.valueOf(number));
         var response = searchAbstract.findPersonByPassportNumber(number1)
                 .statusCode(200)
@@ -95,7 +95,7 @@ public class SearchRestControllerTest {
 
     @Test
     void testFindPersonByPassportNumberNotCorrectLengthNumber() throws Exception {
-        var number1 = new NumberPassport();
+        var number1 = new Number();
         number1.setNumber(String.valueOf(ThreadLocalRandom.current().nextInt(10000000)));
         var response = searchAbstract.findPersonByPassportNumber(number1)
                 .statusCode(400)
@@ -106,7 +106,7 @@ public class SearchRestControllerTest {
 
     @Test
     void testFindPersonByPassportNumberNotCorrect() throws Exception {
-        var number1 = new NumberPassport();
+        var number1 = new Number();
         number1.setNumber(String.valueOf(number - 100));
         var response = searchAbstract.findPersonByPassportNumber(number1)
                 .statusCode(400)
@@ -117,7 +117,7 @@ public class SearchRestControllerTest {
 
     @Test
     void testFindAllPassportsWithOutParams() {
-        var number1 = new NumberPassport();
+        var number1 = new Number();
         number1.setNumber(String.valueOf(number));
         var response = searchAbstract
                 .findAllPassports(null, null, null)
@@ -129,7 +129,7 @@ public class SearchRestControllerTest {
 
     @Test
     void testFindAllPassportsWithActiveTrue() {
-        var number1 = new NumberPassport();
+        var number1 = new Number();
         number1.setNumber(String.valueOf(number));
         var response = searchAbstract.findAllPassports(true, null, null)
                 .statusCode(200)
@@ -140,7 +140,7 @@ public class SearchRestControllerTest {
 
     @Test
     void testFindAllPassportsWithActiveFalse() {
-        var number1 = new NumberPassport();
+        var number1 = new Number();
         number1.setNumber(String.valueOf(number));
         var response = searchAbstract.findAllPassports(false, null, null)
                 .statusCode(200)
@@ -151,7 +151,7 @@ public class SearchRestControllerTest {
 
     @Test
     void testFindAllPassportsWithDates() {
-        var number1 = new NumberPassport();
+        var number1 = new Number();
         number1.setNumber(String.valueOf(number));
         var response = searchAbstract.findAllPassports(null,
                         Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2022-05-01T19:00:00+09:00")),
@@ -164,7 +164,7 @@ public class SearchRestControllerTest {
 
     @Test
     void testFindAllPassportsWithActiveAndDates() {
-        var number1 = new NumberPassport();
+        var number1 = new Number();
         number1.setNumber(String.valueOf(number));
         var response = searchAbstract.findAllPassports(true,
                         Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2022-05-01T19:00:00+09:00")),
@@ -178,7 +178,7 @@ public class SearchRestControllerTest {
 
     @Test
     void testFindAllPassportsWithActiveAndBadDates() {
-        var number1 = new NumberPassport();
+        var number1 = new Number();
         number1.setNumber(String.valueOf(number));
         var response = searchAbstract.findAllPassports(true,
                         Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2022-10-01T19:00:00+09:00")),
@@ -191,7 +191,7 @@ public class SearchRestControllerTest {
 
     @Test
     void testFindAllPassportsWithActiveAndBadDatesAndFalse() {
-        var number1 = new NumberPassport();
+        var number1 = new Number();
         number1.setNumber(String.valueOf(number));
         var response = searchAbstract.findAllPassports(true,
                         Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2022-10-01T19:00:00+09:00")),
@@ -204,7 +204,7 @@ public class SearchRestControllerTest {
 
     @Test
     void testFindAllPassportsWithActiveAndStartDate() {
-        var number1 = new NumberPassport();
+        var number1 = new Number();
         number1.setNumber(String.valueOf(number));
         var response = searchAbstract.findAllPassports(true,
                         Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2022-05-01T19:00:00+09:00")),
@@ -217,7 +217,7 @@ public class SearchRestControllerTest {
 
     @Test
     void testFindAllPassportsWithActiveAndEndDate() {
-        var number1 = new NumberPassport();
+        var number1 = new Number();
         number1.setNumber(String.valueOf(number));
         var response = searchAbstract.findAllPassports(true,
                         null,

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sperasoft.passportapi.controller.dto.PassportRequest;
 import com.sperasoft.passportapi.controller.dto.PassportResponse;
-import com.sperasoft.passportapi.model.Description;
+import com.sperasoft.passportapi.model.LostPassportInfo;
 import io.restassured.response.ValidatableResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -178,7 +178,7 @@ public class PassportTestMethodContainer {
 
     public ValidatableResponse lostPassportDeactivate(String personId,
                                                       String id,
-                                                      Description description) throws JsonProcessingException {
+                                                      LostPassportInfo description) throws JsonProcessingException {
         String path = builder
                 .replacePath(PERSON_URI)
                 .path("/")
@@ -187,7 +187,7 @@ public class PassportTestMethodContainer {
                 .path(id)
                 .path(LOST_PASSPORT_URI)
                 .replaceQuery("").toUriString();
-        if (description == null) description = new Description("");
+        if (description == null) description = new LostPassportInfo("");
         String message = mapper.writeValueAsString(description.getDescription());
         return given()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
