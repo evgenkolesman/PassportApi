@@ -8,7 +8,7 @@ import com.sperasoft.passportapi.controller.dto.PassportResponse;
 import com.sperasoft.passportapi.controller.dto.PersonRequest;
 import com.sperasoft.passportapi.exceptions.passportexceptions.*;
 import com.sperasoft.passportapi.exceptions.personexceptions.PersonNotFoundException;
-import com.sperasoft.passportapi.model.Description;
+import com.sperasoft.passportapi.model.LostPassportInfo;
 import com.sperasoft.passportapi.model.Passport;
 import com.sperasoft.passportapi.model.Person;
 import io.restassured.module.mockmvc.RestAssuredMockMvc;
@@ -347,7 +347,7 @@ class PassportControllerTest {
     @Test
     void lostPassportDeactivate() throws Exception {
         when(passportController.lostPassportDeactivate(passportResponse.getId(),
-                passportResponse.getId(), new Description("new Desc")))
+                passportResponse.getId(), new LostPassportInfo("new Desc")))
                 .thenReturn(true);
         String req = mapper.writer().writeValueAsString("new Desc");
         this.mvc.perform(post(UriComponentsBuilder.fromHttpUrl(HTTP_LOCALHOST).path(PERSON_ENDPOINT)
@@ -364,7 +364,7 @@ class PassportControllerTest {
 
     @Test
     void lostPassportDeactivateConflict() throws Exception {
-        when(passportController.lostPassportDeactivate(person.getId(), passport.getId(), new Description("new Desc")))
+        when(passportController.lostPassportDeactivate(person.getId(), passport.getId(), new LostPassportInfo("new Desc")))
                 .thenThrow(new PassportDeactivatedException());
         String req = mapper.writer().writeValueAsString("new Desc");
         this.mvc.perform(post(UriComponentsBuilder.fromHttpUrl(HTTP_LOCALHOST).path(PERSON_ENDPOINT)

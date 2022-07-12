@@ -1,12 +1,11 @@
 package com.sperasoft.passportapi.service;
 
-import ch.qos.logback.core.pattern.parser.Parser;
 import com.devskiller.friendly_id.FriendlyId;
 import com.sperasoft.passportapi.controller.dto.PassportRequest;
 import com.sperasoft.passportapi.controller.dto.PersonRequest;
 import com.sperasoft.passportapi.exceptions.passportexceptions.*;
 import com.sperasoft.passportapi.exceptions.personexceptions.PersonNotFoundException;
-import com.sperasoft.passportapi.model.Description;
+import com.sperasoft.passportapi.model.LostPassportInfo;
 import com.sperasoft.passportapi.model.Passport;
 import com.sperasoft.passportapi.model.Person;
 import com.sperasoft.passportapi.repository.PassportRepository;
@@ -17,7 +16,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -200,8 +198,7 @@ class PassportServiceTest {
     public void testDeactivatePassportCorrect() {
         assertTrue(passportService.deactivatePassport(person.getId(),
                         passportRepository.getPassportsByParams(person.getId(), true).get(0).getId(),
-                        true,
-                        new Description("NO DESC")),
+                        new LostPassportInfo("NO DESC")),
                 "Problems with deactivating passport");
     }
 
@@ -210,13 +207,11 @@ class PassportServiceTest {
         Person person1 = personRepository.findById(person.getId());
         passportService.deactivatePassport(person1.getId(),
                 passportRepository.getPassportsByParams(person.getId(), true).get(0).getId(),
-                true,
-                new Description("New Desc"));
+                new LostPassportInfo("New Desc"));
         assertThrowsExactly(PassportDeactivatedException.class, () ->
                         passportService.deactivatePassport(person1.getId(),
                                 passportRepository.getPassportsByParams(person.getId(), false).get(0).getId(),
-                                false,
-                                new Description("New Desc")),
+                                new LostPassportInfo("New Desc")),
                 "Passport should be deactivated but not");
     }
 }

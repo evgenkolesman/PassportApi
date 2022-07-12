@@ -3,7 +3,7 @@ package com.sperasoft.passportapi.controller;
 import com.devskiller.friendly_id.FriendlyId;
 import com.sperasoft.passportapi.controller.dto.PassportRequest;
 import com.sperasoft.passportapi.controller.dto.PassportResponse;
-import com.sperasoft.passportapi.model.Description;
+import com.sperasoft.passportapi.model.LostPassportInfo;
 import com.sperasoft.passportapi.model.Passport;
 import com.sperasoft.passportapi.service.PassportService;
 import lombok.RequiredArgsConstructor;
@@ -78,7 +78,7 @@ public class PassportController {
     public boolean lostPassportDeactivate(@PathVariable("personId") String personId,
                                           @PathVariable("id") String id,
 //                                          @RequestParam(name = "active", defaultValue = "false") @NotNull Boolean active,
-                                          @RequestBody(required = false) Description description) {
+                                          @RequestBody(required = false) LostPassportInfo description) {
         return passportService.deactivatePassport(personId, id, description);
     }
 }

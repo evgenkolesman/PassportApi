@@ -175,10 +175,41 @@ public class PersonRestControllerTest {
     void testUpdatePersonByIdBirthdayCountryNotCorrect() throws Exception {
         PersonResponse personResponseForTest =
                 personTestMethodContainer.createPerson(personRequest)
-                        .extract().as(PersonResponse.class);
+                        .extract()
+                        .as(PersonResponse.class);
         var errorMessage = personTestMethodContainer.updatePerson(personResponseForTest.getId(), "Name Name",
                         LocalDate.of(2001, 12, 12),
                         "China")
+                .assertThat().statusCode(400)
+                .extract().response()
+                .body().print();
+//        assertEquals(String.format(env.getProperty("exception.InvalidPersonDataException")), errorMessage);
+    }
+
+    @Test
+    void testUpdatePersonByIdEmptyNameNotCorrect() throws Exception {
+        PersonResponse personResponseForTest =
+                personTestMethodContainer.createPerson(personRequest)
+                        .extract()
+                        .as(PersonResponse.class);
+        var errorMessage = personTestMethodContainer.updatePerson(personResponseForTest.getId(), "",
+                        LocalDate.of(2001, 12, 12),
+                        "CH")
+                .assertThat().statusCode(400)
+                .extract().response()
+                .body().print();
+//        assertEquals(String.format(env.getProperty("exception.InvalidPersonDataException")), errorMessage);
+    }
+
+    @Test
+    void testUpdatePersonByIdEmptyBirthdayCountryNotCorrect() throws Exception {
+        PersonResponse personResponseForTest =
+                personTestMethodContainer.createPerson(personRequest)
+                        .extract()
+                        .as(PersonResponse.class);
+        var errorMessage = personTestMethodContainer.updatePerson(personResponseForTest.getId(), "sadad sdad",
+                        LocalDate.of(2001, 12, 12),
+                        "")
                 .assertThat().statusCode(400)
                 .extract().response()
                 .body().print();

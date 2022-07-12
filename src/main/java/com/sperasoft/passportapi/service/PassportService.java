@@ -3,7 +3,7 @@ package com.sperasoft.passportapi.service;
 import com.sperasoft.passportapi.exceptions.passportexceptions.InvalidPassportDataException;
 import com.sperasoft.passportapi.exceptions.passportexceptions.PassportDeactivatedException;
 import com.sperasoft.passportapi.exceptions.passportexceptions.PassportNotFoundException;
-import com.sperasoft.passportapi.model.Description;
+import com.sperasoft.passportapi.model.LostPassportInfo;
 import com.sperasoft.passportapi.model.Passport;
 import com.sperasoft.passportapi.repository.PassportRepository;
 import lombok.RequiredArgsConstructor;
@@ -68,13 +68,12 @@ public class PassportService {
 
     public boolean deactivatePassport(String personId,
                                       String id,
-                                      Boolean active,
-                                      Description description) {
+                                      LostPassportInfo description) {
         if (description == null) {
-            description = new Description("new desc");
+            description = new LostPassportInfo("new desc");
         }
         Passport passportPerson =
-                passportRepository.findPassportById(id, active);
+                passportRepository.findPassportById(id);
         if (passportPerson != null && passportPerson.isActive()) {
             passportRepository.updatePassport(
                     new Passport(passportPerson.getId(),

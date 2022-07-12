@@ -8,7 +8,7 @@ import com.sperasoft.passportapi.controller.dto.PersonRequest;
 import com.sperasoft.passportapi.controller.dto.PersonResponse;
 import com.sperasoft.passportapi.controller.rest.abstracts.PassportTestMethodContainer;
 import com.sperasoft.passportapi.controller.rest.abstracts.PersonTestMethodContainer;
-import com.sperasoft.passportapi.model.Description;
+import com.sperasoft.passportapi.model.LostPassportInfo;
 import io.restassured.RestAssured;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
@@ -71,16 +71,16 @@ public class PassportRestControllerTest {
         personResponse = personTestMethodContainer.createPerson(personRequest).extract().as(PersonResponse.class);
     }
 
-//    @AfterEach
-//    void testDataClear() {
-//        personTestMethodContainer.deletePerson(personResponse.getId());
-//        try {
-//            passportTestMethodContainer.deletePassport(personResponse.getId(), passportResponse.getId());
-//        } catch (Exception e) {
-//            log.info("passport was already removed");
-//        }
-//        //TODO need to make universal way to clear test data may be that way
-//    }
+    @AfterEach
+    void testDataClear() {
+        personTestMethodContainer.deletePerson(personResponse.getId());
+        try {
+            passportTestMethodContainer.deletePassport(personResponse.getId(), passportResponse.getId());
+        } catch (Exception e) {
+            log.info("passport was already removed");
+        }
+        //TODO need to make universal way to clear test data may be that way
+    }
 
     @Test
     void createPassportWithCorrectData() throws JsonProcessingException {
@@ -96,7 +96,7 @@ public class PassportRestControllerTest {
     @Test
     void createPassportWithNotCorrectDataBadNumber() throws JsonProcessingException {
         passportTestMethodContainer.createPassport(personResponse.getId(),
-                        "123",
+                        "12343534564363546",
                         Instant.now(),
                         "123123")
                 .assertThat().statusCode(400);
@@ -351,7 +351,7 @@ public class PassportRestControllerTest {
                 .extract().as(PassportResponse.class);
         passportTestMethodContainer.lostPassportDeactivate(personResponse.getId(),
                         passportResponse.getId(),
-                        new Description("I lost my passport"))
+                        new LostPassportInfo("I lost my passport"))
                 .assertThat().statusCode(200)
                 .extract()
                 .response().equals("true");
