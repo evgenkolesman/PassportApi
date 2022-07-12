@@ -329,7 +329,7 @@ paths:
             'application/json':
               schema:
                 type: string
-                example: "Pasport with ID: idNumber not found"
+                example: "Passport with ID: idNumber not found"
 
   /person/{personId}/passport/{id}/lostPassport:
     post:
@@ -351,21 +351,11 @@ paths:
           required: true
           schema:
             type: "string"
-        - name: "active"
-          in: "query"
-          description: "Passport deactivation status"
-          required: true
-          schema:
-            type: "boolean"
-            enum:
-              - false
       requestBody:
         content:
           'application/json':
-            schema:
-              type: "string"
-              example: "I lost my passport yesterday"
-              description: "Any data about losing passport"
+              schema:
+                $ref: '#/components/schemas/LostPassportInfo'
       responses:
         "200":
           description: "Successful operation: you need to create a new passport"
@@ -375,8 +365,16 @@ paths:
                 $ref: "#/components/schemas/PassportResponse"
         "400":
           description: "Invalid data"
+          content:
+            'application/json':
+              schema:
+                type: string
         "409":
           description: "Passport was already deactivated"
+          content:
+            'application/json':
+              schema:
+                type: string
 
 
   /searches:
@@ -390,9 +388,7 @@ paths:
         content:
           'application/json':
             schema:
-              type: "string"
-              example: "2808153675"
-              description: "Write Person`s passport number"
+              $ref: '#/components/schemas/Number'
             example:
               number: "2808153675"
       responses:
@@ -534,7 +530,24 @@ components:
           type: "string"
           example: "280540"
           description: "Code with 6-digits value of any region where passport was registered"
-
+    LostPassportInfo:
+      type: "object"
+      required:
+        - description
+      properties:
+        description:
+          type: "string"
+          example: "I lost my passport"
+          description: "Lost passport information"
+    Number:
+      type: "object"
+      required:
+        - number
+      properties:
+        number:
+          type: "string"
+          example: "2805401234"
+          description: "Passport number should be 10 digits"
 externalDocs:
   description: "Find out data of response"
   url: "http://swagger.io"

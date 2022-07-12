@@ -3,7 +3,7 @@ package com.sperasoft.passportapi.service;
 import com.sperasoft.passportapi.exceptions.passportexceptions.InvalidPassportDataException;
 import com.sperasoft.passportapi.exceptions.passportexceptions.PassportDeactivatedException;
 import com.sperasoft.passportapi.exceptions.passportexceptions.PassportNotFoundException;
-import com.sperasoft.passportapi.model.Description;
+import com.sperasoft.passportapi.model.LostPassportInfo;
 import com.sperasoft.passportapi.model.Passport;
 import com.sperasoft.passportapi.repository.PassportRepository;
 import lombok.RequiredArgsConstructor;
@@ -12,9 +12,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -55,7 +53,7 @@ public class PassportService {
             return passportRepository.getPassportsByParams(personId, active);
         } else if (dateStart == null || dateEnd == null) {
             if (dateStart == null) {
-                dateStart = dateEnd.minusSeconds(1L);
+                dateStart = dateEnd.minusSeconds(360000L);
             } else dateEnd = Instant.now();
         }
 
@@ -70,9 +68,9 @@ public class PassportService {
 
     public boolean deactivatePassport(String personId,
                                       String id,
-                                      Description description) {
+                                      LostPassportInfo description) {
         if (description == null) {
-            description = new Description("new desc");
+            description = new LostPassportInfo("new desc");
         }
         Passport passportPerson =
                 passportRepository.findPassportById(id);

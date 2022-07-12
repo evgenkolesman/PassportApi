@@ -9,7 +9,7 @@ import com.sperasoft.passportapi.controller.dto.PersonRequest;
 import com.sperasoft.passportapi.controller.dto.PersonResponse;
 import com.sperasoft.passportapi.exceptions.passportexceptions.InvalidPassportDataException;
 import com.sperasoft.passportapi.exceptions.passportexceptions.PassportWrongNumberException;
-import com.sperasoft.passportapi.model.NumberPassport;
+import com.sperasoft.passportapi.model.Number;
 import com.sperasoft.passportapi.model.Passport;
 import com.sperasoft.passportapi.model.Person;
 import org.junit.jupiter.api.BeforeEach;
@@ -87,7 +87,7 @@ class SearchControllerTest {
 
     @Test
     void testFindPersonByPassportNumberCorrect() throws Exception {
-        NumberPassport numberPassport = new NumberPassport();
+        Number numberPassport = new Number();
         numberPassport.setNumber("1223123113");
         when(searchController.findPersonByPassportNumber(numberPassport)).thenReturn(personResponse);
 
@@ -103,7 +103,7 @@ class SearchControllerTest {
 
     @Test
     void testFindPersonByPassportNumberNotCorrect() throws Exception {
-        NumberPassport number = new NumberPassport();
+        Number number = new Number();
         number.setNumber("2313");
         when(searchController.findPersonByPassportNumber(number)).thenThrow(new PassportWrongNumberException());
         String req = mapper.writer().writeValueAsString(number);

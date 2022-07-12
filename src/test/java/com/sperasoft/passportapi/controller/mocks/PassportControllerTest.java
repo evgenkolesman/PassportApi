@@ -8,7 +8,7 @@ import com.sperasoft.passportapi.controller.dto.PassportResponse;
 import com.sperasoft.passportapi.controller.dto.PersonRequest;
 import com.sperasoft.passportapi.exceptions.passportexceptions.*;
 import com.sperasoft.passportapi.exceptions.personexceptions.PersonNotFoundException;
-import com.sperasoft.passportapi.model.Description;
+import com.sperasoft.passportapi.model.LostPassportInfo;
 import com.sperasoft.passportapi.model.Passport;
 import com.sperasoft.passportapi.model.Person;
 import io.restassured.module.mockmvc.RestAssuredMockMvc;
@@ -39,6 +39,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+
 @SpringBootTest
 @AutoConfigureMockMvc
 class PassportControllerTest {
@@ -64,9 +65,11 @@ class PassportControllerTest {
     private PassportResponse passportResponse;
     private Person person;
     private Passport passport;
+    DateTimeFormatter isoOffsetDateTime = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 
     @BeforeEach
     private void testDataProduce() {
+
         RestAssuredMockMvc.mockMvc(mvc);
         String string = "2010-02-02";
         LocalDate dateToday = LocalDate.now();
@@ -106,8 +109,7 @@ class PassportControllerTest {
     @Test
     void testFindPersonPassportsBooleanTrueWrongDates() throws Exception {
         when(passportController.findPersonPassports(person.getId(),
-                true, Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2022-05-06T19:00:00-02:00")),
-                        Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2022-05-05T19:00:00-02:00"))))
+                true, Instant.from(isoOffsetDateTime.parse("2022-05-06T19:00:00-02:00")), Instant.from(isoOffsetDateTime.parse("2022-05-05T19:00:00-02:00"))))
                 .thenThrow(new InvalidPassportDataException());
         this.mvc.perform(get(UriComponentsBuilder.fromHttpUrl(HTTP_LOCALHOST).path(PERSON_ENDPOINT)
                         .path("/").path(person.getId())
@@ -123,11 +125,12 @@ class PassportControllerTest {
                                 person.getId())));
     }
 
+
     @Test
     void testFindPersonPassportsWithoutPassport() throws Exception {
         when(passportController.findPersonPassports(person.getId(),
-                true, Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2022-05-02T19:00:00-02:00")),
-                Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2022-05-08T19:00:00-02:00"))))
+                true, Instant.from(isoOffsetDateTime.parse("2022-05-02T19:00:00-02:00")),
+                Instant.from(isoOffsetDateTime.parse("2022-05-08T19:00:00-02:00"))))
                 .thenThrow(new PassportEmptyException(person.getId()));
         this.mvc.perform(get(UriComponentsBuilder.fromHttpUrl(HTTP_LOCALHOST).path(PERSON_ENDPOINT)
                         .path("/").path(person.getId())
@@ -136,7 +139,7 @@ class PassportControllerTest {
                         .queryParam("dateStart", "2022-05-02T19:00:00-02:00")
                         .queryParam("dateEnd", "2022-05-08T19:00:00-02:00").toUriString())
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().isNotFound())
                 .andExpect(a -> a.getResponse().getContentAsString()
                         .equals(String.format(
                                 environment.getProperty("exception.PassportEmptyException"),
@@ -344,7 +347,7 @@ class PassportControllerTest {
     @Test
     void lostPassportDeactivate() throws Exception {
         when(passportController.lostPassportDeactivate(passportResponse.getId(),
-                passportResponse.getId(), new Description("new Desc")))
+                passportResponse.getId(), new LostPassportInfo("new Desc")))
                 .thenReturn(true);
         String req = mapper.writer().writeValueAsString("new Desc");
         this.mvc.perform(post(UriComponentsBuilder.fromHttpUrl(HTTP_LOCALHOST).path(PERSON_ENDPOINT)
@@ -361,7 +364,7 @@ class PassportControllerTest {
 
     @Test
     void lostPassportDeactivateConflict() throws Exception {
-        when(passportController.lostPassportDeactivate(person.getId(), passport.getId(), new Description("new Desc")))
+        when(passportController.lostPassportDeactivate(person.getId(), passport.getId(), new LostPassportInfo("new Desc")))
                 .thenThrow(new PassportDeactivatedException());
         String req = mapper.writer().writeValueAsString("new Desc");
         this.mvc.perform(post(UriComponentsBuilder.fromHttpUrl(HTTP_LOCALHOST).path(PERSON_ENDPOINT)

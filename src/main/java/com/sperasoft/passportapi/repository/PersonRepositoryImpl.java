@@ -3,6 +3,8 @@ package com.sperasoft.passportapi.repository;
 import com.sperasoft.passportapi.exceptions.personexceptions.InvalidPersonDataException;
 import com.sperasoft.passportapi.exceptions.personexceptions.PersonNotFoundException;
 import com.sperasoft.passportapi.model.Person;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 
@@ -12,6 +14,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Repository
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @Primary
 public class PersonRepositoryImpl implements PersonRepository {
 

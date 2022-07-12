@@ -5,7 +5,7 @@ import com.sperasoft.passportapi.controller.dto.PassportRequest;
 import com.sperasoft.passportapi.controller.dto.PersonRequest;
 import com.sperasoft.passportapi.exceptions.passportexceptions.*;
 import com.sperasoft.passportapi.exceptions.personexceptions.PersonNotFoundException;
-import com.sperasoft.passportapi.model.Description;
+import com.sperasoft.passportapi.model.LostPassportInfo;
 import com.sperasoft.passportapi.model.Passport;
 import com.sperasoft.passportapi.model.Person;
 import com.sperasoft.passportapi.repository.PassportRepository;
@@ -43,6 +43,7 @@ class PassportServiceTest {
     private PassportRequest passportRequest;
     private PersonRequest personRequest;
     private Passport passport;
+    private final DateTimeFormatter isoOffsetDateTime = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 
     @BeforeEach
     private void testDataProduce() {
@@ -184,15 +185,15 @@ class PassportServiceTest {
                 passportService.getPassportsByPersonIdAndParams(person.getId(),
                         true, null,
                         Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2022-05-11T19:00:00-02:00"))));
+                        Instant.from(DateTimeFormatter.ISO_OFFSET_DATE_TIME.parse("2022-05-11T19:00:00-02:00"))));
     }
 
     @Test
     void testGetPassportsByPersonIdAndParamsWithBadDate() {
         assertThrowsExactly(InvalidPassportDataException.class,
                 () -> passportService.getPassportsByPersonIdAndParams(person.getId(),
-                        true,
-                        Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2022-08-04T19:00:00+02:00")),
-                                Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2022-04-05T19:00:00+02:00"))));
+                        true, Instant.from(isoOffsetDateTime.parse("2022-08-04T19:00:00+02:00")),
+                        Instant.parse("2022-04-05T19:00:00+02:00")));
     }
 
 
@@ -200,7 +201,7 @@ class PassportServiceTest {
     public void testDeactivatePassportCorrect() {
         assertTrue(passportService.deactivatePassport(person.getId(),
                         passportRepository.getPassportsByParams(person.getId(), true).get(0).getId(),
-                        new Description("NO DESC")),
+                        new LostPassportInfo("NO DESC")),
                 "Problems with deactivating passport");
     }
 
@@ -209,11 +210,11 @@ class PassportServiceTest {
         Person person1 = personRepository.findById(person.getId());
         passportService.deactivatePassport(person1.getId(),
                 passportRepository.getPassportsByParams(person.getId(), true).get(0).getId(),
-                new Description("New Desc"));
+                new LostPassportInfo("New Desc"));
         assertThrowsExactly(PassportDeactivatedException.class, () ->
                         passportService.deactivatePassport(person1.getId(),
                                 passportRepository.getPassportsByParams(person.getId(), false).get(0).getId(),
-                                new Description("New Desc")),
+                                new LostPassportInfo("New Desc")),
                 "Passport should be deactivated but not");
     }
 }
