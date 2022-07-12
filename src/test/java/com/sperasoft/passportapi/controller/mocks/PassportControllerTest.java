@@ -132,7 +132,7 @@ class PassportControllerTest {
                 true, Instant.from(isoOffsetDateTime.parse("2022-05-02T19:00:00-02:00")),
                 Instant.from(isoOffsetDateTime.parse("2022-05-08T19:00:00-02:00"))))
                 .thenThrow(new PassportEmptyException(person.getId()));
-        this.mvc.perform(get(UriComponentsBuilder.fromHttpUrl(HTTP_LOCALHOST).path(PERSON_ENDPOINT)
+        this.mvc.perform(get(UriComponentsBuilder.fromHttpUrl(HTTP_LOCALHOST).replacePath(PERSON_ENDPOINT)
                         .path("/").path(person.getId())
                         .path(PASSPORT_ENDPOINT)
                         .queryParam("active", "true")

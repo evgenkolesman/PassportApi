@@ -184,7 +184,6 @@ class PassportServiceTest {
         assertEquals(new ArrayList<>(),
                 passportService.getPassportsByPersonIdAndParams(person.getId(),
                         true, null,
-                        Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2022-05-11T19:00:00-02:00"))));
                         Instant.from(DateTimeFormatter.ISO_OFFSET_DATE_TIME.parse("2022-05-11T19:00:00-02:00"))));
     }
 
@@ -193,7 +192,7 @@ class PassportServiceTest {
         assertThrowsExactly(InvalidPassportDataException.class,
                 () -> passportService.getPassportsByPersonIdAndParams(person.getId(),
                         true, Instant.from(isoOffsetDateTime.parse("2022-08-04T19:00:00+02:00")),
-                        Instant.parse("2022-04-05T19:00:00+02:00")));
+                        Instant.from(isoOffsetDateTime.parse("2022-04-05T19:00:00+02:00"))));
     }
 
 
