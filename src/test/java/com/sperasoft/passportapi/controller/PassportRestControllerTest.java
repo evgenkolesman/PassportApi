@@ -8,6 +8,7 @@ import com.sperasoft.passportapi.controller.dto.PersonRequest;
 import com.sperasoft.passportapi.controller.dto.PersonResponse;
 import com.sperasoft.passportapi.controller.rest.abstracts.PassportTestMethodContainer;
 import com.sperasoft.passportapi.controller.rest.abstracts.PersonTestMethodContainer;
+import com.sperasoft.passportapi.model.ErrorModel;
 import com.sperasoft.passportapi.model.LostPassportInfo;
 import io.restassured.RestAssured;
 import lombok.extern.slf4j.Slf4j;
@@ -330,8 +331,8 @@ public class PassportRestControllerTest {
         var response = passportTestMethodContainer.findPassport(personResponse.getId(), id, null)
                 .assertThat().statusCode(404)
                 .extract()
-                .response().print();
-        assertEquals(String.format(env.getProperty("exception.PassportNotFoundException"), id), response);
+                .response().as(ErrorModel.class);
+        assertEquals(String.format(env.getProperty("exception.PassportNotFoundException"), id), response.getMessage());
     }
 
 
@@ -379,8 +380,8 @@ public class PassportRestControllerTest {
                 .lostPassportDeactivate(personResponse.getId(), passportResponse.getId(), null)
                 .assertThat().statusCode(409)
                 .extract()
-                .response().print();
-        assertEquals(env.getProperty("exception.PassportDeactivatedException"), response);
+                .response().as(ErrorModel.class);
+        assertEquals(env.getProperty("exception.PassportDeactivatedException"), response.getMessage());
     }
 
     @Test
