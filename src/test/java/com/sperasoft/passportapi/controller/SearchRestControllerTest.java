@@ -7,6 +7,7 @@ import com.sperasoft.passportapi.controller.dto.PersonResponse;
 import com.sperasoft.passportapi.controller.rest.abstracts.PassportTestMethodContainer;
 import com.sperasoft.passportapi.controller.rest.abstracts.PersonTestMethodContainer;
 import com.sperasoft.passportapi.controller.rest.abstracts.SearchTestMethodContainer;
+import com.sperasoft.passportapi.model.ErrorModel;
 import com.sperasoft.passportapi.model.Number;
 import io.restassured.RestAssured;
 import lombok.extern.slf4j.Slf4j;
@@ -100,8 +101,8 @@ public class SearchRestControllerTest {
         var response = searchAbstract.findPersonByPassportNumber(number1)
                 .statusCode(400)
                 .extract()
-                .response().print();
-        assertEquals(env.getProperty("exception.PassportWrongNumberException"), response);
+                .response().as(ErrorModel.class);
+        assertEquals(env.getProperty("exception.PassportWrongNumberException"), response.getMessage());
     }
 
     @Test
@@ -111,8 +112,8 @@ public class SearchRestControllerTest {
         var response = searchAbstract.findPersonByPassportNumber(number1)
                 .statusCode(400)
                 .extract()
-                .response().print();
-        assertEquals(env.getProperty("exception.PassportWrongNumberException"), response);
+                .response().as(ErrorModel.class);
+        assertEquals(env.getProperty("exception.PassportWrongNumberException"), response.getMessage());
     }
 
     @Test
@@ -185,8 +186,8 @@ public class SearchRestControllerTest {
                         Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2022-07-01T19:00:00+10:00")))
                 .statusCode(400)
                 .extract()
-                .response().print();
-        assertEquals(env.getProperty("exception.InvalidPassportDataException"), response);
+                .response().as(ErrorModel.class);
+        assertEquals(env.getProperty("exception.InvalidPassportDataException"), response.getMessage());
     }
 
     @Test
@@ -198,8 +199,8 @@ public class SearchRestControllerTest {
                         Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2022-07-01T19:00:00+10:00")))
                 .statusCode(400)
                 .extract()
-                .response().print();
-        assertEquals(env.getProperty("exception.InvalidPassportDataException"), response);
+                .response().as(ErrorModel.class);
+        assertEquals(env.getProperty("exception.InvalidPassportDataException"), response.getMessage());
     }
 
     @Test
@@ -221,7 +222,7 @@ public class SearchRestControllerTest {
         number1.setNumber(String.valueOf(number));
         var response = searchAbstract.findAllPassports(true,
                         null,
-                Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2022-07-01T19:00:00+10:00")))
+                        Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2022-07-01T19:00:00+10:00")))
                 .statusCode(200)
                 .extract()
                 .response().body().jsonPath().getList("", PassportResponse.class);
