@@ -6,6 +6,7 @@ import com.sperasoft.passportapi.controller.dto.PersonRequest;
 import com.sperasoft.passportapi.controller.dto.PersonResponse;
 import com.sperasoft.passportapi.controller.rest.abstracts.PersonTestMethodContainer;
 import com.sperasoft.passportapi.exceptions.personexceptions.PersonNotFoundException;
+import com.sperasoft.passportapi.model.ErrorModel;
 import com.sperasoft.passportapi.model.Person;
 import com.sperasoft.passportapi.repository.PersonRepository;
 import io.restassured.RestAssured;
@@ -122,8 +123,8 @@ public class PersonRestControllerTest {
                 .and().log()
                 .all()
                 .extract().response()
-                .body().print();
-        assertEquals(String.format(env.getProperty("exception.PersonNotFoundException"), id), response);
+                .body().as(ErrorModel.class);
+        assertEquals(String.format(env.getProperty("exception.PersonNotFoundException"), id), response.getMessage());
 
     }
 
@@ -227,8 +228,9 @@ public class PersonRestControllerTest {
         var errorMessage = personTestMethodContainer.updatePerson(wrongId, personRequest1)
                 .assertThat().statusCode(404)
                 .extract().response()
-                .body().print();
-        assertEquals(String.format(env.getProperty("exception.PersonNotFoundException"), wrongId), errorMessage);
+                .body().as(ErrorModel.class);
+        assertEquals(String.format(env.getProperty("exception.PersonNotFoundException"), wrongId),
+                errorMessage.getMessage());
 
     }
 
@@ -245,14 +247,14 @@ public class PersonRestControllerTest {
                 .assertThat().statusCode(200).extract().as(PersonResponse.class);
         String id = personResponse.getId();
         personTestMethodContainer.deletePerson(id).assertThat().statusCode(204);
-        String errorMesage = personTestMethodContainer.deletePerson(id).assertThat()
+        var errorMessage = personTestMethodContainer.deletePerson(id).assertThat()
                 .statusCode(404).assertThat()
                 .extract()
                 .response()
-                .body().print();
+                .body().as(ErrorModel.class);
         assertEquals(String.format(env.getProperty("exception.PersonNotFoundException"),
                         id),
-                errorMesage);
+                errorMessage.getMessage());
     }
 
 }

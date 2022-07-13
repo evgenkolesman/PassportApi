@@ -38,10 +38,9 @@ paths:
         "400":
           description: "Validation person data problem"
           content:
-            'application/json':
+            application/json:
               schema:
-                type: string
-                example: "Invalid person data"
+                $ref: "#/components/schemas/ErrorModel"
 
   /person/{id}:
     get:
@@ -67,10 +66,9 @@ paths:
         "404":
           description: "Person not found"
           content:
-            'application/json':
+            application/json:
               schema:
-                type: string
-                example: "Person with this ID: idNumber not found"
+                $ref: "#/components/schemas/ErrorModel"
     put:
       tags:
         - "Person"
@@ -99,17 +97,15 @@ paths:
         "400":
           description: "Validation problems"
           content:
-            'application/json':
+            application/json:
               schema:
-                type: string
-                example: "Date field should be filled"
+                $ref: "#/components/schemas/ErrorModel"
         "404":
           description: "Person not found"
           content:
-            'application/json':
+            application/json:
               schema:
-                type: string
-                example: "Person with this ID: idNumber not found"
+                $ref: "#/components/schemas/ErrorModel"
     delete:
       tags:
         - "Person"
@@ -129,10 +125,9 @@ paths:
         "404":
           description: "Person not found"
           content:
-            'application/json':
+            application/json:
               schema:
-                type: string
-                example: "Person with this ID: idNumber not found"
+                $ref: "#/components/schemas/ErrorModel"
 
   /person/{personId}/passport:
     get:
@@ -179,17 +174,15 @@ paths:
         "400":
           description: "Invalid data"
           content:
-            'application/json':
+            application/json:
               schema:
-                type: string
-                example: "Invalid passport data: query problem description"
+                $ref: "#/components/schemas/ErrorModel"
         "404":
           description: "Person with id have not any passport"
           content:
-            'application/json':
+            application/json:
               schema:
-                type: string
-                example: "Person with id: idNumber have not any passport"
+                $ref: "#/components/schemas/ErrorModel"
     post:
       tags:
         - "PassportStore"
@@ -218,10 +211,9 @@ paths:
         "400":
           description: "This passport was already added or can be problems with validation"
           content:
-            'application/json':
+            application/json:
               schema:
-                type: string
-                example: "This passport was already added"
+                $ref: "#/components/schemas/ErrorModel"
 
 
   /person/{personId}/passport/{id}:
@@ -259,10 +251,9 @@ paths:
         "404":
           description: "Passport with id not found"
           content:
-            'application/json':
+            application/json:
               schema:
-                type: string
-                example: "Passport with id: idNumber not found"
+                $ref: "#/components/schemas/ErrorModel"
     put:
       tags:
         - "PassportStore"
@@ -297,10 +288,9 @@ paths:
         "400":
           description: "Problems with any field validation"
           content:
-            'application/json':
+            application/json:
               schema:
-                type: string
-                example: "Given date field should be filled"
+                $ref: "#/components/schemas/ErrorModel"
     delete:
       tags:
         - "PassportStore"
@@ -326,10 +316,9 @@ paths:
         "404":
           description: "Passport not found"
           content:
-            'application/json':
+            application/json:
               schema:
-                type: string
-                example: "Passport with ID: idNumber not found"
+                $ref: "#/components/schemas/ErrorModel"
 
   /person/{personId}/passport/{id}/lostPassport:
     post:
@@ -366,15 +355,15 @@ paths:
         "400":
           description: "Invalid data"
           content:
-            'application/json':
+            application/json:
               schema:
-                type: string
+                $ref: "#/components/schemas/ErrorModel"
         "409":
           description: "Passport was already deactivated"
           content:
-            'application/json':
+            application/json:
               schema:
-                type: string
+                $ref: "#/components/schemas/ErrorModel"
 
 
   /searches:
@@ -401,10 +390,9 @@ paths:
         "400":
           description: "Wrong number"
           content:
-            'application/json':
+            application/json:
               schema:
-                type: string
-                example: "Wrong number"
+                $ref: "#/components/schemas/ErrorModel"
     get:
       tags:
         - "Search"
@@ -444,10 +432,10 @@ paths:
         "400":
           description: "Invalid data period: Start date is after End date"
           content:
-            'application/json':
+            application/json:
               schema:
-                type: string
-                example: "Invalid data period: Start date is after End date"
+                $ref: "#/components/schemas/ErrorModel"
+#                example: "Invalid data period: Start date is after End date"
 
 components:
   schemas:
@@ -548,6 +536,22 @@ components:
           type: "string"
           example: "2805401234"
           description: "Passport number should be 10 digits"
+    ErrorModel:
+      type: object
+      properties:
+        errorId:
+          type: string
+          example: "2132sada343"
+        message:
+          type: string
+          example: "This Person not found"
+        status:
+          type: string
+          example: "Not found"
+      required:
+        - errorId
+        - message
+        - status
 externalDocs:
   description: "Find out data of response"
   url: "http://swagger.io"
