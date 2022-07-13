@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-@Primary
+//@Primary
 public class PassportRepositoryImpl implements PassportRepository {
 
     private static final Map<String, Passport> passportRepo = new ConcurrentHashMap<>();
