@@ -21,6 +21,7 @@ public class PersonRequest {
 
     @NotBlank(message = "Name field should be filled")
     @Size(min = 2, message = "name must be minimum 2 characters long")
+    @NonNull
     private final String name;
 
     @DateTimeFormat(iso = ISO.DATE)
@@ -29,5 +30,6 @@ public class PersonRequest {
 
     @NotBlank(message = "BirthdayCountry field should be filled")
     @Size(min = 2, max = 2, message = "Birthday country should be formatted like ISO CODE (2 characters)")
+    @NonNull
     private final String birthdayCountry;
 }

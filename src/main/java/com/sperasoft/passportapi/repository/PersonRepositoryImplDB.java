@@ -1,11 +1,11 @@
 package com.sperasoft.passportapi.repository;
 
 import com.sperasoft.passportapi.exceptions.personexceptions.InvalidPersonDataException;
+import com.sperasoft.passportapi.exceptions.personexceptions.PersonNotFoundException;
 import com.sperasoft.passportapi.model.Person;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
-import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -13,7 +13,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
@@ -31,7 +30,7 @@ public class PersonRepositoryImplDB implements PersonRepository {
 
     @Override
     public synchronized Person addPerson(Person person) {
-        if (findById(person.getId()) == null) {
+        if (!checkPresentById(person.getId())) {
             jdbcTemplate.update("INSERT INTO passportapi1.public.Person(id, name, birthday, birthdayCountry) " +
                             "values(?, ?, ?, ?);",
                     person.getId(),
@@ -48,12 +47,13 @@ public class PersonRepositoryImplDB implements PersonRepository {
         List<Person> result = jdbcTemplate.query("SELECT*FROM passportapi1.public.Person WHERE id = ?;",
                 this::mapToPerson,
                 id);
-        return result.size() == 0 ? null : result.get(0);
+        if (result.size() == 0) throw new PersonNotFoundException(id);
+        return result.get(0);
     }
 
     @Override
     public synchronized Person updatePerson(Person person) {
-        if (findById(person.getId()) != null) {
+        if (checkPresentById(person.getId())) {
             jdbcTemplate.update(
                     "UPDATE passportapi1.public.Person SET name = ?, birthday = ?, birthdayCountry = ? where id =?;",
                     person.getName(),
@@ -61,18 +61,26 @@ public class PersonRepositoryImplDB implements PersonRepository {
                     person.getBirthdayCountry(),
                     person.getId()
             );
-        } else throw new InvalidPersonDataException();
+        } else throw new PersonNotFoundException(person.getId());
         return person;
     }
 
     @Override
     public synchronized Person deletePerson(String id) {
-        Person person = findById(id);
-        if (person != null) {
-            jdbcTemplate.update("DELETE FROM passportapi1.public.Person WHERE id = ?;",
+        Person person;
+        if (checkPresentById(id)) {
+            person = findById(id);
+            jdbcTemplate.update("DELETE FROM passportapi1.public.Person CASCADE WHERE id = ?;",
                     id);
-        } else throw new InvalidPersonDataException();
+        } else throw new PersonNotFoundException(id);
         return person;
+    }
+
+    private boolean checkPresentById(String id) {
+        List<Person> result = jdbcTemplate.query("SELECT*FROM passportapi1.public.Person WHERE id = ?;",
+                this::mapToPerson,
+                id);
+        return result.size() != 0;
     }
 
     private Person mapToPerson(ResultSet resultSet, int i) throws SQLException {

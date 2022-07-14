@@ -116,8 +116,8 @@ public class PersonRestControllerTest {
     @Test
     void testFindPersonByIdNotCorrect() throws JsonProcessingException {
         String id = FriendlyId.createFriendlyId();
-        personTestMethodContainer.createPerson(personRequest)
-                .extract().as(PersonResponse.class);
+//        personTestMethodContainer.createPerson(personRequest)
+//                .extract().as(PersonResponse.class);
         var response = personTestMethodContainer.findPersonById(id)
                 .assertThat().statusCode(404)
                 .and().log()
@@ -222,8 +222,6 @@ public class PersonRestControllerTest {
         PersonRequest personRequest1 = new PersonRequest("Egor",
                 personRequest.getBirthday(),
                 personRequest.getBirthdayCountry());
-        personTestMethodContainer.createPerson(personRequest)
-                .extract().as(PersonResponse.class);
         var wrongId = FriendlyId.createFriendlyId();
         var errorMessage = personTestMethodContainer.updatePerson(wrongId, personRequest1)
                 .assertThat().statusCode(404)
@@ -231,7 +229,6 @@ public class PersonRestControllerTest {
                 .body().as(ErrorModel.class);
         assertEquals(String.format(env.getProperty("exception.PersonNotFoundException"), wrongId),
                 errorMessage.getMessage());
-
     }
 
     @Test

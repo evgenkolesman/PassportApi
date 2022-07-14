@@ -1,3 +1,5 @@
+-- DROP DATABASE PassportApi;
+-- CREATE DATABASE IF NOT EXISTS PassportApi;
 CREATE TABLE IF NOT EXISTS passportapi1.public.Person(
                                                          id varchar(50) PRIMARY KEY,
                                                          name VARCHAR(255) NOT NULL,
@@ -14,3 +16,5 @@ CREATE TABLE IF NOT EXISTS passportapi1.public.Passport(
                                                            person_id VARCHAR REFERENCES passportapi1.public.Person(id)
 );
 
+-- ALTER TABLE passportapi.public.Passport ADD FOREIGN KEY (Person_id)
+-- REFERENCES passportapi.public.Person(id);
