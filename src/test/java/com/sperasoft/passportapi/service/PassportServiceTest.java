@@ -42,7 +42,7 @@ class PassportServiceTest {
     @Autowired
     private BiPredicate<Passport, Passport> predicate;
     @Autowired
-    private BiPredicate<List<Passport>,List <Passport>> listPredicate;
+    private BiPredicate<List<Passport>, List<Passport>> listPredicate;
 
     private Person person;
     private PassportRequest passportRequest;
@@ -127,7 +127,7 @@ class PassportServiceTest {
 
     @Test
     void testDeletePassportNotCorrect() {
-        assertThrowsExactly(PassportNotFoundException.class, () ->passportService.deletePassport("23123"));
+        assertThrowsExactly(PassportNotFoundException.class, () -> passportService.deletePassport("23123"));
     }
 
     @Test
@@ -173,9 +173,9 @@ class PassportServiceTest {
     void testGetPassportsByPersonIdAndParamsWithOutStartDate() {
         List<Passport> passportsByPersonIdAndParams = passportService.getPassportsByPersonIdAndParams(person.getId(),
                 true,
-                Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2022-01-01T19:00:00-02:00")),
-                passport.getGivenDate().plusNanos(10));
-        assertTrue(listPredicate.test(new ArrayList<>(Collections.singleton(passport)),
+                null,
+                Instant.now().plusSeconds(10000));
+        assertTrue(listPredicate.test(List.of(passport),
                 passportsByPersonIdAndParams));
     }
 
@@ -183,7 +183,7 @@ class PassportServiceTest {
     @Test
     void testGetPassportsByPersonIdAndParamsWithEmptyResult() {
         assertEquals(new ArrayList<>(), passportService.getPassportsByPersonIdAndParams(FriendlyId.createFriendlyId(),
-                        true, null, null));
+                true, null, null));
     }
 
     @Test

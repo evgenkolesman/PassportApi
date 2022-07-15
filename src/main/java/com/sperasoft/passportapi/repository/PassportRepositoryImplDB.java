@@ -16,6 +16,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,7 +35,7 @@ public class PassportRepositoryImplDB implements PassportRepository {
                             "values(?, ?, ?, ?, ?, ?, ?);",
                     passport.getId(),
                     passport.getNumber(),
-                    Timestamp.from(passport.getGivenDate()),
+                    Timestamp.from(passport.getGivenDate().truncatedTo(ChronoUnit.MICROS)),
                     passport.getDepartmentCode(),
                     passport.isActive(),
                     passport.getDescription(),
@@ -50,7 +51,7 @@ public class PassportRepositoryImplDB implements PassportRepository {
                     "UPDATE passportapi1.public.Passport SET number = ?, " +
                             "givenDate = ? , departmentCode = ?, active = ?, description = ?, person_id = ? WHERE id = ? ",
                     passport.getNumber(),
-                    Timestamp.from(passport.getGivenDate()),
+                    Timestamp.from(passport.getGivenDate().truncatedTo(ChronoUnit.MICROS)),
                     passport.getDepartmentCode(),
                     passport.isActive(),
                     passport.getDescription(),

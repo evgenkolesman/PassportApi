@@ -22,10 +22,11 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
+import java.util.function.BiPredicate;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
+import static org.junit.jupiter.api.Assertions.*;
 
 @Slf4j
 @SpringBootTest
@@ -39,9 +40,10 @@ public class SearchServiceTest {
     private PassportService passportService;
     @Autowired
     private SearchService searchService;
-
     @Autowired
     private PersonService personService;
+    @Autowired
+    private BiPredicate<List<Passport>, List<Passport>> predicateList;
 
     private Passport passport;
     private Person person;
@@ -85,10 +87,10 @@ public class SearchServiceTest {
 
     @Test
     void testGetAllPassportsAllParams() {
-        assertEquals(new ArrayList<>(Collections.singleton(passport)),
+        assertTrue(predicateList.test(new ArrayList<>(Collections.singleton(passport)),
                 searchService.getAllPassports(true,
                         Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2022-03-05T19:00:00-02:00")),
-                        Instant.now()));
+                        Instant.now())));
     }
 
     @Test
@@ -101,10 +103,10 @@ public class SearchServiceTest {
 
     @Test
     void testGetAllPassportsWithoutBoolean() {
-        assertEquals(new ArrayList<>(Collections.singleton(passport)),
+        assertTrue(predicateList.test(new ArrayList<>(Collections.singleton(passport)),
                 searchService.getAllPassports(null,
                         Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2022-03-05T19:00:00-02:00")),
-                        Instant.now()));
+                        Instant.now())));
     }
 
     @Test
@@ -116,22 +118,22 @@ public class SearchServiceTest {
 
     @Test
     void testGetAllPassportsWithoutBooleanWithEmptyEndDate() {
-        assertEquals(new ArrayList<>(Collections.singleton(passport)),
+        assertTrue(predicateList.test(new ArrayList<>(Collections.singleton(passport)),
                 searchService.getAllPassports(null,
                         Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2022-05-04T19:00:00-02:00")),
-                        null));
+                        null)));
     }
 
     @Test
     void testGetAllPassportsWithoutParam() {
-        assertEquals(new ArrayList<>(Collections.singleton(passport)),
-                searchService.getAllPassports(null, null, null));
+        assertTrue(predicateList.test(new ArrayList<>(Collections.singleton(passport)),
+                searchService.getAllPassports(null, null, null)));
     }
 
     @Test
     void testGetAllPassportsOnlyBoolean() {
-        assertEquals(new ArrayList<>(Collections.singleton(passport)),
-                searchService.getAllPassports(true, null, null));
+        assertTrue(predicateList.test(List.of(passport),
+                searchService.getAllPassports(true, null, null)));
     }
 
     @Test
