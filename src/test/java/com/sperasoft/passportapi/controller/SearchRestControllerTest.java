@@ -120,23 +120,29 @@ public class SearchRestControllerTest {
     void testFindAllPassportsWithOutParams() {
         var number1 = new Number();
         number1.setNumber(String.valueOf(number));
-        var response = searchAbstract
+        var listPassportResponse = searchAbstract
                 .findAllPassports(null, null, null)
                 .statusCode(200)
                 .extract()
                 .response().body().jsonPath().getList("", PassportResponse.class);
-        assertEquals(List.of(passportResponse), response);
+        assertEquals(List.of(passportResponse).get(0).getNumber(),
+                listPassportResponse.get(0).getNumber());
+        assertEquals(List.of(passportResponse).get(0).getDepartmentCode(),
+                listPassportResponse.get(0).getDepartmentCode());
     }
 
     @Test
     void testFindAllPassportsWithActiveTrue() {
         var number1 = new Number();
         number1.setNumber(String.valueOf(number));
-        var response = searchAbstract.findAllPassports(true, null, null)
+        var listPassportResponse = searchAbstract.findAllPassports(true, null, null)
                 .statusCode(200)
                 .extract()
                 .response().body().jsonPath().getList("", PassportResponse.class);
-        assertEquals(List.of(passportResponse), response);
+        assertEquals(List.of(passportResponse).get(0).getNumber(),
+                listPassportResponse.get(0).getNumber());
+        assertEquals(List.of(passportResponse).get(0).getDepartmentCode(),
+                listPassportResponse.get(0).getDepartmentCode());
     }
 
     @Test
@@ -154,26 +160,32 @@ public class SearchRestControllerTest {
     void testFindAllPassportsWithDates() {
         var number1 = new Number();
         number1.setNumber(String.valueOf(number));
-        var response = searchAbstract.findAllPassports(null,
+        var listPassportResponse = searchAbstract.findAllPassports(null,
                         Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2022-05-01T19:00:00+09:00")),
                         Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2022-07-01T19:00:00+10:00")))
                 .statusCode(200)
                 .extract()
                 .response().body().jsonPath().getList("", PassportResponse.class);
-        assertEquals(List.of(passportResponse), response);
+        assertEquals(List.of(passportResponse).get(0).getNumber(),
+                listPassportResponse.get(0).getNumber());
+        assertEquals(List.of(passportResponse).get(0).getDepartmentCode(),
+                listPassportResponse.get(0).getDepartmentCode());
     }
 
     @Test
     void testFindAllPassportsWithActiveAndDates() {
         var number1 = new Number();
         number1.setNumber(String.valueOf(number));
-        var response = searchAbstract.findAllPassports(true,
+        var listPassportResponse = searchAbstract.findAllPassports(true,
                         Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2022-05-01T19:00:00+09:00")),
                         Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2022-07-01T19:00:00+10:00")))
                 .statusCode(200)
                 .extract()
                 .response().body().jsonPath().getList("", PassportResponse.class);
-        assertEquals(List.of(passportResponse), response);
+        assertEquals(List.of(passportResponse).get(0).getNumber(),
+                listPassportResponse.get(0).getNumber());
+        assertEquals(List.of(passportResponse).get(0).getDepartmentCode(),
+                listPassportResponse.get(0).getDepartmentCode());
     }
     //TODO fix tests and rewrite all in RestAssured
 
@@ -207,13 +219,16 @@ public class SearchRestControllerTest {
     void testFindAllPassportsWithActiveAndStartDate() {
         var number1 = new Number();
         number1.setNumber(String.valueOf(number));
-        var response = searchAbstract.findAllPassports(true,
+        var listPassportResponse = searchAbstract.findAllPassports(true,
                         Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2022-05-01T19:00:00+09:00")),
                         null)
                 .statusCode(200)
                 .extract()
                 .response().body().jsonPath().getList("", PassportResponse.class);
-        assertEquals(List.of(passportResponse), response);
+        assertEquals(List.of(passportResponse).get(0).getNumber(),
+                listPassportResponse.get(0).getNumber());
+        assertEquals(List.of(passportResponse).get(0).getDepartmentCode(),
+                listPassportResponse.get(0).getDepartmentCode());
     }
 
     @Test

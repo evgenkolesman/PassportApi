@@ -1,8 +1,9 @@
 package com.sperasoft.passportapi.repository;
 
 import com.sperasoft.passportapi.exceptions.passportexceptions.InvalidPassportDataException;
+import com.sperasoft.passportapi.exceptions.passportexceptions.PassportEmptyException;
 import com.sperasoft.passportapi.exceptions.passportexceptions.PassportNotFoundException;
-import com.sperasoft.passportapi.exceptions.personexceptions.InvalidPersonDataException;
+import com.sperasoft.passportapi.exceptions.passportexceptions.PassportWrongNumberException;
 import com.sperasoft.passportapi.model.Passport;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,8 +14,8 @@ import org.springframework.stereotype.Repository;
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.time.Instant;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,7 +34,7 @@ public class PassportRepositoryImplDB implements PassportRepository {
                             "values(?, ?, ?, ?, ?, ?, ?);",
                     passport.getId(),
                     passport.getNumber(),
-                    Date.from(passport.getGivenDate()),
+                    Timestamp.from(passport.getGivenDate()),
                     passport.getDepartmentCode(),
                     passport.isActive(),
                     passport.getDescription(),
@@ -49,13 +50,13 @@ public class PassportRepositoryImplDB implements PassportRepository {
                     "UPDATE passportapi1.public.Passport SET number = ?, " +
                             "givenDate = ? , departmentCode = ?, active = ?, description = ?, person_id = ? WHERE id = ? ",
                     passport.getNumber(),
-                    Date.from(passport.getGivenDate()),
+                    Timestamp.from(passport.getGivenDate()),
                     passport.getDepartmentCode(),
                     passport.isActive(),
                     passport.getDescription(),
                     passport.getPersonId(),
                     passport.getId());
-        } else throw new InvalidPassportDataException();
+        } else throw new PassportNotFoundException(passport.getId());
         return passport;
     }
 
@@ -148,9 +149,11 @@ public class PassportRepositoryImplDB implements PassportRepository {
 
     @Override
     public Passport getPassportByNumber(String number) {
-        return (Passport) jdbcTemplate.query
+        List<Passport> passportList = jdbcTemplate.query
                 ("SELECT*FROM passportapi1.public.Passport WHERE number = ?;",
                         this::mapToPassport, number);
+        if(passportList.size() == 0) throw new PassportWrongNumberException();
+        return passportList.get(0);
     }
 
     private Passport mapToPassport(ResultSet resultSet, int i) throws SQLException {
@@ -158,8 +161,7 @@ public class PassportRepositoryImplDB implements PassportRepository {
                 resultSet.getString("id"),
                 resultSet.getString("person_id"),
                 resultSet.getString("number"),
-                resultSet.getDate("givenDate").toLocalDate().atStartOfDay()
-                        .atZone(ZoneId.systemDefault()).toInstant(),
+                resultSet.getTimestamp("givenDate").toInstant(),
                 resultSet.getString("departmentCode"),
                 resultSet.getBoolean("active"),
                 resultSet.getString("description")

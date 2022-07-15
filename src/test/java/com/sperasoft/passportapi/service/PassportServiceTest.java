@@ -23,6 +23,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.BiPredicate;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -38,6 +39,10 @@ class PassportServiceTest {
     private PassportService passportService;
     @Autowired
     private PersonService personService;
+    @Autowired
+    private BiPredicate<Passport, Passport> predicate;
+    @Autowired
+    private BiPredicate<List<Passport>,List <Passport>> listPredicate;
 
     private Person person;
     private PassportRequest passportRequest;
@@ -47,10 +52,8 @@ class PassportServiceTest {
 
     @BeforeEach
     private void testDataProduce() {
-        String string = "2010-02-02";
-        LocalDate date = LocalDate.parse(string, DateTimeFormatter.ISO_DATE);
+        personRequest = new PersonRequest("Alex Frolov", LocalDate.now().minusYears(18), "UK");
         passportRequest = new PassportRequest("1223123113", Instant.now(), "123123");
-        personRequest = new PersonRequest("Alex Frolov", date, "UK");
         person = personService.addPerson(new Person(FriendlyId.createFriendlyId(),
                 personRequest.getName(),
                 personRequest.getBirthday(),
@@ -78,7 +81,8 @@ class PassportServiceTest {
 
     @Test
     void testFindPassportById() {
-        assertEquals(passportService.findPassportById(passport.getId(), true), passport);
+        Passport passportById = passportService.findPassportById(passport.getId(), true);
+        assertTrue(predicate.test(passport, passportById));
     }
 
     @Test
@@ -117,28 +121,29 @@ class PassportServiceTest {
 
     @Test
     void testDeletePassportCorrect() {
-        assertEquals(passportService.deletePassport(passport.getId()), passport);
+        Passport passportById = passportService.deletePassport(passport.getId());
+        assertTrue(predicate.test(passport, passportById));
     }
 
     @Test
     void testDeletePassportNotCorrect() {
-        assertThrowsExactly(PassportNotFoundException.class,
-                () -> passportService.deletePassport("23123"));
+        assertThrowsExactly(PassportNotFoundException.class, () ->passportService.deletePassport("23123"));
     }
 
     @Test
     void testGetPassportsByPersonIdAndParamsWithoutParams() {
-        assertEquals(new ArrayList<>(Collections.singleton(passport)),
-                passportService.getPassportsByPersonIdAndParams(person.getId(),
-                        null, null, null));
+        List<Passport> passportResult = passportService.getPassportsByPersonIdAndParams(person.getId(),
+                null, null, null);
+        assertTrue(listPredicate.test(new ArrayList<>(Collections.singleton(passport)), passportResult));
     }
 
     @Test
     void testGetPassportsByPersonIdAndParamsWithOutBoolean() {
-        assertEquals(new ArrayList<>(Collections.singleton(passport)),
-                passportService.getPassportsByPersonIdAndParams(person.getId(),
-                        null, Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2022-05-01T19:00:00-02:00")),
-                        Instant.now()));
+        List<Passport> passportsByPersonIdAndParams = passportService.getPassportsByPersonIdAndParams(person.getId(),
+                null, Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2022-05-01T19:00:00-02:00")),
+                Instant.now());
+        assertTrue(listPredicate.test(new ArrayList<>(Collections.singleton(passport)),
+                passportsByPersonIdAndParams));
     }
 
     @Test
@@ -151,9 +156,10 @@ class PassportServiceTest {
 
     @Test
     void testGetPassportsByPersonIdAndParamsWithOutDate() {
-        assertEquals(new ArrayList<>(Collections.singleton(passport)),
-                passportService.getPassportsByPersonIdAndParams(person.getId(),
-                        true, null, null));
+        List<Passport> passportsByPersonIdAndParams = passportService.getPassportsByPersonIdAndParams(person.getId(),
+                true, null, null);
+        assertTrue(listPredicate.test(new ArrayList<>(Collections.singleton(passport)),
+                passportsByPersonIdAndParams));
     }
 
     @Test
@@ -165,19 +171,20 @@ class PassportServiceTest {
 
     @Test
     void testGetPassportsByPersonIdAndParamsWithOutStartDate() {
-        assertEquals(List.of(passport),
-                Collections.unmodifiableList(passportService.getPassportsByPersonIdAndParams(person.getId(),
-                        true,
-                        Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2022-01-01T19:00:00-02:00")),
-                        passport.getGivenDate().plusNanos(10))));
+        List<Passport> passportsByPersonIdAndParams = passportService.getPassportsByPersonIdAndParams(person.getId(),
+                true,
+                Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2022-01-01T19:00:00-02:00")),
+                passport.getGivenDate().plusNanos(10));
+        assertTrue(listPredicate.test(new ArrayList<>(Collections.singleton(passport)),
+                passportsByPersonIdAndParams));
     }
 
-//    @Test
-//    void testGetPassportsByPersonIdAndParamsWithStartDate() {
-//        assertThrowsExactly(PassportEmptyException.class, () ->
-//                passportService.getPassportsByPersonIdAndParams(FriendlyId.createFriendlyId(),
-//                        true, null, null));
-//    }
+
+    @Test
+    void testGetPassportsByPersonIdAndParamsWithEmptyResult() {
+        assertEquals(new ArrayList<>(), passportService.getPassportsByPersonIdAndParams(FriendlyId.createFriendlyId(),
+                        true, null, null));
+    }
 
     @Test
     void testGetPassportsByPersonIdAndParamsWithEndDate() {

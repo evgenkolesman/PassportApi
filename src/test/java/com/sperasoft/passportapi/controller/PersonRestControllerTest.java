@@ -44,9 +44,8 @@ public class PersonRestControllerTest {
 
     @Autowired
     private UriComponentsBuilder builder;
-
     @Autowired
-    PersonRepository personRepository;
+    private PersonRepository personRepository;
 
     private PersonRequest personRequest;
 
@@ -156,7 +155,7 @@ public class PersonRestControllerTest {
         assertEquals(personRequest1.getName(), personResponse.getName());
     }
 
-    //TODO FIX @Size
+    //TODO FIX messages
     @Test
     void testUpdatePersonByIdNameNotCorrect() throws Exception {
         PersonResponse personResponseForTest =
