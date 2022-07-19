@@ -10,7 +10,6 @@ import com.sperasoft.passportapi.controller.rest.abstracts.PassportTestMethodCon
 import com.sperasoft.passportapi.controller.rest.abstracts.PersonTestMethodContainer;
 import com.sperasoft.passportapi.model.ErrorModel;
 import com.sperasoft.passportapi.model.LostPassportInfo;
-import com.sperasoft.passportapi.model.Passport;
 import io.restassured.RestAssured;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
@@ -27,10 +26,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.function.BiPredicate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Slf4j
 @SpringBootTest(webEnvironment =
@@ -51,15 +48,10 @@ public class PassportRestControllerTest {
 
     @Autowired
     private UriComponentsBuilder builder;
-    @Autowired
-    private BiPredicate<PassportResponse, PassportResponse> predicatePassportResponse;
-    @Autowired
-    private BiPredicate<List<PassportResponse>, List <PassportResponse>> listPredicatePassportResponse;
 
     private PassportRequest passportRequest;
     private PassportResponse passportResponse;
     private PersonResponse personResponse;
-    private PersonRequest personRequest;
     private final DateTimeFormatter isoOffsetDateTime = DateTimeFormatter.ISO_DATE_TIME;
 
     @BeforeEach
@@ -70,10 +62,10 @@ public class PassportRestControllerTest {
         int departmentCode = ThreadLocalRandom.current().nextInt(99999) + 100000;
         int varInt = ThreadLocalRandom.current().nextInt(10000000);
         passportRequest = new PassportRequest(String.valueOf(number),
-                ZonedDateTime.of(LocalDate.of(2022, 5, 01),
+                ZonedDateTime.of(LocalDate.of(2022, 5, 1),
                         LocalTime.of(20, 20, 20), ZoneId.systemDefault()).toInstant(),
                 String.valueOf(departmentCode));
-        personRequest = new PersonRequest("Alex Frolov" + varInt,
+        PersonRequest personRequest = new PersonRequest("Alex Frolov" + varInt,
                 LocalDate.now().minusYears(18),
                 "UK");
         personResponse = personTestMethodContainer.createPerson(personRequest).extract().as(PersonResponse.class);
@@ -173,7 +165,7 @@ public class PassportRestControllerTest {
                 .body()
                 .jsonPath()
                 .getList("", PassportResponse.class);
-        assertTrue(listPredicatePassportResponse.test(List.of(passportResponse),  listPassportResponse));
+        assertEquals(List.of(passportResponse),  listPassportResponse);
     }
 
     @Test
@@ -191,8 +183,8 @@ public class PassportRestControllerTest {
                 .body()
                 .jsonPath()
                 .getList("", PassportResponse.class);
-        assertTrue(listPredicatePassportResponse.test(List.of(passportResponse),
-                listPassportResponse));
+        assertEquals(List.of(passportResponse),
+                listPassportResponse);
 
     }
 
@@ -206,8 +198,8 @@ public class PassportRestControllerTest {
                 .statusCode(200)
                 .extract().body()
                 .jsonPath().getList("", PassportResponse.class);
-        assertTrue(listPredicatePassportResponse.test(List.of(passportResponse),
-                passportResponseAnswer));
+        assertEquals(List.of(passportResponse),
+                passportResponseAnswer);
     }
 
     @Test
@@ -233,14 +225,14 @@ public class PassportRestControllerTest {
                 .extract()
                 .body().jsonPath().getList("", PassportResponse.class);
 
-        assertTrue(listPredicatePassportResponse.test(List.of(passportResponse),
-                passportResponseAnswer));
+        assertEquals(List.of(passportResponse),
+                passportResponseAnswer);
     }
 
     @Test
     void testFindPersonPassportsWithDatesNotCorrect() {
         String id = FriendlyId.createFriendlyId();
-        var response = passportTestMethodContainer.findPersonPassports(id,
+        passportTestMethodContainer.findPersonPassports(id,
                         null,
                         Instant.from(isoOffsetDateTime.parse("2022-05-10T19:00:00-02:00")),
                         Instant.from(isoOffsetDateTime.parse("2022-05-08T19:00:00-02:00")))
@@ -260,8 +252,8 @@ public class PassportRestControllerTest {
                 .assertThat().statusCode(200)
                 .extract()
                 .jsonPath().getList("", PassportResponse.class);
-        assertTrue(listPredicatePassportResponse.test(List.of(passportResponse),
-                passportResponseAnswer));
+        assertEquals(List.of(passportResponse),
+                passportResponseAnswer);
     }
 
     @Test
@@ -271,13 +263,13 @@ public class PassportRestControllerTest {
         var passportResponseAnswer = passportTestMethodContainer.findPersonPassports(personResponse.getId(),
                         null,
                         null,
-                        ZonedDateTime.of(LocalDate.of(2022, 5, 01),
+                        ZonedDateTime.of(LocalDate.of(2022, 5, 1),
                                 LocalTime.of(20, 30, 30), ZoneId.systemDefault()).toInstant())
                 .assertThat().statusCode(200)
                 .extract()
                 .jsonPath().getList("", PassportResponse.class);
-        assertTrue(listPredicatePassportResponse.test(List.of(passportResponse),
-                passportResponseAnswer));
+        assertEquals(List.of(passportResponse),
+                passportResponseAnswer);
     }
 
     @Test
@@ -291,8 +283,8 @@ public class PassportRestControllerTest {
                 .assertThat().statusCode(200)
                 .extract()
                 .jsonPath().getList("", PassportResponse.class);
-        assertTrue(listPredicatePassportResponse.test(List.of(passportResponse),
-                passportResponseAnswer));
+        assertEquals(List.of(passportResponse),
+                passportResponseAnswer);
     }
 
     @Test
@@ -302,13 +294,13 @@ public class PassportRestControllerTest {
         var passportResponseAnswer = passportTestMethodContainer.findPersonPassports(personResponse.getId(),
                         true,
                         null,
-                        ZonedDateTime.of(LocalDate.of(2022, 5, 01),
+                        ZonedDateTime.of(LocalDate.of(2022, 5, 1),
                                 LocalTime.of(20, 30, 30), ZoneId.systemDefault()).toInstant())
                 .assertThat().statusCode(200)
                 .extract()
                 .jsonPath().getList("", PassportResponse.class);
-        assertTrue(listPredicatePassportResponse.test(List.of(passportResponse),
-                passportResponseAnswer));
+        assertEquals(List.of(passportResponse),
+                passportResponseAnswer);
     }
 
     @Test
@@ -332,7 +324,7 @@ public class PassportRestControllerTest {
         var response = passportTestMethodContainer.findPersonPassports(personResponse.getId(),
                         false,
                         null,
-                        ZonedDateTime.of(LocalDate.of(2022, 5, 01),
+                        ZonedDateTime.of(LocalDate.of(2022, 5, 1),
                                 LocalTime.of(20, 30, 30), ZoneId.systemDefault()).toInstant())
                 .assertThat().statusCode(200)
                 .extract()
@@ -357,8 +349,8 @@ public class PassportRestControllerTest {
         PassportResponse testPassportResponse = passportTestMethodContainer.findPassport(personResponse.getId(), passportResponse.getId(), true)
                 .assertThat().statusCode(200)
                 .extract().as(PassportResponse.class);
-        assertTrue(predicatePassportResponse.test(passportResponse,
-                testPassportResponse));
+        assertEquals(passportResponse,
+                testPassportResponse);
     }
 
 
@@ -366,24 +358,24 @@ public class PassportRestControllerTest {
     void testLostPassportCorrectWithDescription() throws JsonProcessingException {
         passportResponse = passportTestMethodContainer.createPassport(personResponse.getId(), passportRequest)
                 .extract().as(PassportResponse.class);
-        passportTestMethodContainer.lostPassportDeactivate(personResponse.getId(),
+        assertEquals("true", passportTestMethodContainer.lostPassportDeactivate(personResponse.getId(),
                         passportResponse.getId(),
                         new LostPassportInfo("I lost my passport"))
                 .assertThat().statusCode(200)
                 .extract()
-                .response().equals("true");
+                .response().getBody().print());
     }
 
     @Test
     void testLostPassportCorrectWithEmptyDescription() throws JsonProcessingException {
         passportResponse = passportTestMethodContainer.createPassport(personResponse.getId(), passportRequest)
                 .extract().as(PassportResponse.class);
-        passportTestMethodContainer.lostPassportDeactivate(personResponse.getId(),
+        assertEquals("true", passportTestMethodContainer.lostPassportDeactivate(personResponse.getId(),
                         passportResponse.getId(),
                         null)
                 .assertThat().statusCode(200)
                 .extract()
-                .response().equals("true");
+                .response().getBody().print());
     }
 
     @Test

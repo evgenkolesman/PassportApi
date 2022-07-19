@@ -42,8 +42,6 @@ public class SearchServiceTest {
     private SearchService searchService;
     @Autowired
     private PersonService personService;
-    @Autowired
-    private BiPredicate<List<Passport>, List<Passport>> predicateList;
 
     private Passport passport;
     private Person person;
@@ -87,10 +85,10 @@ public class SearchServiceTest {
 
     @Test
     void testGetAllPassportsAllParams() {
-        assertTrue(predicateList.test(new ArrayList<>(Collections.singleton(passport)),
+        assertEquals(new ArrayList<>(Collections.singleton(passport)),
                 searchService.getAllPassports(true,
                         Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2022-03-05T19:00:00-02:00")),
-                        Instant.now())));
+                        Instant.now()));
     }
 
     @Test
@@ -103,10 +101,10 @@ public class SearchServiceTest {
 
     @Test
     void testGetAllPassportsWithoutBoolean() {
-        assertTrue(predicateList.test(new ArrayList<>(Collections.singleton(passport)),
+        assertEquals(new ArrayList<>(Collections.singleton(passport)),
                 searchService.getAllPassports(null,
                         Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2022-03-05T19:00:00-02:00")),
-                        Instant.now())));
+                        Instant.now()));
     }
 
     @Test
@@ -118,22 +116,22 @@ public class SearchServiceTest {
 
     @Test
     void testGetAllPassportsWithoutBooleanWithEmptyEndDate() {
-        assertTrue(predicateList.test(new ArrayList<>(Collections.singleton(passport)),
+        assertEquals(new ArrayList<>(Collections.singleton(passport)),
                 searchService.getAllPassports(null,
                         Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2022-05-04T19:00:00-02:00")),
-                        null)));
+                        null));
     }
 
     @Test
     void testGetAllPassportsWithoutParam() {
-        assertTrue(predicateList.test(new ArrayList<>(Collections.singleton(passport)),
-                searchService.getAllPassports(null, null, null)));
+        assertEquals(new ArrayList<>(Collections.singleton(passport)),
+                searchService.getAllPassports(null, null, null));
     }
 
     @Test
     void testGetAllPassportsOnlyBoolean() {
-        assertTrue(predicateList.test(List.of(passport),
-                searchService.getAllPassports(true, null, null)));
+        assertEquals(List.of(passport),
+                searchService.getAllPassports(true, null, null));
     }
 
     @Test

@@ -20,6 +20,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -39,10 +40,6 @@ class PassportServiceTest {
     private PassportService passportService;
     @Autowired
     private PersonService personService;
-    @Autowired
-    private BiPredicate<Passport, Passport> predicate;
-    @Autowired
-    private BiPredicate<List<Passport>, List<Passport>> listPredicate;
 
     private Person person;
     private PassportRequest passportRequest;
@@ -81,8 +78,7 @@ class PassportServiceTest {
 
     @Test
     void testFindPassportById() {
-        Passport passportById = passportService.findPassportById(passport.getId(), true);
-        assertTrue(predicate.test(passport, passportById));
+        assertEquals(passport, passportService.findPassportById(passport.getId(), true));
     }
 
     @Test
@@ -106,7 +102,7 @@ class PassportServiceTest {
                 passportRequest1.getNumber(),
                 "Update problems with number");
         assertEquals(passportService.updatePassport(passport1).getGivenDate(),
-                passportRequest1.getGivenDate(),
+                passportRequest1.getGivenDate().truncatedTo(ChronoUnit.MICROS),
                 "Update problems with given date");
     }
 
@@ -121,8 +117,7 @@ class PassportServiceTest {
 
     @Test
     void testDeletePassportCorrect() {
-        Passport passportById = passportService.deletePassport(passport.getId());
-        assertTrue(predicate.test(passport, passportById));
+        assertEquals(passport, passportService.deletePassport(passport.getId()));
     }
 
     @Test
@@ -132,18 +127,16 @@ class PassportServiceTest {
 
     @Test
     void testGetPassportsByPersonIdAndParamsWithoutParams() {
-        List<Passport> passportResult = passportService.getPassportsByPersonIdAndParams(person.getId(),
-                null, null, null);
-        assertTrue(listPredicate.test(new ArrayList<>(Collections.singleton(passport)), passportResult));
+        assertEquals(new ArrayList<>(Collections.singleton(passport)), passportService.getPassportsByPersonIdAndParams(person.getId(),
+                null, null, null));
     }
 
     @Test
     void testGetPassportsByPersonIdAndParamsWithOutBoolean() {
-        List<Passport> passportsByPersonIdAndParams = passportService.getPassportsByPersonIdAndParams(person.getId(),
-                null, Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2022-05-01T19:00:00-02:00")),
-                Instant.now());
-        assertTrue(listPredicate.test(new ArrayList<>(Collections.singleton(passport)),
-                passportsByPersonIdAndParams));
+        assertEquals(new ArrayList<>(Collections.singleton(passport)),
+                passportService.getPassportsByPersonIdAndParams(person.getId(),
+                        null, Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2022-05-01T19:00:00-02:00")),
+                        Instant.now()));
     }
 
     @Test
@@ -156,10 +149,9 @@ class PassportServiceTest {
 
     @Test
     void testGetPassportsByPersonIdAndParamsWithOutDate() {
-        List<Passport> passportsByPersonIdAndParams = passportService.getPassportsByPersonIdAndParams(person.getId(),
-                true, null, null);
-        assertTrue(listPredicate.test(new ArrayList<>(Collections.singleton(passport)),
-                passportsByPersonIdAndParams));
+        assertEquals(new ArrayList<>(Collections.singleton(passport)),
+                passportService.getPassportsByPersonIdAndParams(person.getId(),
+                        true, null, null));
     }
 
     @Test
@@ -175,8 +167,11 @@ class PassportServiceTest {
                 true,
                 null,
                 Instant.now().plusSeconds(10000));
-        assertTrue(listPredicate.test(List.of(passport),
-                passportsByPersonIdAndParams));
+        assertEquals(List.of(passport),
+                passportService.getPassportsByPersonIdAndParams(person.getId(),
+                        true,
+                        null,
+                        Instant.now().plusSeconds(10000)));
     }
 
 

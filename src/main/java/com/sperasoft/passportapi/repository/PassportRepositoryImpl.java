@@ -8,7 +8,6 @@ import com.sperasoft.passportapi.model.Passport;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import org.springframework.context.annotation.Primary;
 
 import java.time.Instant;
 import java.util.ArrayList;

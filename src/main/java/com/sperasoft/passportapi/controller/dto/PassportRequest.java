@@ -1,21 +1,17 @@
 package com.sperasoft.passportapi.controller.dto;
 
-import lombok.*;
+import lombok.Data;
+import lombok.NonNull;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
 import static org.springframework.format.annotation.DateTimeFormat.ISO;
 
-//@Getter
-//@Setter
-//@ToString
-//@EqualsAndHashCode
 @Data
 public class PassportRequest {
 
@@ -24,7 +20,6 @@ public class PassportRequest {
     @NonNull
     private final String number;
 
-//    @NotBlank(message = "Given date field should be filled")
     @DateTimeFormat(iso = ISO.DATE)
     @NonNull
     private final Instant givenDate;
@@ -35,13 +30,10 @@ public class PassportRequest {
     @NonNull
     private final String departmentCode;
 
-//    public PassportRequest(@NonNull String number, @NonNull Instant givenDate, @NonNull String departmentCode) {
-//        if (number.length() != 10) throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-//                "Invalid passport number length must be 10 digits");
-//        this.number = number;
-//        this.givenDate = givenDate;
-//        if (departmentCode.length() != 6) throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-//                "Invalid Department code length must be 6 digits");
-//        this.departmentCode = departmentCode;
-//    }
+    public PassportRequest(@NonNull String number, @NonNull Instant givenDate, @NonNull String departmentCode) {
+        this.number = number;
+        this.givenDate = givenDate.truncatedTo(ChronoUnit.MICROS);
+        this.departmentCode = departmentCode;
+    }
+
 }

@@ -1,7 +1,6 @@
 package com.sperasoft.passportapi.repository;
 
 import com.sperasoft.passportapi.exceptions.passportexceptions.InvalidPassportDataException;
-import com.sperasoft.passportapi.exceptions.passportexceptions.PassportEmptyException;
 import com.sperasoft.passportapi.exceptions.passportexceptions.PassportNotFoundException;
 import com.sperasoft.passportapi.exceptions.passportexceptions.PassportWrongNumberException;
 import com.sperasoft.passportapi.model.Passport;
@@ -16,7 +15,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,7 +33,7 @@ public class PassportRepositoryImplDB implements PassportRepository {
                             "values(?, ?, ?, ?, ?, ?, ?);",
                     passport.getId(),
                     passport.getNumber(),
-                    Timestamp.from(passport.getGivenDate().truncatedTo(ChronoUnit.MICROS)),
+                    Timestamp.from(passport.getGivenDate()),
                     passport.getDepartmentCode(),
                     passport.isActive(),
                     passport.getDescription(),
@@ -51,7 +49,7 @@ public class PassportRepositoryImplDB implements PassportRepository {
                     "UPDATE passportapi1.public.Passport SET number = ?, " +
                             "givenDate = ? , departmentCode = ?, active = ?, description = ?, person_id = ? WHERE id = ? ",
                     passport.getNumber(),
-                    Timestamp.from(passport.getGivenDate().truncatedTo(ChronoUnit.MICROS)),
+                    Timestamp.from(passport.getGivenDate()),
                     passport.getDepartmentCode(),
                     passport.isActive(),
                     passport.getDescription(),
@@ -137,7 +135,7 @@ public class PassportRepositoryImplDB implements PassportRepository {
         return new ArrayList<>(
                 jdbcTemplate.query
                         ("SELECT*FROM passportapi1.public.Passport WHERE givendate BETWEEN ? AND ?;",
-                                this::mapToPassport, Date.from(startDate), Date.from(endDate)));
+                                this::mapToPassport, Timestamp.from(startDate), Timestamp.from(endDate)));
     }
 
     @Override
@@ -153,7 +151,7 @@ public class PassportRepositoryImplDB implements PassportRepository {
         List<Passport> passportList = jdbcTemplate.query
                 ("SELECT*FROM passportapi1.public.Passport WHERE number = ?;",
                         this::mapToPassport, number);
-        if(passportList.size() == 0) throw new PassportWrongNumberException();
+        if (passportList.size() == 0) throw new PassportWrongNumberException();
         return passportList.get(0);
     }
 

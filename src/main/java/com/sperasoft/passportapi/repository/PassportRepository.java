@@ -1,7 +1,6 @@
 package com.sperasoft.passportapi.repository;
 
 import com.sperasoft.passportapi.model.Passport;
-import com.sperasoft.passportapi.model.Person;
 
 import java.time.Instant;
 import java.util.List;

@@ -5,7 +5,6 @@ import com.sperasoft.passportapi.exceptions.personexceptions.PersonNotFoundExcep
 import com.sperasoft.passportapi.model.Person;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;

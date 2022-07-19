@@ -125,10 +125,8 @@ public class SearchRestControllerTest {
                 .statusCode(200)
                 .extract()
                 .response().body().jsonPath().getList("", PassportResponse.class);
-        assertEquals(List.of(passportResponse).get(0).getNumber(),
-                listPassportResponse.get(0).getNumber());
-        assertEquals(List.of(passportResponse).get(0).getDepartmentCode(),
-                listPassportResponse.get(0).getDepartmentCode());
+        assertEquals(List.of(passportResponse),
+                listPassportResponse);
     }
 
     @Test
@@ -139,10 +137,9 @@ public class SearchRestControllerTest {
                 .statusCode(200)
                 .extract()
                 .response().body().jsonPath().getList("", PassportResponse.class);
-        assertEquals(List.of(passportResponse).get(0).getNumber(),
-                listPassportResponse.get(0).getNumber());
-        assertEquals(List.of(passportResponse).get(0).getDepartmentCode(),
-                listPassportResponse.get(0).getDepartmentCode());
+        assertEquals(List.of(passportResponse),
+                listPassportResponse);
+
     }
 
     @Test
@@ -166,10 +163,8 @@ public class SearchRestControllerTest {
                 .statusCode(200)
                 .extract()
                 .response().body().jsonPath().getList("", PassportResponse.class);
-        assertEquals(List.of(passportResponse).get(0).getNumber(),
-                listPassportResponse.get(0).getNumber());
-        assertEquals(List.of(passportResponse).get(0).getDepartmentCode(),
-                listPassportResponse.get(0).getDepartmentCode());
+        assertEquals(List.of(passportResponse),
+                listPassportResponse);
     }
 
     @Test
@@ -182,12 +177,10 @@ public class SearchRestControllerTest {
                 .statusCode(200)
                 .extract()
                 .response().body().jsonPath().getList("", PassportResponse.class);
-        assertEquals(List.of(passportResponse).get(0).getNumber(),
-                listPassportResponse.get(0).getNumber());
-        assertEquals(List.of(passportResponse).get(0).getDepartmentCode(),
-                listPassportResponse.get(0).getDepartmentCode());
+        assertEquals(List.of(passportResponse),
+                listPassportResponse);
+
     }
-    //TODO fix tests and rewrite all in RestAssured
 
     @Test
     void testFindAllPassportsWithActiveAndBadDates() {
@@ -225,10 +218,8 @@ public class SearchRestControllerTest {
                 .statusCode(200)
                 .extract()
                 .response().body().jsonPath().getList("", PassportResponse.class);
-        assertEquals(List.of(passportResponse).get(0).getNumber(),
-                listPassportResponse.get(0).getNumber());
-        assertEquals(List.of(passportResponse).get(0).getDepartmentCode(),
-                listPassportResponse.get(0).getDepartmentCode());
+        assertEquals(List.of(passportResponse),
+                listPassportResponse);
     }
 
     @Test

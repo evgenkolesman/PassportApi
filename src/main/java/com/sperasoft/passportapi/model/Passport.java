@@ -31,7 +31,7 @@ public class Passport {
                     @NonNull Instant givenDate,
                     @NonNull String departmentCode) {
         this.id = id;
-        this.personId= personId;
+        this.personId = personId;
         this.number = number;
         this.givenDate = givenDate;
         this.departmentCode = departmentCode;
