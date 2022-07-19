@@ -25,5 +25,4 @@ public class Person {
         this.birthday = birthday;
         this.birthdayCountry = birthdayCountry;
     }
-
 }

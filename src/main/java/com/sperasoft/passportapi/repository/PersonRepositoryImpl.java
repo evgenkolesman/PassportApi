@@ -5,7 +5,6 @@ import com.sperasoft.passportapi.exceptions.personexceptions.PersonNotFoundExcep
 import com.sperasoft.passportapi.model.Person;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -15,7 +14,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Repository
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-@Primary
 public class PersonRepositoryImpl implements PersonRepository {
 
     private static final Map<String, Person> personRepo = new ConcurrentHashMap<>();

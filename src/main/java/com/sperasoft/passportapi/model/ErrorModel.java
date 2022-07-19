@@ -8,5 +8,4 @@ public class ErrorModel {
     private final String id;
     private final String message;
     private final HttpStatus status;
-
 }
