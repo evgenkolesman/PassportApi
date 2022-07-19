@@ -15,7 +15,6 @@ public class PersonService {
 
     private final PersonRepository personRepository;
 
-
     public Person addPerson(Person person) {
         return personRepository.addPerson(person);
     }
