@@ -77,7 +77,6 @@ public class PassportController {
     @PostMapping("/{id}/lostPassport")
     public boolean lostPassportDeactivate(@PathVariable("personId") String personId,
                                           @PathVariable("id") String id,
-//                                          @RequestParam(name = "active", defaultValue = "false") @NotNull Boolean active,
                                           @RequestBody(required = false) LostPassportInfo description) {
         return passportService.deactivatePassport(personId, id, description);
     }

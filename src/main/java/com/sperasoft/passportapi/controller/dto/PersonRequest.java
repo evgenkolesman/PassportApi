@@ -1,16 +1,10 @@
 package com.sperasoft.passportapi.controller.dto;
 
-import com.sperasoft.passportapi.exceptions.personexceptions.InvalidPersonDataException;
-import com.sperasoft.passportapi.exceptions.personexceptions.PersonNotFoundException;
-import com.sun.jdi.request.InvalidRequestStateException;
-import lombok.*;
+import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
 
@@ -24,7 +18,7 @@ public class PersonRequest {
     private final String name;
 
     @DateTimeFormat(iso = ISO.DATE)
-    @NonNull
+    @NotNull(message = "Given Date field shouldn`t be empty")
     private final LocalDate birthday;
 
     @NotBlank(message = "BirthdayCountry field should be filled")
