@@ -3,6 +3,7 @@ package com.sperasoft.passportapi.controller;
 import com.devskiller.friendly_id.FriendlyId;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sperasoft.passportapi.controller.dto.PersonRequest;
+import com.sperasoft.passportapi.controller.dto.PersonRequestTest;
 import com.sperasoft.passportapi.controller.dto.PersonResponse;
 import com.sperasoft.passportapi.controller.rest.abstracts.PersonTestMethodContainer;
 import com.sperasoft.passportapi.exceptions.personexceptions.PersonNotFoundException;
@@ -81,7 +82,7 @@ public class PersonRestControllerTest {
     @Test
     void createNotCorrectPersonWithBadName() throws JsonProcessingException, JSONException {
         String response = personTestMethodContainer.createPerson("1",
-                        LocalDate.of(2000, 10, 11),
+                        "2000-10-11",
                         "RU")
                 .assertThat().statusCode(400)
                 .and().extract().response().print();
@@ -92,7 +93,7 @@ public class PersonRestControllerTest {
     @Test
     void createNotCorrectPersonWithBadCountry() throws JsonProcessingException, JSONException {
         String response = personTestMethodContainer.createPerson("1efefs dsfdsf",
-                        LocalDate.of(2000, 10, 11),
+                        "2000-10-11",
                         "RUS")
                 .assertThat().statusCode(400)
                 .and().extract().response().print();
@@ -162,9 +163,10 @@ public class PersonRestControllerTest {
         PersonResponse personResponseForTest =
                 personTestMethodContainer.createPerson(personRequest)
                         .extract().as(PersonResponse.class);
-        var errorMessage = personTestMethodContainer.updatePerson(personResponseForTest.getId(), "1",
-                        LocalDate.of(2001, 12, 12),
-                        personRequest.getBirthdayCountry())
+        var errorMessage = personTestMethodContainer.updatePerson(personResponseForTest.getId(),
+                        new PersonRequestTest("1",
+                        "2000-10-11",
+                        personRequest.getBirthdayCountry()))
                 .assertThat().statusCode(400)
                 .extract().response()
                 .body().print();
@@ -178,9 +180,10 @@ public class PersonRestControllerTest {
                 personTestMethodContainer.createPerson(personRequest)
                         .extract()
                         .as(PersonResponse.class);
-        var errorMessage = personTestMethodContainer.updatePerson(personResponseForTest.getId(), "Name Name",
-                        LocalDate.of(2001, 12, 12),
-                        "China")
+        var errorMessage = personTestMethodContainer.updatePerson(personResponseForTest.getId(),
+                new PersonRequestTest("1",
+                "2000-10-11",
+                        "China"))
                 .assertThat().statusCode(400)
                 .extract().response()
                 .body().print();
@@ -193,9 +196,10 @@ public class PersonRestControllerTest {
                 personTestMethodContainer.createPerson(personRequest)
                         .extract()
                         .as(PersonResponse.class);
-        var errorMessage = personTestMethodContainer.updatePerson(personResponseForTest.getId(), "",
-                        LocalDate.of(2001, 12, 12),
-                        "CH")
+        var errorMessage = personTestMethodContainer.updatePerson(personResponseForTest.getId(),
+                new PersonRequestTest("",
+                "2000-10-11",
+                        "CH"))
                 .assertThat().statusCode(400)
                 .extract().response()
                 .body().print();
@@ -208,9 +212,10 @@ public class PersonRestControllerTest {
                 personTestMethodContainer.createPerson(personRequest)
                         .extract()
                         .as(PersonResponse.class);
-        var errorMessage = personTestMethodContainer.updatePerson(personResponseForTest.getId(), "sadad sdad",
-                        LocalDate.of(2001, 12, 12),
-                        "")
+        var errorMessage = personTestMethodContainer.updatePerson(personResponseForTest.getId(),
+                new PersonRequestTest("1",
+                "2000-10-11",
+                        ""))
                 .assertThat().statusCode(400)
                 .extract().response()
                 .body().print();

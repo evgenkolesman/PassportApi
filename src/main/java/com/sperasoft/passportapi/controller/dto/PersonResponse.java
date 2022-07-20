@@ -10,13 +10,17 @@ import java.time.LocalDate;
 @Data
 @AllArgsConstructor
 public class PersonResponse {
-//    @NonNull
+
+    @NonNull
     private final String id;
-//    @NonNull
+
+    @NonNull
     private final String name;
-//    @NonNull
+
+    @NonNull
     private final LocalDate birthday;
-//    @NonNull
+
+    @NonNull
     private final String birthdayCountry;
 
     private PersonResponse(Person person) {
@@ -26,7 +30,7 @@ public class PersonResponse {
         this.birthdayCountry = person.getBirthdayCountry();
     }
 
-    public static PersonResponse of(Person person) {
+    public static PersonResponse of(@NonNull final Person person) {
         return new PersonResponse(person);
     }
 }
