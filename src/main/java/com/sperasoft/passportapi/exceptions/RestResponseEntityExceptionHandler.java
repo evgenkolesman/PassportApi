@@ -8,14 +8,14 @@ import com.sperasoft.passportapi.model.ErrorModel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.Environment;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.validation.BindException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Objects;
 
@@ -26,7 +26,8 @@ public class RestResponseEntityExceptionHandler {
 
     private final Environment environment;
 
-    @ExceptionHandler(value = {InvalidPassportDataException.class,
+    @ExceptionHandler(value = {MethodArgumentNotValidException.class,
+            InvalidPassportDataException.class,
             PassportDeactivatedException.class,
             PassportEmptyException.class,
             PassportNotFoundException.class,
@@ -34,14 +35,26 @@ public class RestResponseEntityExceptionHandler {
             PassportWrongNumberException.class,
             PassportBadStatusException.class,
             PersonNotFoundException.class,
-            InvalidPersonDataException.class
+            InvalidPersonDataException.class,
+            HttpMessageNotReadableException.class
+
     })
     protected ResponseEntity<ErrorModel> handleConflict(
-            RuntimeException ex) {
+            Exception ex) {
+        var errorId = FriendlyId.createFriendlyId();
+        if (ex instanceof MethodArgumentNotValidException) {
+            return new ResponseEntity<>(new ErrorModel(errorId, ((MethodArgumentNotValidException) ex)
+                    .getFieldError().getDefaultMessage(), HttpStatus.BAD_REQUEST),
+                    HttpStatus.BAD_REQUEST);
+        } else if (ex instanceof HttpMessageNotReadableException) {
+            String message = environment.getProperty("exception.BadDateFormat");
+            return new ResponseEntity<>(new ErrorModel(errorId, message, HttpStatus.BAD_REQUEST),
+                    HttpStatus.BAD_REQUEST);
+        }
         HttpStatus status = ex.getClass().getAnnotation(ResponseStatus.class).value();
         String propName = "exception." + ex.getClass().getSimpleName();
         String message;
-        var errorId = FriendlyId.createFriendlyId();
+
         if (ex.getMessage() != null) {
             message = String.format(
                     environment.getProperty(propName),

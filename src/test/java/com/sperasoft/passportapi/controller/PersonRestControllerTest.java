@@ -25,14 +25,23 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Slf4j
 @SpringBootTest(webEnvironment =
         SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class PersonRestControllerTest {
+
+    public static final String INVALID_DATA_NAME_SIZE = "Invalid data: Name must be minimum 2 characters long";
+    public static final String INVALID_DATA_BIRTHDAY_COUNTRY_ISO_CODE =
+            "Invalid data: Birthday country should be formatted like ISO CODE (2 characters)";
+    public static final String INVALID_DATA_GIVEN_DATE_EMPTY = "Invalid data: Given Date field shouldn`t be empty";
+    public static final String INVALID_DATA_BIRTHDAY_NOT_FILLED = "Invalid data: BirthdayCountry field should be filled";
+    public static final String INVALID_DATA_NAME_NOT_FILLED = "Invalid data: Name field should be filled";
 
     @Autowired
     private Environment env;
@@ -73,66 +82,139 @@ public class PersonRestControllerTest {
         }
     }
 
+    /** Creation Person tests
+     *
+     * @throws JsonProcessingException
+     */
 
     @Test
-    void createCorrectPerson() throws JsonProcessingException {
+    void createCorrectPerson() {
         personTestMethodContainer.createPerson(personRequest).assertThat().statusCode(200);
     }
 
     @Test
     void createNotCorrectPersonWithBadName() throws JsonProcessingException, JSONException {
-        String response = personTestMethodContainer.createPerson("1",
+            var response = personTestMethodContainer.createPerson("1",
+                            "2000-10-11",
+                            "RU")
+                    .assertThat().statusCode(400)
+                    .and().extract().response().print();
+
+        assertTrue(response.contains(INVALID_DATA_NAME_SIZE));
+    }
+
+    @Test
+    void createNotCorrectPersonWithNoName() throws JsonProcessingException, JSONException {
+        var response = personTestMethodContainer.createPerson("",
                         "2000-10-11",
                         "RU")
                 .assertThat().statusCode(400)
                 .and().extract().response().print();
 
-//        assertEquals(env.getProperty("exception.InvalidPersonDataException"), response);
+        assertTrue(response.contains(INVALID_DATA_NAME_SIZE));
+
     }
 
     @Test
-    void createNotCorrectPersonWithBadCountry() throws JsonProcessingException, JSONException {
+    void createNotCorrectPersonWithWhitespaceName() throws JsonProcessingException, JSONException {
+        var response = personTestMethodContainer.createPerson("_",
+                        "2000-10-11",
+                        "RU")
+                .assertThat().statusCode(400)
+                .and().extract().response().print();
+
+        assertTrue(response.contains(INVALID_DATA_NAME_SIZE));
+    }
+
+    @Test
+    void createNotCorrectPersonWithNullName() throws JsonProcessingException, JSONException {
+        var response = personTestMethodContainer.createPerson(null,
+                        "2000-10-11",
+                        "RU")
+                .assertThat().statusCode(400)
+                .and().extract().response().print();
+        assertTrue(response.contains(INVALID_DATA_NAME_NOT_FILLED));
+    }
+
+    @Test
+    void createNotCorrectPersonWithBadCountryMoreThanTwo() throws JsonProcessingException, JSONException {
         String response = personTestMethodContainer.createPerson("1efefs dsfdsf",
                         "2000-10-11",
                         "RUS")
                 .assertThat().statusCode(400)
                 .and().extract().response().print();
 
-//        assertEquals(env.getProperty("exception.InvalidPersonDataException"), response);
+        assertTrue(response.contains(INVALID_DATA_BIRTHDAY_COUNTRY_ISO_CODE));
+
     }
 
     @Test
-    void testFindPersonById() throws JsonProcessingException {
-        PersonResponse personResponseForTest = personTestMethodContainer.createPerson(personRequest)
-                .extract().as(PersonResponse.class);
-        var response = personTestMethodContainer.findPersonById(personResponseForTest.getId())
-                .assertThat().statusCode(200)
-                .and().log()
-                .all()
-                .extract().response()
-                .body().as(PersonResponse.class);
-        assertEquals(response, personResponseForTest);
+    void createNotCorrectPersonWithBadCountryLessThanTwo() throws JsonProcessingException, JSONException {
+        String response = personTestMethodContainer.createPerson("1efefs dsfdsf",
+                        "2000-10-11",
+                        "R")
+                .assertThat().statusCode(400)
+                .and().extract().response().print();
+
+        assertTrue(response.contains(INVALID_DATA_BIRTHDAY_COUNTRY_ISO_CODE));
+
     }
 
     @Test
-    void testFindPersonByIdNotCorrect() throws JsonProcessingException {
-        String id = FriendlyId.createFriendlyId();
-        personTestMethodContainer.createPerson(personRequest)
-                .extract().as(PersonResponse.class);
-        var response = personTestMethodContainer.findPersonById(id)
-                .assertThat().statusCode(404)
-                .and().log()
-                .all()
-                .extract().response()
-                .body().as(ErrorModel.class);
-        assertEquals(String.format(env.getProperty("exception.PersonNotFoundException"), id), response.getMessage());
+    void createNotCorrectPersonWithBadCountryNull() throws JsonProcessingException, JSONException {
+        String response = personTestMethodContainer.createPerson("1efefs dsfdsf",
+                        "2000-10-11",
+                        null)
+                .assertThat().statusCode(400)
+                .and().extract().response().print();
+
+        assertTrue(response.contains(INVALID_DATA_BIRTHDAY_NOT_FILLED));
 
     }
+
+    @Test
+    void createNotCorrectPersonWithBadDateNull() throws JsonProcessingException, JSONException {
+        String response = personTestMethodContainer.createPerson("1efefs dsfdsf",
+                        null,
+                        "RU")
+                .assertThat().statusCode(400)
+                .and().extract().response().print();
+
+        assertTrue(response.contains(INVALID_DATA_GIVEN_DATE_EMPTY));
+
+    }
+
+    @Test
+    void createNotCorrectPersonWithBadDateNotValid() throws JsonProcessingException, JSONException {
+        var response = personTestMethodContainer.createPerson("1efefs dsfdsf",
+                        "2000-10-111",
+                        "RU")
+                .assertThat().statusCode(400)
+                .and().extract().response().print();
+        assertTrue(response.contains(env.getProperty("exception.BadDateFormat")));
+
+    }
+
+    @Test
+    void createNotCorrectPersonWithBadDateNotValidFullString() throws JsonProcessingException, JSONException {
+        var response = personTestMethodContainer.createPerson("1efefs dsfdsf",
+                        "200010111",
+                        "RU")
+                .assertThat().statusCode(400)
+                .and().extract().response().print();
+        assertTrue(response.contains(Objects.requireNonNull(env.getProperty("exception.BadDateFormat"))));
+
+    }
+
+    /** Update Person tests
+     *
+     *
+     */
 
     @Test
     void testUpdatePersonByIdCorrectName() throws Exception {
-        PersonRequest personRequest1 = new PersonRequest("Egor",
-                personRequest.getBirthday(),
+        PersonRequestTest personRequest1 = new PersonRequestTest("Egor",
+                personRequest.getBirthday().toString(),
                 personRequest.getBirthdayCountry());
         PersonResponse personResponseForTest =
                 personTestMethodContainer.createPerson(personRequest)
@@ -144,66 +226,141 @@ public class PersonRestControllerTest {
     }
 
     @Test
-    void testUpdatePersonByIdCorrectNameAndBirthday() throws Exception {
-        PersonRequest personRequest1 = new PersonRequest("Egor",
-                LocalDate.of(2001, 12, 12),
-                personRequest.getBirthdayCountry());
-        PersonResponse personResponseForTest =
-                personTestMethodContainer.createPerson(personRequest)
-                        .extract().as(PersonResponse.class);
-        PersonResponse personResponse = personTestMethodContainer.updatePerson(personResponseForTest.getId(), personRequest1)
-                .assertThat().statusCode(200)
-                .extract().body().as(PersonResponse.class);
-        assertEquals(personRequest1.getName(), personResponse.getName());
-    }
-
-    //TODO FIX @Size
-    @Test
-    void testUpdatePersonByIdNameNotCorrect() throws Exception {
-        PersonResponse personResponseForTest =
-                personTestMethodContainer.createPerson(personRequest)
-                        .extract().as(PersonResponse.class);
-        var errorMessage = personTestMethodContainer.updatePerson(personResponseForTest.getId(),
-                        new PersonRequestTest("1",
-                        "2000-10-11",
-                        personRequest.getBirthdayCountry()))
-                .assertThat().statusCode(400)
-                .extract().response()
-                .body().print();
-//        assertEquals(String.format(env.getProperty("exception.InvalidPersonDataException")), errorMessage);
-    }
-
-    //TODO fix mistakes
-    @Test
-    void testUpdatePersonByIdBirthdayCountryNotCorrect() throws Exception {
+    void testUpdatePersonByIdNameNotCorrectOneSymbol() throws Exception {
         PersonResponse personResponseForTest =
                 personTestMethodContainer.createPerson(personRequest)
                         .extract()
                         .as(PersonResponse.class);
-        var errorMessage = personTestMethodContainer.updatePerson(personResponseForTest.getId(),
-                new PersonRequestTest("1",
-                "2000-10-11",
-                        "China"))
+        var response = personTestMethodContainer.updatePerson(personResponseForTest.getId(),
+                        new PersonRequestTest("#",
+                                "2000-10-11",
+                                "CH"))
                 .assertThat().statusCode(400)
                 .extract().response()
                 .body().print();
-//        assertEquals(String.format(env.getProperty("exception.InvalidPersonDataException")), errorMessage);
+
+        assertTrue(response.contains(INVALID_DATA_NAME_SIZE));
     }
 
     @Test
-    void testUpdatePersonByIdEmptyNameNotCorrect() throws Exception {
+    void testUpdatePersonByIdNameNotCorrectEmpty() throws Exception {
         PersonResponse personResponseForTest =
                 personTestMethodContainer.createPerson(personRequest)
                         .extract()
                         .as(PersonResponse.class);
-        var errorMessage = personTestMethodContainer.updatePerson(personResponseForTest.getId(),
-                new PersonRequestTest("",
-                "2000-10-11",
-                        "CH"))
+        var response = personTestMethodContainer.updatePerson(personResponseForTest.getId(),
+                        new PersonRequestTest("",
+                                "2000-10-11",
+                                "CH"))
                 .assertThat().statusCode(400)
                 .extract().response()
                 .body().print();
-//        assertEquals(String.format(env.getProperty("exception.InvalidPersonDataException")), errorMessage);
+
+        assertTrue(response.contains(INVALID_DATA_NAME_SIZE));
+    }
+
+    @Test
+    void testUpdatePersonByIdBirthdayNotCorrect() throws Exception {
+        PersonResponse personResponseForTest =
+                personTestMethodContainer.createPerson(personRequest)
+                        .extract()
+                        .as(PersonResponse.class);
+        var response = personTestMethodContainer.updatePerson(personResponseForTest.getId(),
+                        new PersonRequestTest("Alex Alex",
+                                "2000-1011",
+                                "CH"))
+                .assertThat().statusCode(400)
+                .extract().response()
+                .body().print();
+
+        assertTrue(response.contains(Objects.requireNonNull(env.getProperty("exception.BadDateFormat"))));
+    }
+
+    @Test
+    void testUpdatePersonByIdBirthdayNotCorrectNull() throws Exception {
+        PersonResponse personResponseForTest =
+                personTestMethodContainer.createPerson(personRequest)
+                        .extract()
+                        .as(PersonResponse.class);
+        var response = personTestMethodContainer.updatePerson(personResponseForTest.getId(),
+                        new PersonRequestTest("Alex Alex",
+                                null,
+                                "CH"))
+                .assertThat().statusCode(400)
+                .extract().response()
+                .body().print();
+
+        assertTrue(response.contains(INVALID_DATA_GIVEN_DATE_EMPTY));
+    }
+
+    @Test
+    void testUpdatePersonByIdBirthdayCountryEmptyNotCorrect() throws Exception {
+        PersonResponse personResponseForTest =
+                personTestMethodContainer.createPerson(personRequest)
+                        .extract()
+                        .as(PersonResponse.class);
+        var response = personTestMethodContainer.updatePerson(personResponseForTest.getId(),
+                        new PersonRequestTest("Alex Alex",
+                                "2000-10-11",
+                                ""))
+                .assertThat().statusCode(400)
+                .extract().response()
+                .body().print();
+
+        assertTrue(response.contains(INVALID_DATA_BIRTHDAY_COUNTRY_ISO_CODE));
+    }
+
+    @Test
+    void testUpdatePersonByIdBirthdayCountryOneSymbolNotCorrectEmpty() throws Exception {
+        PersonResponse personResponseForTest =
+                personTestMethodContainer.createPerson(personRequest)
+                        .extract()
+                        .as(PersonResponse.class);
+        var response = personTestMethodContainer.updatePerson(personResponseForTest.getId(),
+                        new PersonRequestTest("Alex Alex",
+                                "2000-10-11",
+                                "4"))
+                .assertThat().statusCode(400)
+                .extract().response()
+                .body().print();
+
+        assertTrue(response.contains(INVALID_DATA_BIRTHDAY_COUNTRY_ISO_CODE));
+    }
+
+
+    @Test
+    void testUpdatePersonByIdBirthdayCountryThreeSymbolNotCorrectEmpty() throws Exception {
+        PersonResponse personResponseForTest =
+                personTestMethodContainer.createPerson(personRequest)
+                        .extract()
+                        .as(PersonResponse.class);
+        var response = personTestMethodContainer.updatePerson(personResponseForTest.getId(),
+                        new PersonRequestTest("Alex Alex",
+                                "2000-10-11",
+                                "DSD"))
+                .assertThat().statusCode(400)
+                .extract().response()
+                .body().print();
+
+        assertTrue(response.contains(INVALID_DATA_BIRTHDAY_COUNTRY_ISO_CODE));
+    }
+
+
+
+    @Test
+    void testUpdatePersonByIdBirthdayCountryNullNotCorrect() throws Exception {
+        PersonResponse personResponseForTest =
+                personTestMethodContainer.createPerson(personRequest)
+                        .extract()
+                        .as(PersonResponse.class);
+        var response = personTestMethodContainer.updatePerson(personResponseForTest.getId(),
+                        new PersonRequestTest("Alex Alex",
+                                "2000-10-11",
+                                null))
+                .assertThat().statusCode(400)
+                .extract().response()
+                .body().print();
+        assertTrue(response.contains(INVALID_DATA_BIRTHDAY_NOT_FILLED));
     }
 
     @Test
@@ -213,13 +370,13 @@ public class PersonRestControllerTest {
                         .extract()
                         .as(PersonResponse.class);
         var errorMessage = personTestMethodContainer.updatePerson(personResponseForTest.getId(),
-                new PersonRequestTest("1",
-                "2000-10-11",
-                        ""))
+                        new PersonRequestTest("Alex Alex",
+                                "2000-10-11",
+                                ""))
                 .assertThat().statusCode(400)
                 .extract().response()
                 .body().print();
-//        assertEquals(String.format(env.getProperty("exception.InvalidPersonDataException")), errorMessage);
+        assertTrue(errorMessage.contains(INVALID_DATA_BIRTHDAY_COUNTRY_ISO_CODE));
     }
 
     @Test
@@ -239,15 +396,78 @@ public class PersonRestControllerTest {
 
     }
 
+    /** Test findById
+     *
+     *
+     */
+
     @Test
-    void deletePersonCorrect() throws JsonProcessingException {
+    void testFindPersonById() {
+        PersonResponse personResponseForTest = personTestMethodContainer.createPerson(personRequest)
+                .extract().as(PersonResponse.class);
+        var response = personTestMethodContainer.findPersonById(personResponseForTest.getId())
+                .assertThat().statusCode(200)
+                .and().log()
+                .all()
+                .extract().response()
+                .body().as(PersonResponse.class);
+        assertEquals(response, personResponseForTest);
+    }
+
+    @Test
+    void testFindPersonByIdRandomNotCorrect() {
+        String id = FriendlyId.createFriendlyId();
+        personTestMethodContainer.createPerson(personRequest)
+                .extract().as(PersonResponse.class);
+        var response = personTestMethodContainer.findPersonById(id)
+                .assertThat().statusCode(404)
+                .and().log()
+                .all()
+                .extract().response()
+                .body().as(ErrorModel.class);
+        assertEquals(String.format(env.getProperty("exception.PersonNotFoundException"), id), response.getMessage());
+
+    }
+
+    @Test
+    void testFindPersonByIdNullNotCorrect() {
+        personTestMethodContainer.createPerson(personRequest)
+                .extract().as(PersonResponse.class);
+        personTestMethodContainer.findPersonById(null)
+                .assertThat().statusCode(405)
+                .and().log()
+                .all()
+                .extract().response()
+                .body().as(ErrorModel.class);
+
+    }
+    @Test
+    void testFindPersonByIdEmptyNotCorrect() {
+        personTestMethodContainer.createPerson(personRequest)
+                .extract().as(PersonResponse.class);
+        personTestMethodContainer.findPersonById("")
+                .assertThat().statusCode(405)
+                .and().log()
+                .all()
+                .extract().response()
+                .print();
+
+    }
+
+    /** Delete testing
+     *
+     */
+
+
+    @Test
+    void deletePersonCorrect() {
         var personResponse = personTestMethodContainer.createPerson(personRequest)
                 .assertThat().statusCode(200).extract().as(PersonResponse.class);
         personTestMethodContainer.deletePerson(personResponse.getId()).assertThat().statusCode(204);
     }
 
     @Test
-    void deletePersonNotCorrectNoPerson() throws JsonProcessingException {
+    void deletePersonNotCorrectNoPerson() {
         var personResponse = personTestMethodContainer.createPerson(personRequest)
                 .assertThat().statusCode(200).extract().as(PersonResponse.class);
         String id = personResponse.getId();

@@ -19,7 +19,7 @@ public class PassportRequest {
     @Size(min = 10, max = 10)
     private final String number;
 
-    @DateTimeFormat(iso = ISO.DATE)
+    @DateTimeFormat(iso = ISO.DATE_TIME)
     @NotNull(message = "Given Date field shouldn`t be empty")
     private final Instant givenDate;
 
