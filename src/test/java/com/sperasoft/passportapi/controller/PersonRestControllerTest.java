@@ -59,6 +59,7 @@ public class PersonRestControllerTest {
     PersonRepository personRepository;
 
     private PersonRequest personRequest;
+    private PersonResponse personResponse;
 
     @BeforeEach
     void testDataProduce() {
@@ -73,12 +74,9 @@ public class PersonRestControllerTest {
     @AfterEach
     public void testDataClear() {
         try {
-            List<Person> all = personRepository.findAll();
-            for (Person person : all) {
-                personTestMethodContainer.deletePerson(person.getId());
-            }
-        } catch (PersonNotFoundException e) {
-            log.info("Person was removed");
+            personTestMethodContainer.deletePerson(personResponse.getId());
+        } catch (Exception e) {
+            log.info("passport was already removed");
         }
     }
 
@@ -88,7 +86,8 @@ public class PersonRestControllerTest {
 
     @Test
     void createCorrectPerson() {
-        personTestMethodContainer.createPerson(personRequest).assertThat().statusCode(200);
+        personResponse = personTestMethodContainer.createPerson(personRequest)
+                .assertThat().statusCode(200).extract().as(PersonResponse.class);
     }
 
     @Test
@@ -311,11 +310,11 @@ public class PersonRestControllerTest {
 
     @Test
     void testUpdatePersonByIdBirthdayCountryOneSymbolNotCorrectEmpty() throws Exception {
-        PersonResponse personResponseForTest =
+        personResponse =
                 personTestMethodContainer.createPerson(personRequest)
                         .extract()
                         .as(PersonResponse.class);
-        var response = personTestMethodContainer.updatePerson(personResponseForTest.getId(),
+        var response = personTestMethodContainer.updatePerson(personResponse.getId(),
                         new PersonRequestTest("Alex Alex",
                                 "2000-10-11",
                                 "4"))
@@ -329,11 +328,11 @@ public class PersonRestControllerTest {
 
     @Test
     void testUpdatePersonByIdBirthdayCountryThreeSymbolNotCorrectEmpty() throws Exception {
-        PersonResponse personResponseForTest =
+        personResponse =
                 personTestMethodContainer.createPerson(personRequest)
                         .extract()
                         .as(PersonResponse.class);
-        var response = personTestMethodContainer.updatePerson(personResponseForTest.getId(),
+        var response = personTestMethodContainer.updatePerson(personResponse.getId(),
                         new PersonRequestTest("Alex Alex",
                                 "2000-10-11",
                                 "DSD"))
@@ -348,11 +347,11 @@ public class PersonRestControllerTest {
 
     @Test
     void testUpdatePersonByIdBirthdayCountryNullNotCorrect() throws Exception {
-        PersonResponse personResponseForTest =
+        personResponse =
                 personTestMethodContainer.createPerson(personRequest)
                         .extract()
                         .as(PersonResponse.class);
-        var response = personTestMethodContainer.updatePerson(personResponseForTest.getId(),
+        var response = personTestMethodContainer.updatePerson(personResponse.getId(),
                         new PersonRequestTest("Alex Alex",
                                 "2000-10-11",
                                 null))
@@ -364,11 +363,11 @@ public class PersonRestControllerTest {
 
     @Test
     void testUpdatePersonByIdEmptyBirthdayCountryNotCorrect() throws Exception {
-        PersonResponse personResponseForTest =
+        personResponse =
                 personTestMethodContainer.createPerson(personRequest)
                         .extract()
                         .as(PersonResponse.class);
-        var errorMessage = personTestMethodContainer.updatePerson(personResponseForTest.getId(),
+        var errorMessage = personTestMethodContainer.updatePerson(personResponse.getId(),
                         new PersonRequestTest("Alex Alex",
                                 "2000-10-11",
                                 ""))
@@ -402,15 +401,15 @@ public class PersonRestControllerTest {
 
     @Test
     void testFindPersonById() {
-        PersonResponse personResponseForTest = personTestMethodContainer.createPerson(personRequest)
+        personResponse = personTestMethodContainer.createPerson(personRequest)
                 .extract().as(PersonResponse.class);
-        var response = personTestMethodContainer.findPersonById(personResponseForTest.getId())
+        var response = personTestMethodContainer.findPersonById(personResponse.getId())
                 .assertThat().statusCode(200)
                 .and().log()
                 .all()
                 .extract().response()
                 .body().as(PersonResponse.class);
-        assertEquals(response, personResponseForTest);
+        assertEquals(response, personResponse);
     }
 
     @Test
@@ -457,7 +456,7 @@ public class PersonRestControllerTest {
 
     @Test
     void deletePersonCorrect() {
-        var personResponse = personTestMethodContainer.createPerson(personRequest)
+        personResponse = personTestMethodContainer.createPerson(personRequest)
                 .assertThat().statusCode(200).extract().as(PersonResponse.class);
         personTestMethodContainer.deletePerson(personResponse.getId()).assertThat().statusCode(204);
     }
