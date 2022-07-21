@@ -1,25 +1,19 @@
 package com.sperasoft.passportapi.controller.rest.abstracts;
 
-import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.util.StdDateFormat;
+import com.fasterxml.jackson.databind.deser.std.JdkDeserializers;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.fasterxml.jackson.datatype.jsr310.deser.InstantDeserializer;
-import com.fasterxml.jackson.datatype.jsr310.ser.InstantSerializer;
-import com.fasterxml.jackson.datatype.jsr310.ser.InstantSerializerBase;
+import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import com.sperasoft.passportapi.controller.dto.PassportRequest;
 import com.sperasoft.passportapi.controller.dto.PassportRequestTest;
 import com.sperasoft.passportapi.controller.dto.PassportResponse;
-import com.sperasoft.passportapi.controller.dto.PersonRequest;
 import com.sperasoft.passportapi.model.LostPassportInfo;
-import com.sperasoft.passportapi.model.Passport;
 import io.restassured.response.ValidatableResponse;
-import net.minidev.json.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
@@ -27,11 +21,9 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import java.io.DataInput;
+import java.io.IOException;
 import java.time.Instant;
-import java.time.format.DateTimeFormatter;
-import java.util.LinkedHashMap;
 
 import static io.restassured.RestAssured.given;
 
@@ -68,23 +60,12 @@ public class PassportTestMethodContainer {
                                               String number, String givenDate, String departmentCode)
             throws JsonProcessingException {
         PassportRequestTest passportRequest = new PassportRequestTest(number, givenDate, departmentCode);
-
         String path = builder
                 .replacePath(PERSON_URI).path("/")
                 .path(personId)
                 .path(PASSPORT_URI)
                 .replaceQuery("").toUriString();
-        JavaTimeModule module = new JavaTimeModule();
-
-        mapper.registerModule(module);
-        mapper.setDateFormat(new StdDateFormat().withColonInTimeZone(true));
-        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        mapper.configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
-        mapper.configure(DeserializationFeature.EAGER_DESERIALIZER_FETCH, false);
-        mapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
-        mapper.findAndRegisterModules();
         String reqPassport = mapper.writeValueAsString(passportRequest);
-
         return given()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .body(reqPassport)
