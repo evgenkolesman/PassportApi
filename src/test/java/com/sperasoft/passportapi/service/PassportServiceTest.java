@@ -169,7 +169,7 @@ class PassportServiceTest {
         assertEquals(List.of(passport),
                 Collections.unmodifiableList(passportService.getPassportsByPersonIdAndParams(person.getId(),
                         true, Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2022-01-01T19:00:00-02:00")),
-                        passport.getGivenDate().plusNanos(10))));
+                        passport.getGivenDate().plusNanos(1000000))));
     }
 
 //    @Test

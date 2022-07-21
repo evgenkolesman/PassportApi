@@ -622,7 +622,7 @@ public class PassportRestControllerTest {
                 id), response.getMessage());
     }
 
-
+//TODO fix this
     @Test
     void testFindPassportWithParamsCorrectActiveFalse() throws JsonProcessingException {
         passportResponse = passportTestMethodContainer.createPassport(personResponse.getId(), passportRequest).extract().as(PassportResponse.class);
