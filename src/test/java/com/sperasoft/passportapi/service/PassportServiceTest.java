@@ -20,6 +20,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -102,7 +103,7 @@ class PassportServiceTest {
                 passportRequest1.getNumber(),
                 "Update problems with number");
         assertEquals(passportService.updatePassport(passport1).getGivenDate(),
-                passportRequest1.getGivenDate(),
+                passportRequest1.getGivenDate().truncatedTo(ChronoUnit.MICROS),
                 "Update problems with given date");
     }
 
