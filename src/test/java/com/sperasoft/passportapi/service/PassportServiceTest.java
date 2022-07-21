@@ -137,7 +137,7 @@ class PassportServiceTest {
     void testGetPassportsByPersonIdAndParamsWithOutBoolean() {
         assertEquals(new ArrayList<>(Collections.singleton(passport)),
                 passportService.getPassportsByPersonIdAndParams(person.getId(),
-                        null, Instant.parse("2022-05-01T19:00:00-02:00"),
+                        null, Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2022-05-01T19:00:00-02:00")),
                         Instant.now()));
     }
 
@@ -145,7 +145,8 @@ class PassportServiceTest {
     void testGetPassportsByPersonIdAndParamsWithOutBooleanWrong() {
         assertThrowsExactly(InvalidPassportDataException.class, () ->
                 passportService.getPassportsByPersonIdAndParams(person.getId(),
-                        null, Instant.parse("2022-12-01T19:00:00-02:00"), Instant.parse("2022-05-01T19:00:00-02:00")));
+                        null, Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2022-12-01T19:00:00-02:00")),
+                        Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2022-05-01T19:00:00-02:00"))));
     }
 
     @Test
@@ -166,7 +167,7 @@ class PassportServiceTest {
     void testGetPassportsByPersonIdAndParamsWithOutStartDate() {
         assertEquals(List.of(passport),
                 Collections.unmodifiableList(passportService.getPassportsByPersonIdAndParams(person.getId(),
-                        true, Instant.parse("2022-01-01T19:00:00-02:00"),
+                        true, Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2022-01-01T19:00:00-02:00")),
                         passport.getGivenDate().plusNanos(10))));
     }
 
@@ -190,7 +191,7 @@ class PassportServiceTest {
         assertThrowsExactly(InvalidPassportDataException.class,
                 () -> passportService.getPassportsByPersonIdAndParams(person.getId(),
                         true, Instant.from(isoOffsetDateTime.parse("2022-08-04T19:00:00+02:00")),
-                        Instant.parse("2022-04-05T19:00:00+02:00")));
+                        Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2022-04-05T19:00:00+02:00"))));
     }
 
 

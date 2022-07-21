@@ -84,7 +84,6 @@ public class PersonRestControllerTest {
 
     /** Creation Person tests
      *
-     * @throws JsonProcessingException
      */
 
     @Test
@@ -191,7 +190,7 @@ public class PersonRestControllerTest {
                         "RU")
                 .assertThat().statusCode(400)
                 .and().extract().response().print();
-        assertTrue(response.contains(env.getProperty("exception.BadDateFormat")));
+        assertTrue(response.contains(Objects.requireNonNull(env.getProperty("exception.BadDateFormat"))));
 
     }
 
@@ -391,12 +390,12 @@ public class PersonRestControllerTest {
                 .assertThat().statusCode(404)
                 .extract().response()
                 .body().as(ErrorModel.class);
-        assertEquals(String.format(env.getProperty("exception.PersonNotFoundException"), wrongId),
+        assertEquals(String.format(Objects.requireNonNull(env.getProperty("exception.PersonNotFoundException")), wrongId),
                 errorMessage.getMessage());
 
     }
 
-    /** Test findById
+    /** FindById Person tests
      *
      *
      */
@@ -425,7 +424,8 @@ public class PersonRestControllerTest {
                 .all()
                 .extract().response()
                 .body().as(ErrorModel.class);
-        assertEquals(String.format(env.getProperty("exception.PersonNotFoundException"), id), response.getMessage());
+        assertEquals(String.format(Objects.requireNonNull(env.getProperty("exception.PersonNotFoundException")), id),
+                response.getMessage());
 
     }
 
@@ -434,11 +434,7 @@ public class PersonRestControllerTest {
         personTestMethodContainer.createPerson(personRequest)
                 .extract().as(PersonResponse.class);
         personTestMethodContainer.findPersonById(null)
-                .assertThat().statusCode(405)
-                .and().log()
-                .all()
-                .extract().response()
-                .body().as(ErrorModel.class);
+                .assertThat().statusCode(405);
 
     }
     @Test
@@ -454,7 +450,7 @@ public class PersonRestControllerTest {
 
     }
 
-    /** Delete testing
+    /** Delete Person tests
      *
      */
 
@@ -464,6 +460,10 @@ public class PersonRestControllerTest {
         var personResponse = personTestMethodContainer.createPerson(personRequest)
                 .assertThat().statusCode(200).extract().as(PersonResponse.class);
         personTestMethodContainer.deletePerson(personResponse.getId()).assertThat().statusCode(204);
+    }
+    @Test
+    void deletePersonNullIdNotCorrect() {
+        personTestMethodContainer.deletePerson(null).assertThat().statusCode(405);
     }
 
     @Test
@@ -477,7 +477,7 @@ public class PersonRestControllerTest {
                 .extract()
                 .response()
                 .body().as(ErrorModel.class);
-        assertEquals(String.format(env.getProperty("exception.PersonNotFoundException"),
+        assertEquals(String.format(Objects.requireNonNull(env.getProperty("exception.PersonNotFoundException")),
                         id),
                 errorMessage.getMessage());
     }

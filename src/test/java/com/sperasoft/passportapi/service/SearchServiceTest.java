@@ -87,33 +87,38 @@ public class SearchServiceTest {
     void testGetAllPassportsAllParams() {
         assertEquals(new ArrayList<>(Collections.singleton(passport)),
                 searchService.getAllPassports(true,
-                        Instant.parse("2022-03-05T19:00:00-02:00"), Instant.now()));
+                        Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2022-03-05T19:00:00-02:00")),
+                        Instant.now()));
     }
 
     @Test
     void testGetAllPassportsBadDate() {
         assertThrowsExactly(InvalidPassportDataException.class, () ->
-                searchService.getAllPassports(true, Instant.parse("2022-08-04T19:00:00-02:00"),
-                        Instant.parse("2022-05-04T19:00:00-02:00")));
+                searchService.getAllPassports(true,
+                        Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2022-08-04T19:00:00-02:00")),
+                        Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2022-05-04T19:00:00-02:00"))));
     }
 
     @Test
     void testGetAllPassportsWithoutBoolean() {
         assertEquals(new ArrayList<>(Collections.singleton(passport)),
-                searchService.getAllPassports(null, Instant.parse("2022-03-05T19:00:00-02:00"),
+                searchService.getAllPassports(null,
+                        Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2022-03-05T19:00:00-02:00")),
                         Instant.now()));
     }
 
     @Test
     void testGetAllPassportsWithoutBooleanWithEmptyStartDate() {
         assertEquals(new ArrayList<>(),
-                searchService.getAllPassports(null, null, Instant.parse("2022-05-04T19:00:00-02:00")));
+                searchService.getAllPassports(null, null,
+                        Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2022-05-04T19:00:00-02:00"))));
     }
 
     @Test
     void testGetAllPassportsWithoutBooleanWithEmptyEndDate() {
         assertEquals(new ArrayList<>(Collections.singleton(passport)),
-                searchService.getAllPassports(null, Instant.parse("2022-05-04T19:00:00-02:00"), null));
+                searchService.getAllPassports(null,
+                        Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2022-05-04T19:00:00-02:00")), null));
     }
 
     @Test
