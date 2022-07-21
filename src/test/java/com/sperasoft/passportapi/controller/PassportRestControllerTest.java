@@ -194,10 +194,10 @@ public class PassportRestControllerTest {
 //    void createPassportWithCorrectDataGivenDateDateTimeDigits() throws JsonProcessingException {
 //        var response = passportTestMethodContainer.createPassport(personResponse.getId(),
 //                        passportRequest.getNumber(),
-//                        "2022-03-05T19:00:00-02:00",
+//                        "2022-03-05'T'19:00:00-02:00",
 //                        "123123")
 //                .assertThat().statusCode(200).extract().response().print();
-////        assertTrue(response.contains(env.getProperty("exception.BadDateFormat")));
+//        assertTrue(response.contains(env.getProperty("exception.BadDateFormat")));
 //    }
 
     @Test

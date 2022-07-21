@@ -74,12 +74,15 @@ public class PassportTestMethodContainer {
                 .path(personId)
                 .path(PASSPORT_URI)
                 .replaceQuery("").toUriString();
-//        JavaTimeModule module = new JavaTimeModule();
-////        javaTimeModule.addDeserializer(PassportRequest.class, new Instant);
-//        mapper.registerModule(module);
-//        mapper.setDateFormat(new StdDateFormat().withColonInTimeZone(true));
-//        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        JavaTimeModule module = new JavaTimeModule();
 
+        mapper.registerModule(module);
+        mapper.setDateFormat(new StdDateFormat().withColonInTimeZone(true));
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        mapper.configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
+        mapper.configure(DeserializationFeature.EAGER_DESERIALIZER_FETCH, false);
+        mapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
+        mapper.findAndRegisterModules();
         String reqPassport = mapper.writeValueAsString(passportRequest);
 
         return given()
