@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NonNull;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
 @Data
 @AllArgsConstructor
@@ -33,7 +34,7 @@ public class Passport {
         this.id = id;
         this.personId = personId;
         this.number = number;
-        this.givenDate = givenDate;
+        this.givenDate = givenDate.truncatedTo(ChronoUnit.MICROS);
         this.departmentCode = departmentCode;
         this.active = true;
         this.description = "No description";

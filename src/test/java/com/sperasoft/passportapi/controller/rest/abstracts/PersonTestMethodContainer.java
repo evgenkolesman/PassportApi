@@ -3,6 +3,7 @@ package com.sperasoft.passportapi.controller.rest.abstracts;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sperasoft.passportapi.controller.dto.PersonRequest;
+import com.sperasoft.passportapi.controller.dto.PersonRequestTest;
 import io.restassured.response.ValidatableResponse;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -27,12 +28,9 @@ public class PersonTestMethodContainer {
 
     private static final String PERSON_URI = "/person";
 
-    public ValidatableResponse createPerson(String name, LocalDate birthday, String birthdayCountry) throws JsonProcessingException, JSONException {
-        LinkedHashMap jsonObject = new LinkedHashMap();
-        jsonObject.put("name", name);
-        jsonObject.put("birthday", birthday);
-        jsonObject.put("birthdayCountry", birthdayCountry);
-        String message = mapper.writeValueAsString(jsonObject);
+    public ValidatableResponse createPerson(String name, String birthday, String birthdayCountry) throws JsonProcessingException, JSONException {
+        PersonRequestTest personRequestTest = new PersonRequestTest(name, birthday, birthdayCountry);
+        String message = mapper.writeValueAsString(personRequestTest);
         return given()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .body(message)
@@ -43,7 +41,7 @@ public class PersonTestMethodContainer {
                 .all();
     }
 
-    public ValidatableResponse createPerson(PersonRequest personRequest) throws JsonProcessingException {
+    public ValidatableResponse createPerson(PersonRequest personRequest) {
         return given()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .body(personRequest)
@@ -70,14 +68,8 @@ public class PersonTestMethodContainer {
 
 
     public ValidatableResponse updatePerson(String personId,
-                                            String name,
-                                            LocalDate birthday,
-                                            String birthdayCountry) throws JsonProcessingException {
-        LinkedHashMap jsonObject = new LinkedHashMap();
-        jsonObject.put("name", name);
-        jsonObject.put("birthday", birthday);
-        jsonObject.put("birthdayCountry", birthdayCountry);
-        String message = mapper.writeValueAsString(jsonObject);
+                                            PersonRequestTest personRequestTest) throws JsonProcessingException {
+        String message = mapper.writeValueAsString(personRequestTest);
         String path = builder.replacePath(PERSON_URI)
                 .path("/")
                 .path(personId).toUriString();

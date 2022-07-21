@@ -228,7 +228,7 @@ public class SearchRestControllerTest {
         number1.setNumber(String.valueOf(number));
         var response = searchAbstract.findAllPassports(true,
                         null,
-                Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2022-07-01T19:00:00+10:00")))
+                        Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2022-07-01T19:00:00+10:00")))
                 .statusCode(200)
                 .extract()
                 .response().body().jsonPath().getList("", PassportResponse.class);

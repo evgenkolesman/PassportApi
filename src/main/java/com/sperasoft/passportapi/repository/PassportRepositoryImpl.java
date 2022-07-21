@@ -136,5 +136,4 @@ public class PassportRepositoryImpl implements PassportRepository {
             throw new PassportNotFoundException(id);
         }
     }
-
 }

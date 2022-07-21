@@ -24,7 +24,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.BiPredicate;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -49,8 +48,10 @@ class PassportServiceTest {
 
     @BeforeEach
     private void testDataProduce() {
-        personRequest = new PersonRequest("Alex Frolov", LocalDate.now().minusYears(18), "UK");
+        String string = "2010-02-02";
+        LocalDate date = LocalDate.parse(string, DateTimeFormatter.ISO_DATE);
         passportRequest = new PassportRequest("1223123113", Instant.now(), "123123");
+        personRequest = new PersonRequest("Alex Frolov", date, "UK");
         person = personService.addPerson(new Person(FriendlyId.createFriendlyId(),
                 personRequest.getName(),
                 personRequest.getBirthday(),
@@ -78,7 +79,7 @@ class PassportServiceTest {
 
     @Test
     void testFindPassportById() {
-        assertEquals(passport, passportService.findPassportById(passport.getId(), true));
+        assertEquals(passportService.findPassportById(passport.getId(), true), passport);
     }
 
     @Test
@@ -117,18 +118,20 @@ class PassportServiceTest {
 
     @Test
     void testDeletePassportCorrect() {
-        assertEquals(passport, passportService.deletePassport(passport.getId()));
+        assertEquals(passportService.deletePassport(passport.getId()), passport);
     }
 
     @Test
     void testDeletePassportNotCorrect() {
-        assertThrowsExactly(PassportNotFoundException.class, () -> passportService.deletePassport("23123"));
+        assertThrowsExactly(PassportNotFoundException.class,
+                () -> passportService.deletePassport("23123"));
     }
 
     @Test
     void testGetPassportsByPersonIdAndParamsWithoutParams() {
-        assertEquals(new ArrayList<>(Collections.singleton(passport)), passportService.getPassportsByPersonIdAndParams(person.getId(),
-                null, null, null));
+        assertEquals(new ArrayList<>(Collections.singleton(passport)),
+                passportService.getPassportsByPersonIdAndParams(person.getId(),
+                        null, null, null));
     }
 
     @Test
@@ -163,23 +166,18 @@ class PassportServiceTest {
 
     @Test
     void testGetPassportsByPersonIdAndParamsWithOutStartDate() {
-        List<Passport> passportsByPersonIdAndParams = passportService.getPassportsByPersonIdAndParams(person.getId(),
-                true,
-                null,
-                Instant.now().plusSeconds(10000));
         assertEquals(List.of(passport),
-                passportService.getPassportsByPersonIdAndParams(person.getId(),
-                        true,
-                        null,
-                        Instant.now().plusSeconds(10000)));
+                Collections.unmodifiableList(passportService.getPassportsByPersonIdAndParams(person.getId(),
+                        true, Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2022-01-01T19:00:00-02:00")),
+                        passport.getGivenDate().plusNanos(10))));
     }
 
-
-    @Test
-    void testGetPassportsByPersonIdAndParamsWithEmptyResult() {
-        assertEquals(new ArrayList<>(), passportService.getPassportsByPersonIdAndParams(FriendlyId.createFriendlyId(),
-                true, null, null));
-    }
+//    @Test
+//    void testGetPassportsByPersonIdAndParamsWithStartDate() {
+//        assertThrowsExactly(PassportEmptyException.class, () ->
+//                passportService.getPassportsByPersonIdAndParams(FriendlyId.createFriendlyId(),
+//                        true, null, null));
+//    }
 
     @Test
     void testGetPassportsByPersonIdAndParamsWithEndDate() {
@@ -194,7 +192,7 @@ class PassportServiceTest {
         assertThrowsExactly(InvalidPassportDataException.class,
                 () -> passportService.getPassportsByPersonIdAndParams(person.getId(),
                         true, Instant.from(isoOffsetDateTime.parse("2022-08-04T19:00:00+02:00")),
-                        Instant.from(isoOffsetDateTime.parse("2022-04-05T19:00:00+02:00"))));
+                        Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2022-04-05T19:00:00+02:00"))));
     }
 
 

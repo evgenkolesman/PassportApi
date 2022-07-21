@@ -22,11 +22,10 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
-import java.util.function.BiPredicate;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 
 @Slf4j
 @SpringBootTest
@@ -40,6 +39,7 @@ public class SearchServiceTest {
     private PassportService passportService;
     @Autowired
     private SearchService searchService;
+
     @Autowired
     private PersonService personService;
 
@@ -118,8 +118,7 @@ public class SearchServiceTest {
     void testGetAllPassportsWithoutBooleanWithEmptyEndDate() {
         assertEquals(new ArrayList<>(Collections.singleton(passport)),
                 searchService.getAllPassports(null,
-                        Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2022-05-04T19:00:00-02:00")),
-                        null));
+                        Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2022-05-04T19:00:00-02:00")), null));
     }
 
     @Test
@@ -130,7 +129,7 @@ public class SearchServiceTest {
 
     @Test
     void testGetAllPassportsOnlyBoolean() {
-        assertEquals(List.of(passport),
+        assertEquals(new ArrayList<>(Collections.singleton(passport)),
                 searchService.getAllPassports(true, null, null));
     }
 

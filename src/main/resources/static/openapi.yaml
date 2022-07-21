@@ -343,8 +343,8 @@ paths:
       requestBody:
         content:
           'application/json':
-              schema:
-                $ref: '#/components/schemas/LostPassportInfo'
+            schema:
+              $ref: '#/components/schemas/LostPassportInfo'
       responses:
         "200":
           description: "Successful operation: you need to create a new passport"
