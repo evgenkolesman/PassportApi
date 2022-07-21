@@ -239,7 +239,8 @@ public class PassportRestControllerTest {
                         Instant.now().toString(),
                         "%^789")
                 .assertThat().statusCode(400).extract().response().print();
-        assertTrue(response.contains(PASSPORT_DEPARTMENT_CODE_NOT_DIGIT));
+        assertTrue(response.contains(PASSPORT_DEPARTMENT_CODE_NOT_DIGIT)
+                || response.contains(PASSPORT_DEPARTMENT_CODE_BAD_SIZE) );
     }
 
     @Test
