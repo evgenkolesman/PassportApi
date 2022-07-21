@@ -188,17 +188,17 @@ public class PassportRestControllerTest {
         assertTrue(response.contains(PASSPORT_GIVEN_DATE_EMPTY));
     }
 
-    //TODO SolveProblems with serialization
+    //TODO SolveProblems with deserialization maybe I will understand how to solve it on Java 11
 
-//    @Test
-//    void createPassportWithCorrectDataGivenDateDateTimeDigits() throws JsonProcessingException {
-//        var response = passportTestMethodContainer.createPassport(personResponse.getId(),
-//                        passportRequest.getNumber(),
-//                        "2022-03-05'T'19:00:00-02:00",
-//                        "123123")
-//                .assertThat().statusCode(200).extract().response().print();
-//        assertTrue(response.contains(env.getProperty("exception.BadDateFormat")));
-//    }
+    @Test
+    void createPassportWithCorrectDataGivenDateDateTimeDigits() throws JsonProcessingException {
+        var response = passportTestMethodContainer.createPassport(personResponse.getId(),
+                        passportRequest.getNumber(),
+                        "2022-03-05T19:00:00-02:00",
+                        "123123")
+                .assertThat().statusCode(200).extract().body().as(PassportResponse.class);
+        assertEquals(response.getGivenDate(), Instant.parse("2022-03-05T19:00:00-02:00"));
+    }
 
     @Test
     void createPassportWithNotCorrectDepartmentCodeShort() throws JsonProcessingException {
