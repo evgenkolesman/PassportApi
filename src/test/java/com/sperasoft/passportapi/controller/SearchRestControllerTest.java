@@ -91,8 +91,7 @@ public class SearchRestControllerTest {
     public void testDataClear() {
         if (personResponse != null)
             personAbstract.deletePerson(personResponse.getId());
-        endTest = Instant.now();
-        passportRepository.getPassportsByParams(startTest, null)
+        passportRepository.getPassportsByParams()
                 .forEach(passport -> passportRepository.deletePassport(passport.getId()));
     }
 

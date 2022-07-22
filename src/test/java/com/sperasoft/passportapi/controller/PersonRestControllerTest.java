@@ -2,12 +2,10 @@ package com.sperasoft.passportapi.controller;
 
 import com.devskiller.friendly_id.FriendlyId;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.sperasoft.passportapi.controller.dto.PassportResponse;
 import com.sperasoft.passportapi.controller.dto.PersonRequest;
 import com.sperasoft.passportapi.controller.dto.PersonRequestTest;
 import com.sperasoft.passportapi.controller.dto.PersonResponse;
 import com.sperasoft.passportapi.controller.rest.abstracts.PersonTestMethodContainer;
-import com.sperasoft.passportapi.exceptions.personexceptions.PersonNotFoundException;
 import com.sperasoft.passportapi.model.ErrorModel;
 import com.sperasoft.passportapi.model.Person;
 import com.sperasoft.passportapi.repository.PersonRepository;
@@ -74,15 +72,13 @@ public class PersonRestControllerTest {
 
     @AfterEach
     public void testDataClear() {
-        try {
-            personTestMethodContainer.deletePerson(personResponse.getId());
-        } catch (Exception e) {
-            log.info("passport was already removed");
-        }
+        List<Person> allPersons = personRepository.findAll();
+        if (allPersons.size() > 0)
+            allPersons.forEach(per -> personRepository.deletePerson(per.getId()));
     }
 
-    /** Creation Person tests
-     *
+    /**
+     * Creation Person tests
      */
 
     @Test
@@ -102,11 +98,11 @@ public class PersonRestControllerTest {
 
     @Test
     void createNotCorrectPersonWithBadName() throws JsonProcessingException, JSONException {
-            var response = personTestMethodContainer.createPerson("1",
-                            "2000-10-11",
-                            "RU")
-                    .assertThat().statusCode(400)
-                    .and().extract().response().print();
+        var response = personTestMethodContainer.createPerson("1",
+                        "2000-10-11",
+                        "RU")
+                .assertThat().statusCode(400)
+                .and().extract().response().print();
 
         assertTrue(response.contains(INVALID_DATA_NAME_SIZE));
     }
@@ -214,9 +210,8 @@ public class PersonRestControllerTest {
 
     }
 
-    /** Update Person tests
-     *
-     *
+    /**
+     * Update Person tests
      */
 
     @Test
@@ -354,7 +349,6 @@ public class PersonRestControllerTest {
     }
 
 
-
     @Test
     void testUpdatePersonByIdBirthdayCountryNullNotCorrect() throws Exception {
         personResponse =
@@ -404,9 +398,8 @@ public class PersonRestControllerTest {
 
     }
 
-    /** FindById Person tests
-     *
-     *
+    /**
+     * FindById Person tests
      */
 
     @Test
@@ -446,6 +439,7 @@ public class PersonRestControllerTest {
                 .assertThat().statusCode(405);
 
     }
+
     @Test
     void testFindPersonByIdEmptyNotCorrect() {
         personTestMethodContainer.createPerson(personRequest)
@@ -459,8 +453,8 @@ public class PersonRestControllerTest {
 
     }
 
-    /** Delete Person tests
-     *
+    /**
+     * Delete Person tests
      */
 
 
@@ -470,6 +464,7 @@ public class PersonRestControllerTest {
                 .assertThat().statusCode(200).extract().as(PersonResponse.class);
         personTestMethodContainer.deletePerson(personResponse.getId()).assertThat().statusCode(204);
     }
+
     @Test
     void deletePersonNullIdNotCorrect() {
         personTestMethodContainer.deletePerson(null).assertThat().statusCode(405);
