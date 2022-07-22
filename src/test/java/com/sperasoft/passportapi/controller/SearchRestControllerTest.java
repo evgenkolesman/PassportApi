@@ -85,7 +85,11 @@ public class SearchRestControllerTest {
     public void testDataClear() {
         personAbstract.deletePerson(personResponse.getId());
         endTest = Instant.now();
-        passportAbstract.deletePassport(personResponse.getId(), passportResponse.getId());
+        try {
+            passportAbstract.deletePassport(personResponse.getId(), passportResponse.getId());
+        } catch (Exception e) {
+            log.info("passport was already removed");
+        }
 //        try {
 //            List<PassportResponse> list = searchAbstract.findAllPassports(null, startTest, endTest)
 //                    .extract().body().jsonPath().getList("", PassportResponse.class);
