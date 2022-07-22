@@ -10,6 +10,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,7 +23,8 @@ public class SearchController {
     private final SearchService searchService;
 
     @PostMapping
-    public PersonResponse findPersonByPassportNumber(@NonNull @RequestBody Number number) {
+    public PersonResponse findPersonByPassportNumber(@NotNull(message = "Invalid data: number filed shouldn`t be empty")
+                                                     @RequestBody Number number) {
         return PersonResponse.of(searchService.findPersonByPassportNumber(number.getNumber()));
     }
 

@@ -2,6 +2,7 @@ package com.sperasoft.passportapi.controller;
 
 import com.devskiller.friendly_id.FriendlyId;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.sperasoft.passportapi.controller.dto.PassportResponse;
 import com.sperasoft.passportapi.controller.dto.PersonRequest;
 import com.sperasoft.passportapi.controller.dto.PersonRequestTest;
 import com.sperasoft.passportapi.controller.dto.PersonResponse;
@@ -88,6 +89,15 @@ public class PersonRestControllerTest {
     void createCorrectPerson() {
         personResponse = personTestMethodContainer.createPerson(personRequest)
                 .assertThat().statusCode(200).extract().as(PersonResponse.class);
+    }
+
+    @Test
+    void createDoubleCorrectPerson() {
+        personResponse = personTestMethodContainer.createPerson(personRequest)
+                .assertThat().statusCode(200).extract().as(PersonResponse.class);
+        var response = personTestMethodContainer.createPerson(personRequest)
+                .assertThat().statusCode(400).extract().response().print();
+        assertTrue(response.contains(Objects.requireNonNull(env.getProperty("exception.InvalidPersonDataException"))));
     }
 
     @Test
