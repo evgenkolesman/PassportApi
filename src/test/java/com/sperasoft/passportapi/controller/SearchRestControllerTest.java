@@ -7,6 +7,7 @@ import com.sperasoft.passportapi.controller.dto.PersonResponse;
 import com.sperasoft.passportapi.controller.rest.abstracts.PassportTestMethodContainer;
 import com.sperasoft.passportapi.controller.rest.abstracts.PersonTestMethodContainer;
 import com.sperasoft.passportapi.controller.rest.abstracts.SearchTestMethodContainer;
+import com.sperasoft.passportapi.exceptions.passportexceptions.PassportNotFoundException;
 import com.sperasoft.passportapi.model.ErrorModel;
 import com.sperasoft.passportapi.model.Number;
 import io.restassured.RestAssured;
@@ -87,7 +88,7 @@ public class SearchRestControllerTest {
         endTest = Instant.now();
         try {
             passportAbstract.deletePassport(personResponse.getId(), passportResponse.getId());
-        } catch (Exception e) {
+        } catch (PassportNotFoundException e) {
             log.info("passport was already removed");
         }
     }
@@ -159,8 +160,6 @@ public class SearchRestControllerTest {
 
     @Test
     void testFindAllPassportsWithActiveTrue() {
-        var number1 = new Number();
-        number1.setNumber(String.valueOf(number));
         var response = searchAbstract.findAllPassports(true, null, null)
                 .statusCode(200)
                 .extract()
