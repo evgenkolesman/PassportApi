@@ -91,13 +91,11 @@ public class PassportRestControllerTest {
 
     @AfterEach
     void testDataClear() {
+        if (personResponse != null)
         personTestMethodContainer.deletePerson(personResponse.getId());
         endTest = Instant.now();
-        try {
-            passportTestMethodContainer.deletePassport(personResponse.getId(), passportResponse.getId());
-        } catch (PassportNotFoundException e) {
-            log.info("passport was already removed");
-        }
+            if (passportResponse != null)
+                passportTestMethodContainer.deletePassport(personResponse.getId(), passportResponse.getId());
 
         //TODO need to make universal way to clear test data may be that way
     }
