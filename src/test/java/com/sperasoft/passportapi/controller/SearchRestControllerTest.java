@@ -55,12 +55,14 @@ public class SearchRestControllerTest {
     private PersonResponse personResponse;
 
     private Long number;
+    Instant startTest;
+    Instant endTest;
 
 
     @BeforeEach
     void testDataProduce() throws Exception {
         RestAssured.port = port;
-
+        startTest = Instant.now();
         number = ThreadLocalRandom.current().nextLong(899999999) + 1000000000;
         int varInt = ThreadLocalRandom.current().nextInt(10000000);
         PassportRequest passportRequest = new PassportRequest(
@@ -82,13 +84,21 @@ public class SearchRestControllerTest {
     @AfterEach
     public void testDataClear() {
         personAbstract.deletePerson(personResponse.getId());
-        try {
-        passportAbstract.deletePassport(personResponse.getId(), passportResponse.getId()); } catch (Exception e) {
-            log.info(" passport was already deleted");
-        }
+        endTest = Instant.now();
+        passportAbstract.deletePassport(personResponse.getId(), passportResponse.getId());
+//        try {
+//            List<PassportResponse> list = searchAbstract.findAllPassports(null, startTest, endTest)
+//                    .extract().body().jsonPath().getList("", PassportResponse.class);
+//            if (list.size() > 0)
+//                list.stream().forEach(passport -> passportAbstract.deletePassport(personResponse.getId(), passport.getId()));
+//
+//        } catch (Exception e) {
+//            log.info(" passport was already deleted");
+//        }
     }
 
-    /** FindPersonByPassportNumber tests
+    /**
+     * FindPersonByPassportNumber tests
      *
      * @throws Exception
      */
@@ -134,7 +144,8 @@ public class SearchRestControllerTest {
         assertTrue(response.getMessage().contains(Objects.requireNonNull(env.getProperty("exception.BadDateFormat"))));
     }
 
-    /** FindAllPassports tests
+    /**
+     * FindAllPassports tests
      *
      * @throws Exception
      */
