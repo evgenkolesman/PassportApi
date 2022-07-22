@@ -10,6 +10,8 @@ import com.sperasoft.passportapi.controller.rest.abstracts.SearchTestMethodConta
 import com.sperasoft.passportapi.exceptions.passportexceptions.PassportNotFoundException;
 import com.sperasoft.passportapi.model.ErrorModel;
 import com.sperasoft.passportapi.model.Number;
+import com.sperasoft.passportapi.model.Passport;
+import com.sperasoft.passportapi.repository.PassportRepository;
 import io.restassured.RestAssured;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.*;
@@ -51,19 +53,22 @@ public class SearchRestControllerTest {
     @LocalServerPort
     private int port;
 
+    @Autowired
+    private PassportRepository passportRepository;
+
 
     private PassportResponse passportResponse;
     private PersonResponse personResponse;
 
     private Long number;
-    Instant startTest;
+    Instant startTest = Instant.now();
     Instant endTest;
 
 
     @BeforeEach
     void testDataProduce() throws Exception {
         RestAssured.port = port;
-        startTest = Instant.now();
+
         number = ThreadLocalRandom.current().nextLong(899999999) + 1000000000;
         int varInt = ThreadLocalRandom.current().nextInt(10000000);
         PassportRequest passportRequest = new PassportRequest(
@@ -84,14 +89,13 @@ public class SearchRestControllerTest {
 
     @AfterEach
     public void testDataClear() {
-        personAbstract.deletePerson(personResponse.getId());
+        if (personResponse != null)
+            personAbstract.deletePerson(personResponse.getId());
         endTest = Instant.now();
-        try {
-            passportAbstract.deletePassport(personResponse.getId(), passportResponse.getId());
-        } catch (PassportNotFoundException e) {
-            log.info("passport was already removed");
-        }
+        passportRepository.getPassportsByParams(startTest, null)
+                .forEach(passport -> passportRepository.deletePassport(passport.getId()));
     }
+
 
     /**
      * FindPersonByPassportNumber tests
