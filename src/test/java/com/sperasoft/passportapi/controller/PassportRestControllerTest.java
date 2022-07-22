@@ -9,9 +9,10 @@ import com.sperasoft.passportapi.controller.dto.PersonResponse;
 import com.sperasoft.passportapi.controller.rest.abstracts.PassportTestMethodContainer;
 import com.sperasoft.passportapi.controller.rest.abstracts.PersonTestMethodContainer;
 import com.sperasoft.passportapi.controller.rest.abstracts.SearchTestMethodContainer;
-import com.sperasoft.passportapi.exceptions.passportexceptions.PassportNotFoundException;
 import com.sperasoft.passportapi.model.ErrorModel;
 import com.sperasoft.passportapi.model.LostPassportInfo;
+import com.sperasoft.passportapi.model.Passport;
+import com.sperasoft.passportapi.repository.PassportRepository;
 import io.restassured.RestAssured;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
@@ -63,13 +64,14 @@ public class PassportRestControllerTest {
     @Autowired
     private UriComponentsBuilder builder;
     @Autowired
-    private SearchTestMethodContainer searchAbstract;
+    private PassportRepository passportRepository;
     private PassportRequest passportRequest;
     private PassportResponse passportResponse;
     private PersonResponse personResponse;
     private PersonRequest personRequest;
     private final DateTimeFormatter isoOffsetDateTime = DateTimeFormatter.ISO_DATE_TIME;
-    private Instant startTest, endTest;
+    private Instant startTest = Instant.now();
+    private Instant endTest;
 
     @BeforeEach
     void testDataProduce() {
@@ -94,8 +96,11 @@ public class PassportRestControllerTest {
         if (personResponse != null)
         personTestMethodContainer.deletePerson(personResponse.getId());
         endTest = Instant.now();
-            if (passportResponse != null)
-                passportTestMethodContainer.deletePassport(personResponse.getId(), passportResponse.getId());
+
+        passportRepository.getPassportsByParams()
+                .forEach(passport -> passportRepository.deletePassport(passport.getId()));
+
+
 
         //TODO need to make universal way to clear test data may be that way
     }
