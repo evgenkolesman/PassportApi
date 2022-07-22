@@ -7,8 +7,11 @@ import com.sperasoft.passportapi.controller.dto.PersonResponse;
 import com.sperasoft.passportapi.controller.rest.abstracts.PassportTestMethodContainer;
 import com.sperasoft.passportapi.controller.rest.abstracts.PersonTestMethodContainer;
 import com.sperasoft.passportapi.controller.rest.abstracts.SearchTestMethodContainer;
+import com.sperasoft.passportapi.exceptions.passportexceptions.PassportNotFoundException;
 import com.sperasoft.passportapi.model.ErrorModel;
 import com.sperasoft.passportapi.model.Number;
+import com.sperasoft.passportapi.model.Passport;
+import com.sperasoft.passportapi.repository.PassportRepository;
 import io.restassured.RestAssured;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.*;
@@ -50,11 +53,16 @@ public class SearchRestControllerTest {
     @LocalServerPort
     private int port;
 
+    @Autowired
+    private PassportRepository passportRepository;
+
 
     private PassportResponse passportResponse;
     private PersonResponse personResponse;
 
     private Long number;
+    Instant startTest = Instant.now();
+    Instant endTest;
 
 
     @BeforeEach
@@ -81,11 +89,15 @@ public class SearchRestControllerTest {
 
     @AfterEach
     public void testDataClear() {
-        personAbstract.deletePerson(personResponse.getId());
-        passportAbstract.deletePassport(personResponse.getId(), passportResponse.getId());
+        if (personResponse != null)
+            personAbstract.deletePerson(personResponse.getId());
+        passportRepository.getPassportsByParams()
+                .forEach(passport -> passportRepository.deletePassport(passport.getId()));
     }
 
-    /** FindPersonByPassportNumber tests
+
+    /**
+     * FindPersonByPassportNumber tests
      *
      * @throws Exception
      */
@@ -131,7 +143,8 @@ public class SearchRestControllerTest {
         assertTrue(response.getMessage().contains(Objects.requireNonNull(env.getProperty("exception.BadDateFormat"))));
     }
 
-    /** FindAllPassports tests
+    /**
+     * FindAllPassports tests
      *
      * @throws Exception
      */
@@ -150,8 +163,6 @@ public class SearchRestControllerTest {
 
     @Test
     void testFindAllPassportsWithActiveTrue() {
-        var number1 = new Number();
-        number1.setNumber(String.valueOf(number));
         var response = searchAbstract.findAllPassports(true, null, null)
                 .statusCode(200)
                 .extract()

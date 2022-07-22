@@ -108,8 +108,7 @@ public class PassportTestMethodContainer {
                 .replacePath(PERSON_URI).path("/")
                 .path(personId)
                 .path(PASSPORT_URI)
-                .path("/").path(passportId)
-                .replaceQuery("").toUriString();
+                .path("/").path(passportId).toUriString();
         return given()
                 .delete(path)
                 .then()

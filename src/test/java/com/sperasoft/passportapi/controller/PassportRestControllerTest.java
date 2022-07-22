@@ -8,8 +8,11 @@ import com.sperasoft.passportapi.controller.dto.PersonRequest;
 import com.sperasoft.passportapi.controller.dto.PersonResponse;
 import com.sperasoft.passportapi.controller.rest.abstracts.PassportTestMethodContainer;
 import com.sperasoft.passportapi.controller.rest.abstracts.PersonTestMethodContainer;
+import com.sperasoft.passportapi.controller.rest.abstracts.SearchTestMethodContainer;
 import com.sperasoft.passportapi.model.ErrorModel;
 import com.sperasoft.passportapi.model.LostPassportInfo;
+import com.sperasoft.passportapi.model.Passport;
+import com.sperasoft.passportapi.repository.PassportRepository;
 import io.restassured.RestAssured;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
@@ -52,23 +55,29 @@ public class PassportRestControllerTest {
 
     @Autowired
     private PersonTestMethodContainer personTestMethodContainer;
+    @Autowired
+    private SearchTestMethodContainer searchContainer;
 
     @Autowired
     private PassportTestMethodContainer passportTestMethodContainer;
 
     @Autowired
     private UriComponentsBuilder builder;
-
+    @Autowired
+    private PassportRepository passportRepository;
     private PassportRequest passportRequest;
     private PassportResponse passportResponse;
     private PersonResponse personResponse;
     private PersonRequest personRequest;
     private final DateTimeFormatter isoOffsetDateTime = DateTimeFormatter.ISO_DATE_TIME;
+    private Instant startTest = Instant.now();
+    private Instant endTest;
 
     @BeforeEach
     void testDataProduce() {
         builder.port(port);
         RestAssured.port = port;
+        startTest = Instant.now();
         int number = ThreadLocalRandom.current().nextInt(999999999) + 1000000000;
         int departmentCode = ThreadLocalRandom.current().nextInt(99999) + 100000;
         int varInt = ThreadLocalRandom.current().nextInt(10000000);
@@ -84,12 +93,14 @@ public class PassportRestControllerTest {
 
     @AfterEach
     void testDataClear() {
+        if (personResponse != null)
         personTestMethodContainer.deletePerson(personResponse.getId());
-        try {
-            passportTestMethodContainer.deletePassport(personResponse.getId(), passportResponse.getId());
-        } catch (Exception e) {
-            log.info("passport was already removed");
-        }
+
+        passportRepository.getPassportsByParams()
+                .forEach(passport -> passportRepository.deletePassport(passport.getId()));
+
+
+
         //TODO need to make universal way to clear test data may be that way
     }
 
@@ -607,6 +618,22 @@ public class PassportRestControllerTest {
                 .response().print();
 
     assertTrue(response.contains(String.format(env.getProperty("exception.PersonNotFoundException"), personBadId)));
+    }
+
+    @Test
+    void testFindPersonPassportsWithDatesCorrectPersonIdNotCorrect() throws JsonProcessingException {
+        passportResponse = passportTestMethodContainer.createPassport(personResponse.getId(), passportRequest)
+                .extract().as(PassportResponse.class);
+        String personBadId = FriendlyId.createFriendlyId();
+        var response = passportTestMethodContainer.findPersonPassports(personBadId,
+                        null,
+                        ZonedDateTime.now().minusYears(1).toInstant(),
+                        Instant.now())
+                .assertThat().statusCode(404)
+                .extract()
+                .response().print();
+
+        assertTrue(response.contains(String.format(env.getProperty("exception.PersonNotFoundException"), personBadId)));
     }
 
     @Test
