@@ -95,7 +95,6 @@ public class PassportRestControllerTest {
     void testDataClear() {
         if (personResponse != null)
         personTestMethodContainer.deletePerson(personResponse.getId());
-        endTest = Instant.now();
 
         passportRepository.getPassportsByParams()
                 .forEach(passport -> passportRepository.deletePassport(passport.getId()));
