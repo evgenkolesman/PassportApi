@@ -57,4 +57,24 @@ public class SearchTestMethodContainer {
                 .all();
     }
 
+
+    public ValidatableResponse findAllPassportsWithString(String active,
+                                                String dateStart,
+                                                String dateEnd) {
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        if (active != null) params.addIfAbsent("active", active);
+        if (dateStart != null) params.addIfAbsent("dateStart", dateStart);
+        if (dateEnd != null) params.addIfAbsent("dateEnd", dateEnd);
+        return given()
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .get(builder
+                        .replacePath(SEARCHES_ENDPOINT)
+                        .replaceQueryParams(params)
+                        .toUriString())
+                .then()
+                .and()
+                .log()
+                .all();
+    }
+
 }

@@ -1,10 +1,13 @@
 package com.sperasoft.passportapi.service;
 
+import com.sperasoft.passportapi.controller.PersonController;
 import com.sperasoft.passportapi.exceptions.passportexceptions.InvalidPassportDataException;
 import com.sperasoft.passportapi.exceptions.passportexceptions.PassportDeactivatedException;
 import com.sperasoft.passportapi.exceptions.passportexceptions.PassportNotFoundException;
+import com.sperasoft.passportapi.exceptions.personexceptions.PersonNotFoundException;
 import com.sperasoft.passportapi.model.LostPassportInfo;
 import com.sperasoft.passportapi.model.Passport;
+import com.sperasoft.passportapi.model.Person;
 import com.sperasoft.passportapi.repository.PassportRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +23,7 @@ import java.util.List;
 public class PassportService {
 
     private final PassportRepository passportRepository;
+    private final PersonService personService;
 
     public Passport createPassport(Passport passport) {
         return passportRepository.addPassport(passport);

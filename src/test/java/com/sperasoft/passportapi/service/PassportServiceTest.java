@@ -109,7 +109,7 @@ class PassportServiceTest {
 
     @Test
     void testUpdatePassportNotCorrect() {
-        Passport passport = new Passport(FriendlyId.createFriendlyId(), FriendlyId.createFriendlyId(), this.passport.getNumber(),
+        Passport passport = new Passport(FriendlyId.createFriendlyId(), person.getId(),  this.passport.getNumber(),
                 this.passport.getGivenDate(), "288");
         assertThrowsExactly(PassportNotFoundException.class,
                 () -> passportService.updatePassport(passport),
@@ -172,12 +172,12 @@ class PassportServiceTest {
                         passport.getGivenDate().plusNanos(10))));
     }
 
-//    @Test
-//    void testGetPassportsByPersonIdAndParamsWithStartDate() {
-//        assertThrowsExactly(PassportEmptyException.class, () ->
-//                passportService.getPassportsByPersonIdAndParams(FriendlyId.createFriendlyId(),
-//                        true, null, null));
-//    }
+    @Test
+    void testGetPassportsByPersonIdAndParamsWithStartDate() {
+        assertThrowsExactly(PersonNotFoundException.class, () ->
+                passportService.getPassportsByPersonIdAndParams(FriendlyId.createFriendlyId(),
+                        true, null, null));
+    }
 
     @Test
     void testGetPassportsByPersonIdAndParamsWithEndDate() {
