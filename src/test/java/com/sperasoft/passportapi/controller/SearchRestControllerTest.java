@@ -90,15 +90,6 @@ public class SearchRestControllerTest {
         } catch (Exception e) {
             log.info("passport was already removed");
         }
-//        try {
-//            List<PassportResponse> list = searchAbstract.findAllPassports(null, startTest, endTest)
-//                    .extract().body().jsonPath().getList("", PassportResponse.class);
-//            if (list.size() > 0)
-//                list.stream().forEach(passport -> passportAbstract.deletePassport(personResponse.getId(), passport.getId()));
-//
-//        } catch (Exception e) {
-//            log.info(" passport was already deleted");
-//        }
     }
 
     /**
