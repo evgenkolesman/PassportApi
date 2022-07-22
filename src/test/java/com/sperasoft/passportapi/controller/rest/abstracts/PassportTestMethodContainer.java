@@ -1,16 +1,9 @@
 package com.sperasoft.passportapi.controller.rest.abstracts;
 
-import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.deser.std.JdkDeserializers;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import com.sperasoft.passportapi.controller.dto.PassportRequest;
 import com.sperasoft.passportapi.controller.dto.PassportRequestTest;
-import com.sperasoft.passportapi.controller.dto.PassportResponse;
 import com.sperasoft.passportapi.model.LostPassportInfo;
 import io.restassured.response.ValidatableResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,8 +14,6 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.io.DataInput;
-import java.io.IOException;
 import java.time.Instant;
 
 import static io.restassured.RestAssured.given;
@@ -94,25 +85,22 @@ public class PassportTestMethodContainer {
                 .all();
     }
 
-    public PassportResponse updatePassport(String personId,
-                                           String passportId,
-                                           PassportRequest passportRequest) throws JsonProcessingException {
+    public ValidatableResponse updatePassport(String personId,
+                                              String passportId,
+                                              PassportRequest passportRequest) throws JsonProcessingException {
         String reqPassport = mapper.writeValueAsString(passportRequest);
         return given()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .body(reqPassport)
-                .when().post(builder
+                .when().put(builder
                         .replacePath(PERSON_URI).path("/")
                         .path(personId)
-                        .path(PASSPORT_URI)
+                        .path(PASSPORT_URI).path("/")
                         .path(passportId)
                         .replaceQuery("").toUriString())
                 .then()
                 .and().log()
-                .all()
-                .extract()
-                .body()
-                .as(PassportResponse.class);
+                .all();
     }
 
     public ValidatableResponse deletePassport(String personId, String passportId) {

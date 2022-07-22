@@ -14,15 +14,14 @@
         <relativePath/>
     </parent>
     <properties>
-        <java.version>15</java.version>
+        <java.version>16</java.version>
         <model.mapper.version>3.1.0</model.mapper.version>
         <springdoc.openapi.version>1.6.8</springdoc.openapi.version>
         <rest-assured.version>5.0.1</rest-assured.version>
         <friendly-id.version>1.1.0</friendly-id.version>
         <guava-version>31.1-jre</guava-version>
         <postgres.version>42.2.10</postgres.version>
-        <maven.compiler.target>15</maven.compiler.target>
-        <version.jackson>2.13.2</version.jackson>
+        <maven.compiler.target>16</maven.compiler.target>
     </properties>
 
     <dependencies>
@@ -66,34 +65,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>io.rest-assured</groupId>
-            <artifactId>spring-mock-mvc</artifactId>
-            <version>${rest-assured.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>${guava-version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-jsr310</artifactId>
-            <version>${version.jackson}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-jdbc</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.flywaydb</groupId>
-            <artifactId>flyway-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <version>${postgres.version}</version>
         </dependency>
     </dependencies>
     <build>

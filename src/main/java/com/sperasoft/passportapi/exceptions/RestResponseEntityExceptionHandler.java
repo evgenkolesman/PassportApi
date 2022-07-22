@@ -16,6 +16,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.Objects;
 
@@ -36,7 +37,8 @@ public class RestResponseEntityExceptionHandler {
             PassportBadStatusException.class,
             PersonNotFoundException.class,
             InvalidPersonDataException.class,
-            HttpMessageNotReadableException.class
+            HttpMessageNotReadableException.class,
+            MethodArgumentTypeMismatchException.class
 
     })
     protected ResponseEntity<ErrorModel> handleConflict(
@@ -45,6 +47,10 @@ public class RestResponseEntityExceptionHandler {
         if (ex instanceof MethodArgumentNotValidException) {
             return new ResponseEntity<>(new ErrorModel(errorId, ((MethodArgumentNotValidException) ex)
                     .getFieldError().getDefaultMessage(), HttpStatus.BAD_REQUEST),
+                    HttpStatus.BAD_REQUEST);
+        } else if (ex instanceof MethodArgumentTypeMismatchException) {
+            String message = environment.getProperty("exception.BadDateFormat");
+            return new ResponseEntity<>(new ErrorModel(errorId, message, HttpStatus.BAD_REQUEST),
                     HttpStatus.BAD_REQUEST);
         } else if (ex instanceof HttpMessageNotReadableException) {
             String message = environment.getProperty("exception.BadDateFormat");

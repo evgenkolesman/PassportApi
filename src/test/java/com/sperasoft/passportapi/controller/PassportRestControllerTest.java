@@ -93,8 +93,8 @@ public class PassportRestControllerTest {
         //TODO need to make universal way to clear test data may be that way
     }
 
-    /** Create Passport tests
-     *
+    /**
+     * Create Passport tests
      */
 
     @Test
@@ -106,6 +106,30 @@ public class PassportRestControllerTest {
         assertEquals(passportResponse.getNumber(), passportRequest.getNumber());
         assertEquals(passportResponse.getDepartmentCode(), passportRequest.getDepartmentCode());
         assertEquals(passportResponse.getGivenDate(), passportRequest.getGivenDate().truncatedTo(ChronoUnit.MICROS));
+    }
+
+    @Test
+    void createPassportWithCorrectDataDoubleTimes() throws JsonProcessingException {
+        passportResponse = passportTestMethodContainer.createPassport(personResponse.getId(),
+                        passportRequest)
+                .assertThat().statusCode(200)
+                .extract().as(PassportResponse.class);
+        var response = passportTestMethodContainer.createPassport(personResponse.getId(),
+                        passportRequest)
+                .assertThat().statusCode(400)
+                .extract().response().print();
+        assertTrue(response.contains(Objects.requireNonNull(env.getProperty("exception.PassportWasAddedException"))));
+    }
+
+    @Test
+    void createPassportWithCorrectDataNotCorrectPerson() throws JsonProcessingException {
+        String friendlyId = FriendlyId.createFriendlyId();
+        var response = passportTestMethodContainer.createPassport(friendlyId,
+                        passportRequest)
+                .assertThat().statusCode(404)
+                .extract().response().print();
+        assertTrue(response.contains(String.format(
+                Objects.requireNonNull(env.getProperty("exception.PersonNotFoundException")), friendlyId)));
     }
 
     @Test
@@ -218,7 +242,7 @@ public class PassportRestControllerTest {
                         "123213323123")
                 .assertThat().statusCode(400).extract().response().print();
         assertTrue(response.contains(PASSPORT_DEPARTMENT_CODE_BAD_SIZE)
-        || response.contains(PASSPORT_DEPARTMENT_CODE_NOT_DIGIT));
+                || response.contains(PASSPORT_DEPARTMENT_CODE_NOT_DIGIT));
     }
 
     @Test
@@ -229,7 +253,7 @@ public class PassportRestControllerTest {
                         "")
                 .assertThat().statusCode(400).extract().response().print();
         assertTrue(response.contains(PASSPORT_DEPARTMENT_CODE_NOT_DIGIT)
-        || response.contains(PASSPORT_DEPARTMENT_CODE_BAD_SIZE) );
+                || response.contains(PASSPORT_DEPARTMENT_CODE_BAD_SIZE));
     }
 
     @Test
@@ -240,7 +264,7 @@ public class PassportRestControllerTest {
                         "%^789")
                 .assertThat().statusCode(400).extract().response().print();
         assertTrue(response.contains(PASSPORT_DEPARTMENT_CODE_NOT_DIGIT)
-                || response.contains(PASSPORT_DEPARTMENT_CODE_BAD_SIZE) );
+                || response.contains(PASSPORT_DEPARTMENT_CODE_BAD_SIZE));
     }
 
     @Test
@@ -253,8 +277,8 @@ public class PassportRestControllerTest {
         assertTrue(response.contains(PASSPORT_DEPARTMENT_CODE_NOT_FILLED));
     }
 
-    /** Update Passport tests
-     *
+    /**
+     * Update Passport tests
      */
 
     @Test
@@ -277,6 +301,24 @@ public class PassportRestControllerTest {
     }
 
     @Test
+    void updatePassportWithCorrectDataNumberBadPersonId() throws JsonProcessingException {
+        var badPersonId = FriendlyId.createFriendlyId();
+        passportResponse = passportTestMethodContainer.createPassport(personResponse.getId(),
+                        passportRequest)
+                .assertThat().statusCode(200)
+                .extract().as(PassportResponse.class);
+
+        var response =
+                passportTestMethodContainer.updatePassport(badPersonId, passportResponse.getId(),
+                                passportRequest)
+                        .assertThat().statusCode(404)
+                        .extract().response().print();
+        assertTrue(response.contains(String.format(
+                Objects.requireNonNull(env.getProperty("exception.PersonNotFoundException")), badPersonId)));
+
+    }
+
+    @Test
     void updatePassportWithNotCorrectDataBadIdPassport() throws JsonProcessingException {
         passportResponse = passportTestMethodContainer.createPassport(personResponse.getId(),
                         passportRequest)
@@ -286,7 +328,7 @@ public class PassportRestControllerTest {
         String friendlyId = FriendlyId.createFriendlyId();
         var response =
                 passportTestMethodContainer.updatePassport(personResponse.getId(),
-                                 friendlyId,
+                                friendlyId,
                                 number,
                                 passportRequest.getGivenDate().toString(),
                                 passportRequest.getDepartmentCode())
@@ -422,8 +464,8 @@ public class PassportRestControllerTest {
     }
 
 
-    /** FindPersonPassport Passport tests
-     *
+    /**
+     * FindPersonPassport Passport tests
      */
 
     @Test
@@ -439,6 +481,23 @@ public class PassportRestControllerTest {
                         .body()
                         .jsonPath()
                         .getList("", PassportResponse.class));
+    }
+
+    @Test
+    void testFindPersonPassportWithoutParamsCorrectBadPersonId() throws JsonProcessingException {
+        passportResponse = passportTestMethodContainer.createPassport(personResponse.getId(),
+                passportRequest).extract().as(PassportResponse.class);
+        String personBadId = FriendlyId.createFriendlyId();
+        var response =
+                passportTestMethodContainer.findPersonPassports(personBadId,
+                                null, null, null)
+                        .assertThat()
+                        .statusCode(404)
+                        .extract()
+                        .response().print();
+        assertTrue(response.contains(
+                String.format(Objects.requireNonNull(env.getProperty("exception.PersonNotFoundException")), personBadId)));
+
     }
 
     @Test
@@ -460,6 +519,27 @@ public class PassportRestControllerTest {
     }
 
     @Test
+    void testFindPersonPassportWithAllParamsCorrectBadPersonId() throws JsonProcessingException {
+        passportResponse = passportTestMethodContainer.createPassport(personResponse.getId(),
+                passportRequest).extract().as(PassportResponse.class);
+        String personBadId = FriendlyId.createFriendlyId();
+        var response =
+                passportTestMethodContainer.findPersonPassports(
+                                personBadId,
+                                true,
+                                ZonedDateTime.now().minusYears(1).toInstant(),
+                                Instant.now())
+                        .assertThat()
+                        .statusCode(404)
+                        .extract()
+                        .response().print();
+        assertTrue(response.contains(
+                String.format(Objects.requireNonNull(env.getProperty("exception.PersonNotFoundException")), personBadId)));
+
+
+    }
+
+    @Test
     void testFindPersonPassportWithActiveTrueCorrect() throws JsonProcessingException {
         passportResponse = passportTestMethodContainer.createPassport(personResponse.getId(),
                 passportRequest).extract().as(PassportResponse.class);
@@ -470,6 +550,21 @@ public class PassportRestControllerTest {
                 .extract().body()
                 .jsonPath().getList("", PassportResponse.class);
         assertEquals(List.of(passportResponse), passportResponseAnswer);
+    }
+
+    @Test
+    void testFindPersonPassportWithActiveTrueCorrectWithBadPersonId() throws JsonProcessingException {
+        passportResponse = passportTestMethodContainer.createPassport(personResponse.getId(),
+                passportRequest).extract().as(PassportResponse.class);
+        String personBadId = FriendlyId.createFriendlyId();
+        var response = passportTestMethodContainer.findPersonPassports(personBadId,
+                        true, null, null)
+                .assertThat()
+                .statusCode(404)
+                .extract().response().print();
+
+        assertTrue(response.contains(String.format(
+                Objects.requireNonNull(env.getProperty("exception.PersonNotFoundException")), personBadId)));
     }
 
     @Test
@@ -496,6 +591,22 @@ public class PassportRestControllerTest {
                 .body().jsonPath().getList("", PassportResponse.class);
 
         assertEquals(List.of(passportResponse), response);
+    }
+
+@Test
+    void testFindPersonPassportsWithDatesCorrectPersonIdNotCorrect() throws JsonProcessingException {
+        passportResponse = passportTestMethodContainer.createPassport(personResponse.getId(), passportRequest)
+                .extract().as(PassportResponse.class);
+    String personBadId = FriendlyId.createFriendlyId();
+    var response = passportTestMethodContainer.findPersonPassports(personBadId,
+                        null,
+                        ZonedDateTime.now().minusYears(1).toInstant(),
+                        Instant.now())
+                .assertThat().statusCode(404)
+                .extract()
+                .response().print();
+
+    assertTrue(response.contains(String.format(env.getProperty("exception.PersonNotFoundException"), personBadId)));
     }
 
     @Test
@@ -598,8 +709,8 @@ public class PassportRestControllerTest {
         assertEquals(new ArrayList<>(), response);
     }
 
-    /** FindPassport Passport tests
-     *
+    /**
+     * FindPassport Passport tests
      */
 
     @Test
@@ -632,8 +743,9 @@ public class PassportRestControllerTest {
         assertTrue(response.contains(Objects.requireNonNull(env.getProperty("exception.PassportBadStatusException"))));
     }
 
-    /** LostPassport Passport tests
-     *
+
+    /**
+     * LostPassport Passport tests
      */
 
     @Test
@@ -646,6 +758,22 @@ public class PassportRestControllerTest {
                 .assertThat().statusCode(200)
                 .extract()
                 .as(Boolean.class));
+    }
+
+    @Test
+    void testLostPassportCorrectWithDescriptionAndBadPersonId() throws JsonProcessingException {
+        passportResponse = passportTestMethodContainer.createPassport(personResponse.getId(), passportRequest)
+                .extract().as(PassportResponse.class);
+        String personBadId = FriendlyId.createFriendlyId();
+        var response = passportTestMethodContainer.lostPassportDeactivate(personBadId,
+                        passportResponse.getId(),
+                        new LostPassportInfo("I lost my passport"))
+                .assertThat().statusCode(404)
+                .extract()
+                .response().print();
+        assertTrue(response.contains(
+                String.format(Objects.requireNonNull(env.getProperty("exception.PersonNotFoundException")), personBadId)));
+
     }
 
     @Test
@@ -686,8 +814,8 @@ public class PassportRestControllerTest {
     }
 
 
-    /** Delete Passport tests
-     *
+    /**
+     * Delete Passport tests
      */
 
     @Test
