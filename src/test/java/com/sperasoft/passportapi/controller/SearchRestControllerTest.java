@@ -23,9 +23,11 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Slf4j
 @SpringBootTest(webEnvironment =
@@ -80,9 +82,16 @@ public class SearchRestControllerTest {
     @AfterEach
     public void testDataClear() {
         personAbstract.deletePerson(personResponse.getId());
-        passportAbstract.deletePassport(personResponse.getId(), passportResponse.getId());
+        try {
+        passportAbstract.deletePassport(personResponse.getId(), passportResponse.getId()); } catch (Exception e) {
+            log.info(" passport was already deleted");
+        }
     }
 
+    /** FindPersonByPassportNumber tests
+     *
+     * @throws Exception
+     */
     @Test
     void testFindPersonByPassportNumberCorrect() throws Exception {
         var number1 = new Number();
@@ -115,6 +124,20 @@ public class SearchRestControllerTest {
                 .response().as(ErrorModel.class);
         assertEquals(env.getProperty("exception.PassportWrongNumberException"), response.getMessage());
     }
+
+    @Test
+    void testFindPersonByPassportNumberNotCorrectNull() throws Exception {
+        var response = searchAbstract.findPersonByPassportNumber(null)
+                .statusCode(400)
+                .extract()
+                .response().as(ErrorModel.class);
+        assertTrue(response.getMessage().contains(Objects.requireNonNull(env.getProperty("exception.BadDateFormat"))));
+    }
+
+    /** FindAllPassports tests
+     *
+     * @throws Exception
+     */
 
     @Test
     void testFindAllPassportsWithOutParams() {
@@ -164,12 +187,38 @@ public class SearchRestControllerTest {
     }
 
     @Test
+    void testFindAllPassportsWithBadStringFormatDatesStartDate() {
+        var number1 = new Number();
+        number1.setNumber(String.valueOf(number));
+        var response = searchAbstract.findAllPassportsWithString(null,
+                        "2022-05-00+09:00",
+                        "2022-07-01T19:00:00+10:00")
+                .statusCode(400)
+                .extract()
+                .response().print();
+        assertTrue(response.contains(Objects.requireNonNull(env.getProperty("exception.BadDateFormat"))));
+    }
+
+    @Test
+    void testFindAllPassportsWithBadStringFormatDatesEndDate() {
+        var number1 = new Number();
+        number1.setNumber(String.valueOf(number));
+        var response = searchAbstract.findAllPassportsWithString(null,
+                        "2022-05-01T19:00:00+09:00",
+                        "________")
+                .statusCode(400)
+                .extract()
+                .response().print();
+        assertTrue(response.contains(Objects.requireNonNull(env.getProperty("exception.BadDateFormat"))));
+    }
+
+    @Test
     void testFindAllPassportsWithActiveAndDates() {
         var number1 = new Number();
         number1.setNumber(String.valueOf(number));
         var response = searchAbstract.findAllPassports(true,
-                        Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2022-05-01T19:00:00+09:00")),
-                        Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2022-07-01T19:00:00+10:00")))
+                        Instant.parse("2022-05-01T19:00:00+09:00"),
+                        Instant.parse("2022-07-01T19:00:00+10:00"))
                 .statusCode(200)
                 .extract()
                 .response().body().jsonPath().getList("", PassportResponse.class);
