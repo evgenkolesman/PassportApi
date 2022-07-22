@@ -93,11 +93,11 @@ public class PassportRestControllerTest {
         personTestMethodContainer.deletePerson(personResponse.getId());
         endTest = Instant.now();
         try {
-            List<PassportResponse> list = searchAbstract.findAllPassports(null, startTest, endTest)
-                    .extract().body().jsonPath().getList("", PassportResponse.class);
-            if (list.size() > 0)
-                list.stream().forEach(passport -> passportTestMethodContainer.deletePassport(personResponse.getId(),
-                        passport.getId()));
+            try {
+                passportTestMethodContainer.deletePassport(personResponse.getId(), passportResponse.getId());
+            } catch (Exception e) {
+                log.info("passport was already removed");
+            }
 
         } catch (Exception e) {
             log.info("All was removed");
