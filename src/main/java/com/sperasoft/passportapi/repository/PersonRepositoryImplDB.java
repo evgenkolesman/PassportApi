@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,9 +29,14 @@ public class PersonRepositoryImplDB implements PersonRepository {
                 this::mapToPerson));
     }
 
+    //TODO add unique field comprehansion
+
     @Override
     public synchronized Person addPerson(Person person) {
-        if (!checkPresentById(person.getId())) {
+        if (!checkPresentById(person.getId()) &&
+                findByParamsWithoutId(person.getName(),
+                        person.getBirthday(),
+                        person.getBirthdayCountry())) {
             jdbcTemplate.update("INSERT INTO passportapi1.public.Person(id, name, birthday, birthdayCountry) " +
                             "values(?, ?, ?, ?);",
                     person.getId(),
@@ -40,7 +46,6 @@ public class PersonRepositoryImplDB implements PersonRepository {
         } else throw new InvalidPersonDataException();
         return person;
     }
-
 
     @Override
     public Person findById(String id) {
@@ -90,5 +95,16 @@ public class PersonRepositoryImplDB implements PersonRepository {
                 resultSet.getDate("birthday").toLocalDate(),
                 resultSet.getString("birthdayCountry")
         );
+    }
+
+    private boolean findByParamsWithoutId(String name, LocalDate birthday, String birthdayCountry) {
+        return jdbcTemplate.query("SELECT*FROM passportapi1.public.Person where name = ? " +
+                        "AND birthday = ? " +
+                        "AND birthdaycountry = ?;",
+                this::mapToPerson,
+                name,
+                birthday,
+                birthdayCountry
+        ).size() == 0;
     }
 }

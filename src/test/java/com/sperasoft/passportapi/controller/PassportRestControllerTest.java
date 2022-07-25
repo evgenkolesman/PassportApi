@@ -621,22 +621,6 @@ public class PassportRestControllerTest {
     }
 
     @Test
-    void testFindPersonPassportsWithDatesCorrectPersonIdNotCorrect() throws JsonProcessingException {
-        passportResponse = passportTestMethodContainer.createPassport(personResponse.getId(), passportRequest)
-                .extract().as(PassportResponse.class);
-        String personBadId = FriendlyId.createFriendlyId();
-        var response = passportTestMethodContainer.findPersonPassports(personBadId,
-                        null,
-                        ZonedDateTime.now().minusYears(1).toInstant(),
-                        Instant.now())
-                .assertThat().statusCode(404)
-                .extract()
-                .response().print();
-
-        assertTrue(response.contains(String.format(env.getProperty("exception.PersonNotFoundException"), personBadId)));
-    }
-
-    @Test
     void testFindPersonPassportsWithDatesNotCorrect() {
         String id = FriendlyId.createFriendlyId();
         var response = passportTestMethodContainer.findPersonPassports(id,

@@ -1,8 +1,7 @@
 package com.sperasoft.passportapi.repository;
 
-import com.sperasoft.passportapi.exceptions.passportexceptions.InvalidPassportDataException;
-import com.sperasoft.passportapi.exceptions.passportexceptions.PassportNotFoundException;
-import com.sperasoft.passportapi.exceptions.passportexceptions.PassportWrongNumberException;
+import com.sperasoft.passportapi.exceptions.passportexceptions.*;
+import com.sperasoft.passportapi.exceptions.personexceptions.PersonNotFoundException;
 import com.sperasoft.passportapi.model.Passport;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,9 +23,15 @@ import java.util.List;
 public class PassportRepositoryImplDB implements PassportRepository {
 
     private final JdbcTemplate jdbcTemplate;
+    private final PersonRepository personRepository;
 
     @Override
     public synchronized Passport addPassport(Passport passport) {
+        if (personRepository.findById(passport.getPersonId()) == null) {
+            throw new PersonNotFoundException(passport.getId());
+        }
+        if (findPassportByNumberBoolean(passport.getNumber()))
+            throw new PassportWasAddedException();
         if (findPassportById(passport.getId()) == null) {
             jdbcTemplate.update(
                     "INSERT INTO passportapi1.public.Passport(id, number, givenDate, departmentCode, active, description, person_id) " +
@@ -44,6 +49,9 @@ public class PassportRepositoryImplDB implements PassportRepository {
 
     @Override
     public synchronized Passport updatePassport(Passport passport) {
+        if (personRepository.findById(passport.getPersonId()) == null) {
+            throw new PersonNotFoundException(passport.getId());
+        }
         if (findPassportById(passport.getId()) != null) {
             jdbcTemplate.update(
                     "UPDATE passportapi1.public.Passport SET number = ?, " +
@@ -82,7 +90,8 @@ public class PassportRepositoryImplDB implements PassportRepository {
         List<Passport> result = jdbcTemplate.query("SELECT*FROM passportapi1.public.Passport WHERE id = ? AND active = ?;",
                 this::mapToPassport,
                 id, active);
-        return result.size() == 0 ? null : result.get(0);
+        if (result.size() == 0) throw new PassportBadStatusException();
+        return result.get(0);
     }
 
 
@@ -94,6 +103,9 @@ public class PassportRepositoryImplDB implements PassportRepository {
 
     @Override
     public List<Passport> getPassportsByParams(String personId, Boolean active, Instant startDate, Instant endDate) {
+        if (personRepository.findById(personId) == null) {
+            throw new PersonNotFoundException(personId);
+        }
         return new ArrayList<>(
                 jdbcTemplate.query
                         ("SELECT*FROM passportapi1.public.Passport WHERE person_id = ? AND active = ? AND givendate BETWEEN ? AND ?;",
@@ -102,6 +114,9 @@ public class PassportRepositoryImplDB implements PassportRepository {
 
     @Override
     public List<Passport> getPassportsByParams(String personId, Instant startDate, Instant endDate) {
+        if (personRepository.findById(personId) == null) {
+            throw new PersonNotFoundException(personId);
+        }
         return new ArrayList<>(
                 jdbcTemplate.query
                         ("SELECT*FROM passportapi1.public.Passport WHERE person_id = ? AND givendate BETWEEN ? AND ?;",
@@ -110,6 +125,9 @@ public class PassportRepositoryImplDB implements PassportRepository {
 
     @Override
     public List<Passport> getPassportsByParams(String personId, Boolean active) {
+        if (personRepository.findById(personId) == null) {
+            throw new PersonNotFoundException(personId);
+        }
         return jdbcTemplate.query("SELECT*FROM passportapi1.public.Passport WHERE person_id = ? AND active = ?;",
                 this::mapToPassport,
                 personId, active);
@@ -117,6 +135,9 @@ public class PassportRepositoryImplDB implements PassportRepository {
 
     @Override
     public List<Passport> getPassportsByParams(String personId) {
+        if (personRepository.findById(personId) == null) {
+            throw new PersonNotFoundException(personId);
+        }
         return jdbcTemplate.query("SELECT*FROM passportapi1.public.Passport WHERE person_id = ?;",
                 this::mapToPassport,
                 personId);
@@ -153,6 +174,13 @@ public class PassportRepositoryImplDB implements PassportRepository {
                         this::mapToPassport, number);
         if (passportList.size() == 0) throw new PassportWrongNumberException();
         return passportList.get(0);
+    }
+
+    private boolean findPassportByNumberBoolean(String passportNumber) {
+        List<Passport> query = jdbcTemplate.query("SELECT*FROM Passport WHERE number= ?",
+                this::mapToPassport,
+                passportNumber);
+        return query.size() != 0;
     }
 
     private Passport mapToPassport(ResultSet resultSet, int i) throws SQLException {

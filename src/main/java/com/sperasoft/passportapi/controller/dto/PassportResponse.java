@@ -26,6 +26,7 @@ public class PassportResponse {
         this.givenDate = passport.getGivenDate();
         this.departmentCode = passport.getDepartmentCode();
     }
+
     public static PassportResponse of(final Passport passport) {
         return new PassportResponse(passport);
     }

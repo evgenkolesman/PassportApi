@@ -6,14 +6,10 @@ import com.sperasoft.passportapi.controller.dto.PersonRequest;
 import com.sperasoft.passportapi.controller.dto.PersonRequestTest;
 import io.restassured.response.ValidatableResponse;
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
-
-import java.time.LocalDate;
-import java.util.LinkedHashMap;
 
 import static io.restassured.RestAssured.given;
 
@@ -86,14 +82,14 @@ public class PersonTestMethodContainer {
         String path = builder.replacePath(PERSON_URI)
                 .path("/")
                 .path(personId).toUriString();
-       return given()
+        return given()
                 .delete(path)
                 .then()
                 .log().all();
     }
 
     public ValidatableResponse findPersonById(String id) {
-         String path = builder.replacePath(PERSON_URI)
+        String path = builder.replacePath(PERSON_URI)
                 .path("/")
                 .path(id).toUriString();
         return given()
@@ -103,4 +99,6 @@ public class PersonTestMethodContainer {
                 .and().log()
                 .all();
     }
+
+
 }
