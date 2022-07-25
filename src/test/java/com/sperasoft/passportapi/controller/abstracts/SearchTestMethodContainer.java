@@ -1,4 +1,4 @@
-package com.sperasoft.passportapi.controller.rest.abstracts;
+package com.sperasoft.passportapi.controller.abstracts;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -59,8 +59,8 @@ public class SearchTestMethodContainer {
 
 
     public ValidatableResponse findAllPassportsWithString(String active,
-                                                String dateStart,
-                                                String dateEnd) {
+                                                          String dateStart,
+                                                          String dateEnd) {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         if (active != null) params.addIfAbsent("active", active);
         if (dateStart != null) params.addIfAbsent("dateStart", dateStart);
