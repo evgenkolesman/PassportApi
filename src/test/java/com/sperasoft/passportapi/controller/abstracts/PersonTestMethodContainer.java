@@ -1,4 +1,4 @@
-package com.sperasoft.passportapi.controller.rest.abstracts;
+package com.sperasoft.passportapi.controller.abstracts;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

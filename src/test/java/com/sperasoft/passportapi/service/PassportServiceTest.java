@@ -3,7 +3,9 @@ package com.sperasoft.passportapi.service;
 import com.devskiller.friendly_id.FriendlyId;
 import com.sperasoft.passportapi.controller.dto.PassportRequest;
 import com.sperasoft.passportapi.controller.dto.PersonRequest;
-import com.sperasoft.passportapi.exceptions.passportexceptions.*;
+import com.sperasoft.passportapi.exceptions.passportexceptions.InvalidPassportDataException;
+import com.sperasoft.passportapi.exceptions.passportexceptions.PassportDeactivatedException;
+import com.sperasoft.passportapi.exceptions.passportexceptions.PassportNotFoundException;
 import com.sperasoft.passportapi.exceptions.personexceptions.PersonNotFoundException;
 import com.sperasoft.passportapi.model.LostPassportInfo;
 import com.sperasoft.passportapi.model.Passport;
@@ -41,8 +43,6 @@ class PassportServiceTest {
     private PersonService personService;
 
     private Person person;
-    private PassportRequest passportRequest;
-    private PersonRequest personRequest;
     private Passport passport;
     private final DateTimeFormatter isoOffsetDateTime = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 
@@ -50,8 +50,8 @@ class PassportServiceTest {
     private void testDataProduce() {
         String string = "2010-02-02";
         LocalDate date = LocalDate.parse(string, DateTimeFormatter.ISO_DATE);
-        passportRequest = new PassportRequest("1223123113", Instant.now(), "123123");
-        personRequest = new PersonRequest("Alex Frolov", date, "UK");
+        PassportRequest passportRequest = new PassportRequest("1223123113", Instant.now(), "123123");
+        PersonRequest personRequest = new PersonRequest("Alex Frolov", date, "UK");
         person = personService.addPerson(new Person(FriendlyId.createFriendlyId(),
                 personRequest.getName(),
                 personRequest.getBirthday(),
@@ -109,7 +109,7 @@ class PassportServiceTest {
 
     @Test
     void testUpdatePassportNotCorrect() {
-        Passport passport = new Passport(FriendlyId.createFriendlyId(), person.getId(),  this.passport.getNumber(),
+        Passport passport = new Passport(FriendlyId.createFriendlyId(), person.getId(), this.passport.getNumber(),
                 this.passport.getGivenDate(), "288");
         assertThrowsExactly(PassportNotFoundException.class,
                 () -> passportService.updatePassport(passport),

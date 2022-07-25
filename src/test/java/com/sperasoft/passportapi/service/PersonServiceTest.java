@@ -96,9 +96,7 @@ public class PersonServiceTest {
 
     @Test
     public void testUpdatePersonNotCorrect() {
-
         String id = FriendlyId.createFriendlyId();
-        PersonRequest personUpdate = new PersonRequest("Alex Frol", LocalDate.now(), "US");
         assertThrowsExactly(PersonNotFoundException.class, () ->
                         personService.updatePerson(new Person(id,
                                 personRequest.getName(),
