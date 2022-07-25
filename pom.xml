@@ -20,6 +20,7 @@
         <friendly-id.version>1.1.0</friendly-id.version>
         <guava-version>31.1-jre</guava-version>
         <postgres.version>42.2.10</postgres.version>
+        <maven-compiler-plugin>3.10.0</maven-compiler-plugin>
         <maven.compiler.target>16</maven.compiler.target>
     </properties>
 
@@ -69,6 +70,11 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven-compiler-plugin}</version>
             </plugin>
         </plugins>
     </build>
