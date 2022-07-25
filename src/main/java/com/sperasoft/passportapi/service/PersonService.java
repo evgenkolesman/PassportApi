@@ -1,5 +1,7 @@
 package com.sperasoft.passportapi.service;
 
+import com.sperasoft.passportapi.exceptions.personexceptions.InvalidPersonDataException;
+import com.sperasoft.passportapi.exceptions.personexceptions.PersonNotFoundException;
 import com.sperasoft.passportapi.model.Person;
 import com.sperasoft.passportapi.repository.PersonRepository;
 import lombok.RequiredArgsConstructor;

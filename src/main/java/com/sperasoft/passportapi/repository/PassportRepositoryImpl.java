@@ -7,7 +7,8 @@ import com.sperasoft.passportapi.exceptions.passportexceptions.PassportWasAddedE
 import com.sperasoft.passportapi.exceptions.passportexceptions.PassportWrongNumberException;
 import com.sperasoft.passportapi.exceptions.personexceptions.PersonNotFoundException;
 import com.sperasoft.passportapi.model.Passport;
-import org.springframework.context.annotation.Primary;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
@@ -18,7 +19,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 @Repository
-@Primary
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
+//@Primary
 public class PassportRepositoryImpl implements PassportRepository {
 
     private static final Map<String, Passport> passportRepo = new ConcurrentHashMap<>();

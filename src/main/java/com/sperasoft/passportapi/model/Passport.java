@@ -32,7 +32,7 @@ public class Passport {
                     @NonNull Instant givenDate,
                     @NonNull String departmentCode) {
         this.id = id;
-        this.personId= personId;
+        this.personId = personId;
         this.number = number;
         this.givenDate = givenDate.truncatedTo(ChronoUnit.MICROS);
         this.departmentCode = departmentCode;
