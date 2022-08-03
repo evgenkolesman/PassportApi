@@ -20,7 +20,6 @@ import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-//@Primary
 public class PassportRepositoryImpl implements PassportRepository {
 
     private static final Map<String, Passport> passportRepo = new ConcurrentHashMap<>();
@@ -33,7 +32,7 @@ public class PassportRepositoryImpl implements PassportRepository {
             throw new PersonNotFoundException(passport.getId());
         }
         if (passportRepo.values().stream().anyMatch(a ->
-            (a.getNumber().equals(passport.getNumber())))) throw new PassportWasAddedException();
+                (a.getNumber().equals(passport.getNumber())))) throw new PassportWasAddedException();
         passportRepo.put(passport.getId(), passport);
         return passport;
     }
