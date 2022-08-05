@@ -29,12 +29,6 @@ import java.util.concurrent.ThreadLocalRandom;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-//@Slf4j
-//@SpringBootTest(webEnvironment =
-//        SpringBootTest.WebEnvironment.RANDOM_PORT)
-//@ContextConfiguration(initializers = {
-//        TestContainersInitializer.Initializer.class
-//})
 public class PassportCreateTest extends TestAbstractIntegration {
 
     private static final String PASSPORT_NUMBER_NOT_FILLED = "Passport number field should be filled";
@@ -114,11 +108,6 @@ public class PassportCreateTest extends TestAbstractIntegration {
 
     @Test
     void createPassportWithCorrectDataDoubleTimes() throws JsonProcessingException {
-//        try (
-//                PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(PostgreSQLTestImages.POSTGRES_TEST_IMAGE)
-//                        .withInitScript("somepath/init_postgresql.sql")
-//        ) {
-//            postgres.start();
         passportResponse = passportTestMethodContainer.createPassport(personResponse.getId(),
                         passportRequest)
                 .assertThat().statusCode(200)

@@ -34,7 +34,7 @@ public class PassportRepositoryImplDB implements PassportRepository {
             throw new PassportWasAddedException();
         if (findPassportById(passport.getId()) == null) {
             jdbcTemplate.update(
-                    "INSERT INTO passportapi1.public.Passport(id, number, givenDate, departmentCode, active, description, person_id) " +
+                    "INSERT INTO Passport(id, number, givenDate, departmentCode, active, description, person_id) " +
                             "values(?, ?, ?, ?, ?, ?, ?);",
                     passport.getId(),
                     passport.getNumber(),
@@ -54,7 +54,7 @@ public class PassportRepositoryImplDB implements PassportRepository {
         }
         if (findPassportById(passport.getId()) != null) {
             jdbcTemplate.update(
-                    "UPDATE passportapi1.public.Passport SET number = ?, " +
+                    "UPDATE Passport SET number = ?, " +
                             "givenDate = ? , departmentCode = ?, active = ?, description = ?, person_id = ? WHERE id = ? ",
                     passport.getNumber(),
                     Timestamp.from(passport.getGivenDate()),
@@ -71,7 +71,7 @@ public class PassportRepositoryImplDB implements PassportRepository {
     public synchronized Passport deletePassport(String id) {
         Passport passport = findPassportById(id);
         if (passport != null) {
-            jdbcTemplate.update("DELETE FROM passportapi1.public.Passport WHERE id = ?;",
+            jdbcTemplate.update("DELETE FROM Passport WHERE id = ?;",
                     id);
         } else throw new PassportNotFoundException(id);
         return passport;
@@ -79,7 +79,7 @@ public class PassportRepositoryImplDB implements PassportRepository {
 
     @Override
     public Passport findPassportById(String id) {
-        List<Passport> result = jdbcTemplate.query("SELECT*FROM passportapi1.public.Passport WHERE id = ?;",
+        List<Passport> result = jdbcTemplate.query("SELECT*FROM Passport WHERE id = ?;",
                 this::mapToPassport,
                 id);
         return result.size() == 0 ? null : result.get(0);
@@ -87,7 +87,7 @@ public class PassportRepositoryImplDB implements PassportRepository {
 
     @Override
     public Passport findPassportById(String id, boolean active) {
-        List<Passport> result = jdbcTemplate.query("SELECT*FROM passportapi1.public.Passport WHERE id = ? AND active = ?;",
+        List<Passport> result = jdbcTemplate.query("SELECT*FROM Passport WHERE id = ? AND active = ?;",
                 this::mapToPassport,
                 id, active);
         if (result.size() == 0) throw new PassportBadStatusException();
@@ -97,7 +97,7 @@ public class PassportRepositoryImplDB implements PassportRepository {
 
     @Override
     public ArrayList<Passport> getPassportsByParams() {
-        return new ArrayList<>(jdbcTemplate.query("SELECT*FROM passportapi1.public.Passport;",
+        return new ArrayList<>(jdbcTemplate.query("SELECT*FROM Passport;",
                 this::mapToPassport));
     }
 
@@ -108,7 +108,7 @@ public class PassportRepositoryImplDB implements PassportRepository {
         }
         return new ArrayList<>(
                 jdbcTemplate.query
-                        ("SELECT*FROM passportapi1.public.Passport WHERE person_id = ? AND active = ? AND givendate BETWEEN ? AND ?;",
+                        ("SELECT*FROM Passport WHERE person_id = ? AND active = ? AND givendate BETWEEN ? AND ?;",
                                 this::mapToPassport, personId, active, Date.from(startDate), Date.from(endDate)));
     }
 
@@ -119,7 +119,7 @@ public class PassportRepositoryImplDB implements PassportRepository {
         }
         return new ArrayList<>(
                 jdbcTemplate.query
-                        ("SELECT*FROM passportapi1.public.Passport WHERE person_id = ? AND givendate BETWEEN ? AND ?;",
+                        ("SELECT*FROM Passport WHERE person_id = ? AND givendate BETWEEN ? AND ?;",
                                 this::mapToPassport, personId, Date.from(startDate), Date.from(endDate)));
     }
 
@@ -128,7 +128,7 @@ public class PassportRepositoryImplDB implements PassportRepository {
         if (personRepository.findById(personId) == null) {
             throw new PersonNotFoundException(personId);
         }
-        return jdbcTemplate.query("SELECT*FROM passportapi1.public.Passport WHERE person_id = ? AND active = ?;",
+        return jdbcTemplate.query("SELECT*FROM Passport WHERE person_id = ? AND active = ?;",
                 this::mapToPassport,
                 personId, active);
     }
@@ -138,7 +138,7 @@ public class PassportRepositoryImplDB implements PassportRepository {
         if (personRepository.findById(personId) == null) {
             throw new PersonNotFoundException(personId);
         }
-        return jdbcTemplate.query("SELECT*FROM passportapi1.public.Passport WHERE person_id = ?;",
+        return jdbcTemplate.query("SELECT*FROM Passport WHERE person_id = ?;",
                 this::mapToPassport,
                 personId);
     }
@@ -163,14 +163,14 @@ public class PassportRepositoryImplDB implements PassportRepository {
     public List<Passport> getPassportsByParams(Boolean active) {
         return new ArrayList<>(
                 jdbcTemplate.query
-                        ("SELECT*FROM passportapi1.public.Passport WHERE active = ?;",
+                        ("SELECT*FROM Passport WHERE active = ?;",
                                 this::mapToPassport, active));
     }
 
     @Override
     public Passport getPassportByNumber(String number) {
         List<Passport> passportList = jdbcTemplate.query
-                ("SELECT*FROM passportapi1.public.Passport WHERE number = ?;",
+                ("SELECT*FROM Passport WHERE number = ?;",
                         this::mapToPassport, number);
         if (passportList.size() == 0) throw new PassportWrongNumberException();
         return passportList.get(0);

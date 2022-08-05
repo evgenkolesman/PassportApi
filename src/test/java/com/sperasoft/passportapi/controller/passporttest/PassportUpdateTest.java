@@ -28,7 +28,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class PassportUpdateTest extends TestAbstractIntegration {
 
-
     private static final String PASSPORT_NUMBER_NOT_FILLED = "Passport number field should be filled";
     private static final String PASSPORT_NUMBER_BAD_LENGTH = "Invalid data: Passport number should be 10 symbols length";
     private static final String PASSPORT_GIVEN_DATE_EMPTY = "Given Date field shouldn`t be empty";

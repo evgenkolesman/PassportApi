@@ -31,14 +31,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class PersonCreateTests extends TestAbstractIntegration {
 
-
     public static final String INVALID_DATA_NAME_SIZE = "Invalid data: Name must be minimum 2 characters long";
     public static final String INVALID_DATA_BIRTHDAY_COUNTRY_ISO_CODE =
             "Invalid data: Birthday country should be formatted like ISO CODE (2 characters)";
     public static final String INVALID_DATA_GIVEN_DATE_EMPTY = "Invalid data: Given Date field shouldn`t be empty";
     public static final String INVALID_DATA_BIRTHDAY_NOT_FILLED = "Invalid data: BirthdayCountry field should be filled";
     public static final String INVALID_DATA_NAME_NOT_FILLED = "Invalid data: Name field should be filled";
-
 
     @Autowired
     private Environment env;
