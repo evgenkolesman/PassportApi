@@ -26,5 +26,5 @@ jobs:
           cache: maven
       #    - name: Build db
       #      run: compose up --debug=1
-      - name: Build with Maven
-        run: mvn -B package --file pom.xml
+#      - name: Build with Maven
+#        run: mvn -B package --file pom.xml

@@ -9,8 +9,7 @@ services:
       - postgres
     ports:
       - "8080:8080"
-    #      - "54333:54333"
-  #    restart:
+  #    restart: always
   postgres:
     image: postgres:14.3-alpine
     container_name: postgresdb
@@ -39,5 +38,3 @@ services:
         limits:
           cpus: '1'
           memory: 1G
-
-
