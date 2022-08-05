@@ -1,6 +1,7 @@
 package com.sperasoft.passportapi.service;
 
 import com.devskiller.friendly_id.FriendlyId;
+import com.sperasoft.passportapi.controller.abstracts.TestAbstractIntegration;
 import com.sperasoft.passportapi.controller.dto.PassportRequest;
 import com.sperasoft.passportapi.controller.dto.PersonRequest;
 import com.sperasoft.passportapi.exceptions.passportexceptions.InvalidPassportDataException;
@@ -13,10 +14,8 @@ import com.sperasoft.passportapi.repository.PersonRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -28,10 +27,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 
-@Disabled
 @Slf4j
-@SpringBootTest
-public class SearchServiceTest {
+public class SearchServiceTest extends TestAbstractIntegration {
 
     @Autowired
     private PersonRepository personRepository;

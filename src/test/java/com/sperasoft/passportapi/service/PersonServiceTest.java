@@ -1,6 +1,7 @@
 package com.sperasoft.passportapi.service;
 
 import com.devskiller.friendly_id.FriendlyId;
+import com.sperasoft.passportapi.controller.abstracts.TestAbstractIntegration;
 import com.sperasoft.passportapi.controller.dto.PersonRequest;
 import com.sperasoft.passportapi.exceptions.personexceptions.InvalidPersonDataException;
 import com.sperasoft.passportapi.exceptions.personexceptions.PersonNotFoundException;
@@ -8,10 +9,8 @@ import com.sperasoft.passportapi.model.Person;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -19,10 +18,8 @@ import java.time.format.DateTimeFormatter;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
-@Disabled
 @Slf4j
-@SpringBootTest
-public class PersonServiceTest {
+public class PersonServiceTest extends TestAbstractIntegration {
 
     @Autowired
     private PersonService personService;
