@@ -2,7 +2,6 @@ package com.sperasoft.passportapi.controller.passporttest;
 
 import com.devskiller.friendly_id.FriendlyId;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.sperasoft.passportapi.TestContainersInitializer;
 import com.sperasoft.passportapi.controller.abstracts.PassportTestMethodContainer;
 import com.sperasoft.passportapi.controller.abstracts.PersonTestMethodContainer;
 import com.sperasoft.passportapi.controller.abstracts.TestAbstractIntegration;
@@ -13,7 +12,6 @@ import com.sperasoft.passportapi.controller.dto.PersonResponse;
 import com.sperasoft.passportapi.repository.PassportRepository;
 import io.restassured.RestAssured;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,10 +36,6 @@ public class PassportCreateTest extends TestAbstractIntegration {
     private static final String PASSPORT_DEPARTMENT_CODE_NOT_DIGIT = "Invalid data: Invalid department code";
     private static final String PASSPORT_DEPARTMENT_CODE_BAD_SIZE = "Invalid data: department code size should be 6 digits";
 
-    @BeforeAll
-    static void init() {
-        TestContainersInitializer.container.start();
-    }
 
     @Autowired
     private Environment env;
