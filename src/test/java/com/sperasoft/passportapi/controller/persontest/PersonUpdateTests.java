@@ -2,6 +2,7 @@ package com.sperasoft.passportapi.controller.persontest;
 
 import com.devskiller.friendly_id.FriendlyId;
 import com.sperasoft.passportapi.controller.abstracts.PersonTestMethodContainer;
+import com.sperasoft.passportapi.controller.abstracts.TestAbstractIntegration;
 import com.sperasoft.passportapi.controller.dto.PersonRequest;
 import com.sperasoft.passportapi.controller.dto.PersonRequestTest;
 import com.sperasoft.passportapi.controller.dto.PersonResponse;
@@ -31,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @Slf4j
 @SpringBootTest(webEnvironment =
         SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class PersonUpdateTests {
+public class PersonUpdateTests extends TestAbstractIntegration {
 
     public static final String INVALID_DATA_NAME_SIZE = "Invalid data: Name must be minimum 2 characters long";
     public static final String INVALID_DATA_BIRTHDAY_COUNTRY_ISO_CODE =

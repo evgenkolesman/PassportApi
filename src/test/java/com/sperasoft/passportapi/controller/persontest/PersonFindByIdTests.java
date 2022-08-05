@@ -2,6 +2,7 @@ package com.sperasoft.passportapi.controller.persontest;
 
 import com.devskiller.friendly_id.FriendlyId;
 import com.sperasoft.passportapi.controller.abstracts.PersonTestMethodContainer;
+import com.sperasoft.passportapi.controller.abstracts.TestAbstractIntegration;
 import com.sperasoft.passportapi.controller.dto.PersonRequest;
 import com.sperasoft.passportapi.controller.dto.PersonResponse;
 import com.sperasoft.passportapi.model.ErrorModel;
@@ -29,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @Slf4j
 @SpringBootTest(webEnvironment =
         SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class PersonFindByIdTests {
+public class PersonFindByIdTests extends TestAbstractIntegration {
 
     @Autowired
     private Environment env;

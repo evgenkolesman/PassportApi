@@ -14,6 +14,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 import static io.restassured.RestAssured.given;
 
 @Component
+//@SpringBootTest
+
 public class PersonTestMethodContainer {
 
     @Autowired

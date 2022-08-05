@@ -25,7 +25,7 @@ public class PersonRepositoryImplDB implements PersonRepository {
 
     @Override
     public ArrayList<Person> findAll() {
-        return new ArrayList<>(jdbcTemplate.query("SELECT*FROM passportapi1.public.Person;",
+        return new ArrayList<>(jdbcTemplate.query("SELECT*FROM Person;",
                 this::mapToPerson));
     }
 
@@ -37,7 +37,7 @@ public class PersonRepositoryImplDB implements PersonRepository {
                 findByParamsWithoutId(person.getName(),
                         person.getBirthday(),
                         person.getBirthdayCountry())) {
-            jdbcTemplate.update("INSERT INTO passportapi1.public.Person(id, name, birthday, birthdayCountry) " +
+            jdbcTemplate.update("INSERT INTO Person(id, name, birthday, birthdayCountry) " +
                             "values(?, ?, ?, ?);",
                     person.getId(),
                     person.getName(),
@@ -49,7 +49,7 @@ public class PersonRepositoryImplDB implements PersonRepository {
 
     @Override
     public Person findById(String id) {
-        List<Person> result = jdbcTemplate.query("SELECT*FROM passportapi1.public.Person WHERE id = ?;",
+        List<Person> result = jdbcTemplate.query("SELECT*FROM Person WHERE id = ?;",
                 this::mapToPerson,
                 id);
         if (result.size() == 0) throw new PersonNotFoundException(id);
@@ -60,7 +60,7 @@ public class PersonRepositoryImplDB implements PersonRepository {
     public synchronized Person updatePerson(Person person) {
         if (checkPresentById(person.getId())) {
             jdbcTemplate.update(
-                    "UPDATE passportapi1.public.Person SET name = ?, birthday = ?, birthdayCountry = ? where id =?;",
+                    "UPDATE Person SET name = ?, birthday = ?, birthdayCountry = ? where id =?;",
                     person.getName(),
                     person.getBirthday(),
                     person.getBirthdayCountry(),
@@ -75,14 +75,14 @@ public class PersonRepositoryImplDB implements PersonRepository {
         Person person;
         if (checkPresentById(id)) {
             person = findById(id);
-            jdbcTemplate.update("DELETE FROM passportapi1.public.Person CASCADE WHERE id = ?;",
+            jdbcTemplate.update("DELETE FROM Person CASCADE WHERE id = ?;",
                     id);
         } else throw new PersonNotFoundException(id);
         return person;
     }
 
     private boolean checkPresentById(String id) {
-        List<Person> result = jdbcTemplate.query("SELECT*FROM passportapi1.public.Person WHERE id = ?;",
+        List<Person> result = jdbcTemplate.query("SELECT*FROM Person WHERE id = ?;",
                 this::mapToPerson,
                 id);
         return result.size() != 0;
@@ -98,7 +98,7 @@ public class PersonRepositoryImplDB implements PersonRepository {
     }
 
     private boolean findByParamsWithoutId(String name, LocalDate birthday, String birthdayCountry) {
-        return jdbcTemplate.query("SELECT*FROM passportapi1.public.Person where name = ? " +
+        return jdbcTemplate.query("SELECT*FROM Person where name = ? " +
                         "AND birthday = ? " +
                         "AND birthdaycountry = ?;",
                 this::mapToPerson,
