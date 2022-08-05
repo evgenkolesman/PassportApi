@@ -5,7 +5,7 @@ RUN mvn -f /home/app/pom.xml clean package -DskipTests
 
 
 FROM openjdk:17-jdk-slim
-ARG JAR_FILE=target/*.jar
+ARG JAR_FILE=target/PassportApi-0.0.1-SNAPSHOT.jar
 COPY ${JAR_FILE} app.jar
 EXPOSE 8080
 #VOLUME /home/euhenios/Загрузки/IdeaProjects/PassportApi/docker
