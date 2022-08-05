@@ -9,7 +9,8 @@ services:
       - postgres
     ports:
       - "8080:8080"
-    restart: always
+    #      - "54333:54333"
+  #    restart:
   postgres:
     image: postgres:14.3-alpine
     container_name: postgresdb
@@ -26,5 +27,17 @@ services:
     #    #          - "./Загрузки/IdeaProjects/PassportApi/src/main/resources/sch
     #    - "./docs/sql/mysql-files.d:/var/lib/mysql-files"
     #    - "./scp-persistence/src/main/resources/db/migration:/var/lib/mysql-files/migration"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d passportapi1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
 
 
