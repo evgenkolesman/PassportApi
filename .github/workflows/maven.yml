@@ -5,7 +5,7 @@ name: Java CI with Maven
 
 on:
   push:
-    branches: [ "for_Docker_DB" ]
+    branches: [ "For_Test_Container_Practicing" ]
 
 jobs:
   build:
@@ -27,4 +27,4 @@ jobs:
       #    - name: Build db
       #      run: compose up --debug=1
       - name: Build with Maven
-        run: mvn -B package -DskipTests --file pom.xml
+        run: mvn -B package --file pom.xml

@@ -13,6 +13,7 @@ import com.sperasoft.passportapi.repository.PersonRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -27,6 +28,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 
+@Disabled
 @Slf4j
 @SpringBootTest
 public class SearchServiceTest {
@@ -50,7 +52,7 @@ public class SearchServiceTest {
     private void testDataProduce() {
         String string = "2010-02-02";
         LocalDate date = LocalDate.parse(string, DateTimeFormatter.ISO_DATE);
-        PassportRequest passportRequest = new PassportRequest("1223123113",Instant.now(),"123123");
+        PassportRequest passportRequest = new PassportRequest("1223123113", Instant.now(), "123123");
         PersonRequest personRequest = new PersonRequest("Alex Frolov", date, "UK");
         person = personService.addPerson(new Person(FriendlyId.createFriendlyId(),
                 personRequest.getName(),
