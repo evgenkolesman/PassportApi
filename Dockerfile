@@ -1,11 +1,11 @@
 FROM maven:3.8-openjdk-17-slim AS build
 COPY src /home/app/src
 COPY pom.xml /home/app
-RUN mvn -f /home/app/pom.xml clean package -DskipTests
+RUN mvn -f /home/app/pom.xml clean install -DskipTests
 
 
 FROM openjdk:17-jdk-slim
-ARG JAR_FILE=target/PassportApi-0.0.1-SNAPSHOT.jar
+ARG JAR_FILE=target/*.jar
 COPY ${JAR_FILE} app.jar
 EXPOSE 8080
 #VOLUME /home/euhenios/Загрузки/IdeaProjects/PassportApi/docker
