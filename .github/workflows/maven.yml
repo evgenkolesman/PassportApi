@@ -20,13 +20,13 @@ jobs:
           distribution: 'temurin'
       - uses: actions/checkout@v2
       - name: Build with Maven
-        run: mvn -B package -DskipTests --file pom.xml
+        run: mvn -B package --file pom.xml
       - uses: actions/checkout@v3
-      - name: run docker-compose
-        uses: sudo-bot/action-docker-compose@latest
-        with:
-          # https://docs.docker.com/compose/reference/overview/
-          cli-args: "up -d"
+      #      - name: run docker-compose
+      #        uses: sudo-bot/action-docker-compose@latest
+      #        with:
+      #          # https://docs.docker.com/compose/reference/overview/
+      #          cli-args: "up -d"
       #          cache: maven
       #    - name: Build db
       #      run: compose up --debug=1
