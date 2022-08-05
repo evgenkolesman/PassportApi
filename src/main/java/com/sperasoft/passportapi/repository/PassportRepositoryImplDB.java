@@ -147,7 +147,7 @@ public class PassportRepositoryImplDB implements PassportRepository {
     public List<Passport> getPassportsByParams(Boolean active, Instant startDate, Instant endDate) {
         return new ArrayList<>(
                 jdbcTemplate.query
-                        ("SELECT*FROM passportapi1.public.Passport WHERE active = ? AND givendate BETWEEN ? AND ?;",
+                        ("SELECT*FROM Passport WHERE active = ? AND givendate BETWEEN ? AND ?;",
                                 this::mapToPassport, active, Date.from(startDate), Date.from(endDate)));
     }
 
@@ -155,7 +155,7 @@ public class PassportRepositoryImplDB implements PassportRepository {
     public List<Passport> getPassportsByParams(Instant startDate, Instant endDate) {
         return new ArrayList<>(
                 jdbcTemplate.query
-                        ("SELECT*FROM passportapi1.public.Passport WHERE givendate BETWEEN ? AND ?;",
+                        ("SELECT*FROM Passport WHERE givendate BETWEEN ? AND ?;",
                                 this::mapToPassport, Timestamp.from(startDate), Timestamp.from(endDate)));
     }
 

@@ -17,7 +17,6 @@ import java.util.List;
 
 @Repository
 @RequiredArgsConstructor(onConstructor_ = {@Autowired})
-//@Profile(value = "dev")
 @Primary
 public class PersonRepositoryImplDB implements PersonRepository {
 
