@@ -25,8 +25,3 @@ jobs:
         with:
           # https://docs.docker.com/compose/reference/overview/
           cli-args: "up -d"
-      - name: Test with Maven
-        run: mvn -B test  --file pom.xml
-      #          cache: maven
-      #    - name: Build db
-      #      run: compose up --debug=1
