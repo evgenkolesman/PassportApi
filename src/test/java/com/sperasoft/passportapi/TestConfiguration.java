@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @Configuration
-public class ConfigurationTest {
+public class TestConfiguration {
     private static final String HTTP_LOCALHOST = "http://localhost";
 
     @Bean
