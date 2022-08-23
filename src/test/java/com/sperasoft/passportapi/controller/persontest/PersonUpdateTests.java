@@ -70,11 +70,6 @@ public class PersonUpdateTests extends TestAbstractIntegration {
             allPersons.forEach(per -> personRepository.deletePerson(per.getId()));
     }
 
-
-    /**
-     * Update Person tests
-     */
-
     @Test
     void testUpdatePersonByIdCorrectName() throws Exception {
         PersonRequestTest personRequest1 = new PersonRequestTest("Egor",

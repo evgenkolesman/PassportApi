@@ -8,8 +8,5 @@ import org.springframework.test.context.ActiveProfiles;
 @Slf4j
 @SpringBootTest(webEnvironment =
         SpringBootTest.WebEnvironment.RANDOM_PORT)
-//@ContextConfiguration(initializers = {
-//        TestContainersInitializer.Initializer.class
-//})
 public class TestAbstractIntegration {
 }

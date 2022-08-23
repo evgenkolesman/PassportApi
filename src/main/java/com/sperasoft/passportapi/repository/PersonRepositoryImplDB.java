@@ -28,8 +28,6 @@ public class PersonRepositoryImplDB implements PersonRepository {
                 this::mapToPerson));
     }
 
-    //TODO add unique field comprehansion
-
     @Override
     public synchronized Person addPerson(Person person) {
         if (!checkPresentById(person.getId()) &&
