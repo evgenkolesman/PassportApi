@@ -1,6 +1,5 @@
 package com.sperasoft.passportapi.controller.persontest;
 
-import com.devskiller.friendly_id.FriendlyId;
 import com.sperasoft.passportapi.controller.abstracts.PersonTestMethodContainer;
 import com.sperasoft.passportapi.controller.abstracts.TestAbstractIntegration;
 import com.sperasoft.passportapi.controller.dto.PersonRequest;
@@ -25,7 +24,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class PersonFindByIdTests extends TestAbstractIntegration {
+public class PersonDeleteTest extends TestAbstractIntegration {
 
     @Autowired
     private Environment env;
@@ -41,8 +40,9 @@ public class PersonFindByIdTests extends TestAbstractIntegration {
 
     @Autowired
     PersonRepository personRepository;
-
     private PersonRequest personRequest;
+
+    private PersonResponse personResponse;
 
     @BeforeEach
     void testDataProduce() {
@@ -62,54 +62,31 @@ public class PersonFindByIdTests extends TestAbstractIntegration {
     }
 
     @Test
-    void testFindPersonById() {
-        PersonResponse personResponse = personTestMethodContainer.createPerson(personRequest)
-                .extract().as(PersonResponse.class);
-        var response = personTestMethodContainer.findPersonById(personResponse.getId())
-                .assertThat().statusCode(200)
-                .and().log()
-                .all()
-                .extract().response()
-                .body().as(PersonResponse.class);
-        assertEquals(response, personResponse);
+    void deletePersonCorrect() {
+        personResponse = personTestMethodContainer.createPerson(personRequest)
+                .assertThat().statusCode(200).extract().as(PersonResponse.class);
+        personTestMethodContainer.deletePerson(personResponse.getId()).assertThat().statusCode(204);
+    }
+
+
+    @Test
+    void deletePersonNullIdNotCorrect() {
+        personTestMethodContainer.deletePerson(null).assertThat().statusCode(405);
     }
 
     @Test
-    void testFindPersonByIdRandomNotCorrect() {
-        String id = FriendlyId.createFriendlyId();
-        personTestMethodContainer.createPerson(personRequest)
-                .extract().as(PersonResponse.class);
-        var response = personTestMethodContainer.findPersonById(id)
-                .assertThat().statusCode(404)
-                .and().log()
-                .all()
-                .extract().response()
+    void deletePersonNotCorrectNoPerson() {
+        var personResponse = personTestMethodContainer.createPerson(personRequest)
+                .assertThat().statusCode(200).extract().as(PersonResponse.class);
+        String id = personResponse.getId();
+        personTestMethodContainer.deletePerson(id).assertThat().statusCode(204);
+        var errorMessage = personTestMethodContainer.deletePerson(id).assertThat()
+                .statusCode(404).assertThat()
+                .extract()
+                .response()
                 .body().as(ErrorModel.class);
-        assertEquals(String.format(Objects.requireNonNull(env.getProperty("exception.PersonNotFoundException")), id),
-                response.getMessage());
-
+        assertEquals(String.format(Objects.requireNonNull(env.getProperty("exception.PersonNotFoundException")),
+                        id),
+                errorMessage.getMessage());
     }
-
-    @Test
-    void testFindPersonByIdNullNotCorrect() {
-        personTestMethodContainer.createPerson(personRequest)
-                .extract().as(PersonResponse.class);
-        personTestMethodContainer.findPersonById(null)
-                .assertThat().statusCode(405);
-
-    }
-
-    @Test
-    void testFindPersonByIdEmptyNotCorrect() {
-        personTestMethodContainer.createPerson(personRequest)
-                .extract().as(PersonResponse.class);
-        personTestMethodContainer.findPersonById("")
-                .assertThat().statusCode(405)
-                .and().log()
-                .all()
-                .extract().response()
-                .print();
-
-    }
-
 }

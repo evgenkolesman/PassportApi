@@ -4,7 +4,7 @@ import com.devskiller.friendly_id.FriendlyId;
 import com.sperasoft.passportapi.controller.abstracts.PersonTestMethodContainer;
 import com.sperasoft.passportapi.controller.abstracts.TestAbstractIntegration;
 import com.sperasoft.passportapi.controller.dto.PersonRequest;
-import com.sperasoft.passportapi.controller.dto.PersonRequestTest;
+import com.sperasoft.passportapi.controller.dto.PersonRequestTestModel;
 import com.sperasoft.passportapi.controller.dto.PersonResponse;
 import com.sperasoft.passportapi.model.ErrorModel;
 import com.sperasoft.passportapi.model.Person;
@@ -27,7 +27,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class PersonUpdateTests extends TestAbstractIntegration {
+public class PersonUpdateTest extends TestAbstractIntegration {
 
     public static final String INVALID_DATA_NAME_SIZE = "Invalid data: Name must be minimum 2 characters long";
     public static final String INVALID_DATA_BIRTHDAY_COUNTRY_ISO_CODE =
@@ -72,7 +72,7 @@ public class PersonUpdateTests extends TestAbstractIntegration {
 
     @Test
     void testUpdatePersonByIdCorrectName() throws Exception {
-        PersonRequestTest personRequest1 = new PersonRequestTest("Egor",
+        PersonRequestTestModel personRequest1 = new PersonRequestTestModel("Egor",
                 personRequest.getBirthday().toString(),
                 personRequest.getBirthdayCountry());
         PersonResponse personResponseForTest =
@@ -91,7 +91,7 @@ public class PersonUpdateTests extends TestAbstractIntegration {
                         .extract()
                         .as(PersonResponse.class);
         var response = personTestMethodContainer.updatePerson(personResponseForTest.getId(),
-                        new PersonRequestTest("#",
+                        new PersonRequestTestModel("#",
                                 "2000-10-11",
                                 "CH"))
                 .assertThat().statusCode(400)
@@ -108,7 +108,7 @@ public class PersonUpdateTests extends TestAbstractIntegration {
                         .extract()
                         .as(PersonResponse.class);
         var response = personTestMethodContainer.updatePerson(personResponseForTest.getId(),
-                        new PersonRequestTest("",
+                        new PersonRequestTestModel("",
                                 "2000-10-11",
                                 "CH"))
                 .assertThat().statusCode(400)
@@ -125,7 +125,7 @@ public class PersonUpdateTests extends TestAbstractIntegration {
                         .extract()
                         .as(PersonResponse.class);
         var response = personTestMethodContainer.updatePerson(personResponseForTest.getId(),
-                        new PersonRequestTest("Alex Alex",
+                        new PersonRequestTestModel("Alex Alex",
                                 "2000-1011",
                                 "CH"))
                 .assertThat().statusCode(400)
@@ -142,7 +142,7 @@ public class PersonUpdateTests extends TestAbstractIntegration {
                         .extract()
                         .as(PersonResponse.class);
         var response = personTestMethodContainer.updatePerson(personResponseForTest.getId(),
-                        new PersonRequestTest("Alex Alex",
+                        new PersonRequestTestModel("Alex Alex",
                                 null,
                                 "CH"))
                 .assertThat().statusCode(400)
@@ -159,7 +159,7 @@ public class PersonUpdateTests extends TestAbstractIntegration {
                         .extract()
                         .as(PersonResponse.class);
         var response = personTestMethodContainer.updatePerson(personResponseForTest.getId(),
-                        new PersonRequestTest("Alex Alex",
+                        new PersonRequestTestModel("Alex Alex",
                                 "2000-10-11",
                                 ""))
                 .assertThat().statusCode(400)
@@ -176,7 +176,7 @@ public class PersonUpdateTests extends TestAbstractIntegration {
                         .extract()
                         .as(PersonResponse.class);
         var response = personTestMethodContainer.updatePerson(personResponse.getId(),
-                        new PersonRequestTest("Alex Alex",
+                        new PersonRequestTestModel("Alex Alex",
                                 "2000-10-11",
                                 "4"))
                 .assertThat().statusCode(400)
@@ -194,7 +194,7 @@ public class PersonUpdateTests extends TestAbstractIntegration {
                         .extract()
                         .as(PersonResponse.class);
         var response = personTestMethodContainer.updatePerson(personResponse.getId(),
-                        new PersonRequestTest("Alex Alex",
+                        new PersonRequestTestModel("Alex Alex",
                                 "2000-10-11",
                                 "DSD"))
                 .assertThat().statusCode(400)
@@ -212,7 +212,7 @@ public class PersonUpdateTests extends TestAbstractIntegration {
                         .extract()
                         .as(PersonResponse.class);
         var response = personTestMethodContainer.updatePerson(personResponse.getId(),
-                        new PersonRequestTest("Alex Alex",
+                        new PersonRequestTestModel("Alex Alex",
                                 "2000-10-11",
                                 null))
                 .assertThat().statusCode(400)
@@ -228,7 +228,7 @@ public class PersonUpdateTests extends TestAbstractIntegration {
                         .extract()
                         .as(PersonResponse.class);
         var errorMessage = personTestMethodContainer.updatePerson(personResponse.getId(),
-                        new PersonRequestTest("Alex Alex",
+                        new PersonRequestTestModel("Alex Alex",
                                 "2000-10-11",
                                 ""))
                 .assertThat().statusCode(400)
@@ -251,6 +251,5 @@ public class PersonUpdateTests extends TestAbstractIntegration {
                 .body().as(ErrorModel.class);
         assertEquals(String.format(Objects.requireNonNull(env.getProperty("exception.PersonNotFoundException")), wrongId),
                 errorMessage.getMessage());
-
     }
 }

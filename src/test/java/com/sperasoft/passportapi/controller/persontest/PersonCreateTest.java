@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
-public class PersonCreateTests extends TestAbstractIntegration {
+public class PersonCreateTest extends TestAbstractIntegration {
 
     public static final String INVALID_DATA_NAME_SIZE = "Invalid data: Name must be minimum 2 characters long";
     public static final String INVALID_DATA_BIRTHDAY_COUNTRY_ISO_CODE =

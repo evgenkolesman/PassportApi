@@ -3,7 +3,7 @@ package com.sperasoft.passportapi.controller.abstracts;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sperasoft.passportapi.controller.dto.PassportRequest;
-import com.sperasoft.passportapi.controller.dto.PassportRequestTest;
+import com.sperasoft.passportapi.controller.dto.PassportRequestTestModel;
 import com.sperasoft.passportapi.model.LostPassportInfo;
 import io.restassured.response.ValidatableResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +50,7 @@ public class PassportTestMethodContainer {
     public ValidatableResponse createPassport(String personId,
                                               String number, String givenDate, String departmentCode)
             throws JsonProcessingException {
-        PassportRequestTest passportRequest = new PassportRequestTest(number, givenDate, departmentCode);
+        PassportRequestTestModel passportRequest = new PassportRequestTestModel(number, givenDate, departmentCode);
         String path = builder
                 .replacePath(PERSON_URI).path("/")
                 .path(personId)
@@ -69,7 +69,7 @@ public class PassportTestMethodContainer {
     public ValidatableResponse updatePassport(String personId,
                                               String passportId,
                                               String number, String givenDate, String departmentCode) throws JsonProcessingException {
-        PassportRequestTest passportRequestTest = new PassportRequestTest(number, givenDate, departmentCode);
+        PassportRequestTestModel passportRequestTest = new PassportRequestTestModel(number, givenDate, departmentCode);
         String reqPassport = mapper.writeValueAsString(passportRequestTest);
         return given()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
