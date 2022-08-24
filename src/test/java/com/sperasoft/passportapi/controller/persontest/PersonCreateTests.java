@@ -1,7 +1,6 @@
 package com.sperasoft.passportapi.controller.persontest;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.sperasoft.passportapi.TestContainersInitializer;
 import com.sperasoft.passportapi.controller.abstracts.PersonTestMethodContainer;
 import com.sperasoft.passportapi.controller.abstracts.TestAbstractIntegration;
 import com.sperasoft.passportapi.controller.dto.PersonRequest;
@@ -11,7 +10,6 @@ import com.sperasoft.passportapi.repository.PersonRepository;
 import io.restassured.RestAssured;
 import org.json.JSONException;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,11 +54,6 @@ public class PersonCreateTests extends TestAbstractIntegration {
     private PersonRequest personRequest;
     private PersonResponse personResponse;
 
-    @BeforeAll
-    static void init() {
-        TestContainersInitializer.container.start();
-    }
-
     @BeforeEach
     void testDataProduce() {
         builder.port(port);
@@ -77,10 +70,6 @@ public class PersonCreateTests extends TestAbstractIntegration {
         if (allPersons.size() > 0)
             allPersons.forEach(per -> personRepository.deletePerson(per.getId()));
     }
-
-    /**
-     * Creation Person tests
-     */
 
     @Test
     void createCorrectPerson() {

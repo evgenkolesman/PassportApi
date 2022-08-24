@@ -75,10 +75,6 @@ public class PassportDeleteTest extends TestAbstractIntegration {
 
     }
 
-    /**
-     * Delete Passport tests
-     */
-
     @Test
     void deletePassportTestCorrectId() throws JsonProcessingException {
         PassportResponse passportResponse = passportTestMethodContainer.createPassport(personResponse.getId(), passportRequest)
