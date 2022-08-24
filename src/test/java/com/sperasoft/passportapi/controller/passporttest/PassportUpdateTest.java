@@ -82,11 +82,6 @@ public class PassportUpdateTest extends TestAbstractIntegration {
 
     }
 
-
-    /**
-     * Update Passport tests
-     */
-
     @Test
     void updatePassportWithCorrectDataNumber() throws JsonProcessingException {
         passportResponse = passportTestMethodContainer.createPassport(personResponse.getId(),

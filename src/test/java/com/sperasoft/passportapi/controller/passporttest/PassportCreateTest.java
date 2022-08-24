@@ -221,6 +221,7 @@ public class PassportCreateTest extends TestAbstractIntegration {
         assertTrue(response.contains(PASSPORT_DEPARTMENT_CODE_BAD_SIZE));
     }
 
+    //TODO fix this, maybe remove one of annotaions
     @Test
     void createPassportWithNotCorrectDepartmentCodeLong() throws JsonProcessingException {
         var response = passportTestMethodContainer.createPassport(personResponse.getId(),
@@ -232,6 +233,7 @@ public class PassportCreateTest extends TestAbstractIntegration {
                 || response.contains(PASSPORT_DEPARTMENT_CODE_NOT_DIGIT));
     }
 
+    //TODO fix this, maybe remove one of annotaions
     @Test
     void createPassportWithNotCorrectDepartmentCodeEmpty() throws JsonProcessingException {
         var response = passportTestMethodContainer.createPassport(personResponse.getId(),
@@ -243,6 +245,7 @@ public class PassportCreateTest extends TestAbstractIntegration {
                 || response.contains(PASSPORT_DEPARTMENT_CODE_BAD_SIZE));
     }
 
+    //TODO fix this, maybe remove one of annotaions
     @Test
     void createPassportWithNotCorrectDepartmentCodeNotDigits() throws JsonProcessingException {
         var response = passportTestMethodContainer.createPassport(personResponse.getId(),
