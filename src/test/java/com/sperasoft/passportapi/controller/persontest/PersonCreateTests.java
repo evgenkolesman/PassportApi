@@ -71,10 +71,6 @@ public class PersonCreateTests extends TestAbstractIntegration {
             allPersons.forEach(per -> personRepository.deletePerson(per.getId()));
     }
 
-    /**
-     * Creation Person tests
-     */
-
     @Test
     void createCorrectPerson() {
         personResponse = personTestMethodContainer.createPerson(personRequest)

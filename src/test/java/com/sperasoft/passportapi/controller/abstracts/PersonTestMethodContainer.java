@@ -49,7 +49,7 @@ public class PersonTestMethodContainer {
     }
 
     public ValidatableResponse updatePerson(String personId,
-                                            PersonRequest personRequestUpdate) throws JsonProcessingException {
+                                            PersonRequest personRequestUpdate) {
         String path = builder.replacePath(PERSON_URI)
                 .path("/")
                 .path(personId).toUriString();
