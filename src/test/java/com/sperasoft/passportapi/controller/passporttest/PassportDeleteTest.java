@@ -98,7 +98,6 @@ public class PassportDeleteTest extends TestAbstractIntegration {
                 .assertThat().statusCode(405);
     }
 
-
     @Test
     void deletePassportTestNotCorrectBadIdNull() {
         passportTestMethodContainer.deletePassport(personResponse.getId(), null)

@@ -23,6 +23,7 @@ public class PassportTestMethodContainer {
 
     @Autowired
     private ObjectMapper mapper;
+
     @Autowired
     private UriComponentsBuilder builder;
 

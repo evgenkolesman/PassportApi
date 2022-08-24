@@ -17,7 +17,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.core.env.Environment;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.time.*;
 import java.time.temporal.ChronoUnit;
@@ -49,17 +48,13 @@ public class PassportCreateTest extends TestAbstractIntegration {
     private PassportTestMethodContainer passportTestMethodContainer;
 
     @Autowired
-    private UriComponentsBuilder builder;
-    @Autowired
     private PassportRepository passportRepository;
     private PassportRequest passportRequest;
     private PassportResponse passportResponse;
     private PersonResponse personResponse;
 
-
     @BeforeEach
     void testDataProduce() {
-        builder.port(port);
         RestAssured.port = port;
         int number = ThreadLocalRandom.current().nextInt(999999999) + 1000000000;
         int departmentCode = ThreadLocalRandom.current().nextInt(99999) + 100000;
@@ -229,8 +224,7 @@ public class PassportCreateTest extends TestAbstractIntegration {
                         Instant.now().toString(),
                         "123213323123")
                 .assertThat().statusCode(400).extract().response().print();
-        assertTrue(response.contains(PASSPORT_DEPARTMENT_CODE_BAD_SIZE)
-                || response.contains(PASSPORT_DEPARTMENT_CODE_NOT_DIGIT));
+        assertTrue(response.contains(PASSPORT_DEPARTMENT_CODE_NOT_DIGIT));
     }
 
     //TODO fix this, maybe remove one of annotaions
@@ -241,8 +235,7 @@ public class PassportCreateTest extends TestAbstractIntegration {
                         Instant.now().toString(),
                         "")
                 .assertThat().statusCode(400).extract().response().print();
-        assertTrue(response.contains(PASSPORT_DEPARTMENT_CODE_NOT_DIGIT)
-                || response.contains(PASSPORT_DEPARTMENT_CODE_BAD_SIZE));
+        assertTrue(response.contains(PASSPORT_DEPARTMENT_CODE_BAD_SIZE));
     }
 
     //TODO fix this, maybe remove one of annotaions
@@ -253,8 +246,7 @@ public class PassportCreateTest extends TestAbstractIntegration {
                         Instant.now().toString(),
                         "%^789")
                 .assertThat().statusCode(400).extract().response().print();
-        assertTrue(response.contains(PASSPORT_DEPARTMENT_CODE_NOT_DIGIT)
-                || response.contains(PASSPORT_DEPARTMENT_CODE_BAD_SIZE));
+        assertTrue(response.contains(PASSPORT_DEPARTMENT_CODE_BAD_SIZE));
     }
 
     @Test
