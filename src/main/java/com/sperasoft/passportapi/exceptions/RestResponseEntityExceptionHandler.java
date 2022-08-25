@@ -7,17 +7,22 @@ import com.sperasoft.passportapi.exceptions.personexceptions.PersonNotFoundExcep
 import com.sperasoft.passportapi.model.ErrorModel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @ControllerAdvice
 @Slf4j
@@ -26,7 +31,7 @@ public class RestResponseEntityExceptionHandler {
 
     private final Environment environment;
 
-    @ExceptionHandler(value = {MethodArgumentNotValidException.class,
+    @ExceptionHandler(value = {
             InvalidPassportDataException.class,
             PassportDeactivatedException.class,
             PassportNotFoundException.class,
@@ -34,27 +39,11 @@ public class RestResponseEntityExceptionHandler {
             PassportWrongNumberException.class,
             PassportBadStatusException.class,
             PersonNotFoundException.class,
-            InvalidPersonDataException.class,
-            HttpMessageNotReadableException.class,
-            MethodArgumentTypeMismatchException.class
-
+            InvalidPersonDataException.class
     })
-    protected ResponseEntity<ErrorModel> handleConflict(
-            Exception ex) {
+    protected ResponseEntity<ErrorModel> handleException(
+            RuntimeException ex) {
         var errorId = FriendlyId.createFriendlyId();
-        if (ex instanceof MethodArgumentNotValidException) {
-            return new ResponseEntity<>(new ErrorModel(errorId, ((MethodArgumentNotValidException) ex)
-                    .getFieldError().getDefaultMessage(), HttpStatus.BAD_REQUEST),
-                    HttpStatus.BAD_REQUEST);
-        } else if (ex instanceof MethodArgumentTypeMismatchException) {
-            String message = environment.getProperty("exception.BadDateFormat");
-            return new ResponseEntity<>(new ErrorModel(errorId, message, HttpStatus.BAD_REQUEST),
-                    HttpStatus.BAD_REQUEST);
-        } else if (ex instanceof HttpMessageNotReadableException) {
-            String message = environment.getProperty("exception.BadDateFormat");
-            return new ResponseEntity<>(new ErrorModel(errorId, message, HttpStatus.BAD_REQUEST),
-                    HttpStatus.BAD_REQUEST);
-        }
         HttpStatus status = ex.getClass().getAnnotation(ResponseStatus.class).value();
         String propName = "exception." + ex.getClass().getSimpleName();
         String message;
@@ -68,4 +57,40 @@ public class RestResponseEntityExceptionHandler {
         log.error(String.format("%s %s", errorId, message));
         return new ResponseEntity<>(new ErrorModel(errorId, message, status), status);
     }
+
+    @ExceptionHandler
+    protected ResponseEntity<ErrorModel> handleException(MethodArgumentNotValidException exception) {
+        var errorId = FriendlyId.createFriendlyId();
+        List<FieldError> fieldErrors = new ArrayList<>(exception
+                .getFieldErrors());
+        if (fieldErrors.size() > 1) {
+            fieldErrors = fieldErrors.stream().sorted((first, second) ->
+                    first.getCode().chars().toArray()[0]
+                            >=
+                            second.getCode().chars().toArray()[0] ? 0 : -1).collect(Collectors.toList());
+        }
+        String collectMessages = fieldErrors.stream()
+                .map(DefaultMessageSourceResolvable::getDefaultMessage).collect(Collectors.joining("\n"));
+        return new ResponseEntity<>(new ErrorModel(errorId, collectMessages, HttpStatus.BAD_REQUEST),
+                HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler
+    protected ResponseEntity<ErrorModel> handleException(MethodArgumentTypeMismatchException exception) {
+        var errorId = FriendlyId.createFriendlyId();
+        String message = environment.getProperty("exception.BadDateFormat");
+        return new ResponseEntity<>(new ErrorModel(errorId, message, HttpStatus.BAD_REQUEST),
+                HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler
+    protected ResponseEntity<ErrorModel> handleException(HttpMessageNotReadableException exception) {
+        var errorId = FriendlyId.createFriendlyId();
+        String message = environment.getProperty("exception.BadDateFormat");
+        return new ResponseEntity<>(new ErrorModel(errorId, message, HttpStatus.BAD_REQUEST),
+                HttpStatus.BAD_REQUEST);
+
+    }
+
+
 }

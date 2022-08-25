@@ -4,10 +4,7 @@ import com.sperasoft.passportapi.controller.abstracts.PassportTestMethodContaine
 import com.sperasoft.passportapi.controller.abstracts.PersonTestMethodContainer;
 import com.sperasoft.passportapi.controller.abstracts.SearchTestMethodContainer;
 import com.sperasoft.passportapi.controller.abstracts.TestAbstractIntegration;
-import com.sperasoft.passportapi.controller.dto.PassportRequest;
-import com.sperasoft.passportapi.controller.dto.PassportResponse;
-import com.sperasoft.passportapi.controller.dto.PersonRequest;
-import com.sperasoft.passportapi.controller.dto.PersonResponse;
+import com.sperasoft.passportapi.controller.dto.*;
 import com.sperasoft.passportapi.model.ErrorModel;
 import com.sperasoft.passportapi.model.Number;
 import com.sperasoft.passportapi.repository.PassportRepository;
@@ -24,8 +21,8 @@ import java.time.ZoneOffset;
 import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SearchPassportByNumberTest extends TestAbstractIntegration {
 
@@ -116,13 +113,14 @@ public class SearchPassportByNumberTest extends TestAbstractIntegration {
         assertEquals(env.getProperty("exception.PassportWrongNumberException"), response.getMessage());
     }
 
+    //TODO check this exception
     @Test
     void testFindPersonByPassportNumberNotCorrectNull() throws Exception {
         var response = searchAbstract.findPersonByPassportNumber(null)
                 .statusCode(400)
                 .extract()
-                .response().as(ErrorModel.class);
-        assertTrue(response.getMessage().contains(Objects.requireNonNull(env.getProperty("exception.BadDateFormat"))));
+                .response().as(TestErrorModel.class);
+        assertThat(response.getMessage()).isEqualTo(Objects.requireNonNull(env.getProperty("exception.BadDateFormat")));
     }
 
 }
