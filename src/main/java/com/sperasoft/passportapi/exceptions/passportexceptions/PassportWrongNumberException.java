@@ -1,14 +1,11 @@
 package com.sperasoft.passportapi.exceptions.passportexceptions;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
+public class PassportWrongNumberException extends RuntimeException {
 
-@ResponseStatus(HttpStatus.BAD_REQUEST)
-public class PassportWrongNumberException extends RuntimeException{
-
-    private final static long serialVersionUID = -783573036046978512L;
+    private static final String WRONG_NUMBER = "Wrong number";
+    private static final long serialVersionUID = -783573036046978512L;
 
     public PassportWrongNumberException() {
-        super();
+        super(WRONG_NUMBER);
     }
 }

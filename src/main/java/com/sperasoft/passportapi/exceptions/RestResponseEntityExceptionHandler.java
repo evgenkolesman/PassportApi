@@ -16,12 +16,12 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @ControllerAdvice
@@ -31,31 +31,89 @@ public class RestResponseEntityExceptionHandler {
 
     private final Environment environment;
 
-    @ExceptionHandler(value = {
-            InvalidPassportDataException.class,
-            PassportDeactivatedException.class,
-            PassportNotFoundException.class,
-            PassportWasAddedException.class,
-            PassportWrongNumberException.class,
-            PassportBadStatusException.class,
-            PersonNotFoundException.class,
-            InvalidPersonDataException.class
-    })
-    protected ResponseEntity<ErrorModel> handleException(
-            RuntimeException ex) {
-        var errorId = FriendlyId.createFriendlyId();
-        HttpStatus status = ex.getClass().getAnnotation(ResponseStatus.class).value();
-        String propName = "exception." + ex.getClass().getSimpleName();
-        String message;
+    //TODO maybe we should create error message almost in Exception need to think
 
-        if (ex.getMessage() != null) {
-            message = String.format(
-                    environment.getProperty(propName),
-                    ex.getMessage());
-        } else message = Objects.requireNonNull(
-                environment.getProperty(propName));
-        log.error(String.format("%s %s", errorId, message));
-        return new ResponseEntity<>(new ErrorModel(errorId, message, status), status);
+    @ExceptionHandler
+    protected ResponseEntity<ErrorModel> handleException(PassportNotFoundException exception) {
+        var errorId = FriendlyId.createFriendlyId();
+        log.error(String.format("%s %s", errorId, exception.getMessage()));
+        log.info(Arrays.stream(exception.getSuppressed())
+                .map(Throwable::getMessage)
+                .collect(Collectors.joining("\n")));
+        return new ResponseEntity<>(new ErrorModel(errorId,
+                exception.getMessage(),
+                HttpStatus.NOT_FOUND),
+                HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler
+    protected ResponseEntity<ErrorModel> handleException(PersonNotFoundException exception) {
+        var errorId = FriendlyId.createFriendlyId();
+        log.error(String.format("%s %s", errorId, exception.getMessage()));
+        return new ResponseEntity<>(new ErrorModel(errorId,
+                exception.getMessage(),
+                HttpStatus.NOT_FOUND),
+                HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler
+    protected ResponseEntity<ErrorModel> handleException(InvalidPersonDataException exception) {
+        var errorId = FriendlyId.createFriendlyId();
+        log.error(String.format("%s %s", errorId, exception.getMessage()));
+        return new ResponseEntity<>(new ErrorModel(errorId,
+                exception.getMessage(),
+                HttpStatus.BAD_REQUEST),
+                HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler
+    protected ResponseEntity<ErrorModel> handleException(PassportWrongNumberException exception) {
+        var errorId = FriendlyId.createFriendlyId();
+        log.error(String.format("%s %s", errorId, exception.getMessage()));
+        return new ResponseEntity<>(new ErrorModel(errorId,
+                exception.getMessage(),
+                HttpStatus.BAD_REQUEST),
+                HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler
+    protected ResponseEntity<ErrorModel> handleException(PassportWasAddedException exception) {
+        var errorId = FriendlyId.createFriendlyId();
+        log.error(String.format("%s %s", errorId, exception.getMessage()));
+        return new ResponseEntity<>(new ErrorModel(errorId,
+                exception.getMessage(),
+                HttpStatus.BAD_REQUEST),
+                HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler
+    protected ResponseEntity<ErrorModel> handleException(PassportBadStatusException exception) {
+        var errorId = FriendlyId.createFriendlyId();
+        log.error(String.format("%s %s", errorId, exception.getMessage()));
+        return new ResponseEntity<>(new ErrorModel(errorId,
+                exception.getMessage(),
+                HttpStatus.BAD_REQUEST),
+                HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler
+    protected ResponseEntity<ErrorModel> handleException(InvalidPassportDataException exception) {
+        var errorId = FriendlyId.createFriendlyId();
+        log.error(String.format("%s %s", errorId, exception.getMessage()));
+        return new ResponseEntity<>(new ErrorModel(errorId,
+                exception.getMessage(),
+                HttpStatus.BAD_REQUEST),
+                HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler
+    protected ResponseEntity<ErrorModel> handleException(PassportDeactivatedException exception) {
+        var errorId = FriendlyId.createFriendlyId();
+        log.error(String.format("%s %s", errorId, exception.getMessage()));
+        return new ResponseEntity<>(new ErrorModel(errorId,
+                exception.getMessage(),
+                HttpStatus.CONFLICT),
+                HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler
@@ -65,9 +123,10 @@ public class RestResponseEntityExceptionHandler {
                 .getFieldErrors());
         if (fieldErrors.size() > 1) {
             fieldErrors = fieldErrors.stream().sorted((first, second) ->
-                    first.getCode().chars().toArray()[0]
+                    Optional.ofNullable(first.getCode()).orElseThrow().chars().toArray()[0]
                             >=
-                            second.getCode().chars().toArray()[0] ? 0 : -1).collect(Collectors.toList());
+                            Optional.ofNullable(second.getCode())
+                                    .orElseThrow().chars().toArray()[0] ? 0 : -1).collect(Collectors.toList());
         }
         String collectMessages = fieldErrors.stream()
                 .map(DefaultMessageSourceResolvable::getDefaultMessage).collect(Collectors.joining("\n"));
@@ -75,7 +134,7 @@ public class RestResponseEntityExceptionHandler {
                 HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler
+    @ExceptionHandler()
     protected ResponseEntity<ErrorModel> handleException(MethodArgumentTypeMismatchException exception) {
         var errorId = FriendlyId.createFriendlyId();
         String message = environment.getProperty("exception.BadDateFormat");
@@ -89,7 +148,6 @@ public class RestResponseEntityExceptionHandler {
         String message = environment.getProperty("exception.BadDateFormat");
         return new ResponseEntity<>(new ErrorModel(errorId, message, HttpStatus.BAD_REQUEST),
                 HttpStatus.BAD_REQUEST);
-
     }
 
 
