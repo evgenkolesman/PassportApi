@@ -5,10 +5,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sperasoft.passportapi.controller.abstracts.PassportTestMethodContainer;
 import com.sperasoft.passportapi.controller.abstracts.PersonTestMethodContainer;
 import com.sperasoft.passportapi.controller.abstracts.TestAbstractIntegration;
-import com.sperasoft.passportapi.controller.dto.PassportRequest;
-import com.sperasoft.passportapi.controller.dto.PassportResponse;
-import com.sperasoft.passportapi.controller.dto.PersonRequest;
-import com.sperasoft.passportapi.controller.dto.PersonResponse;
+import com.sperasoft.passportapi.controller.dto.*;
 import com.sperasoft.passportapi.repository.PassportRepository;
 import io.restassured.RestAssured;
 import org.junit.jupiter.api.AfterEach;
@@ -26,8 +23,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class PassportFindPersonPassportTest extends TestAbstractIntegration {
 
@@ -104,9 +101,10 @@ public class PassportFindPersonPassportTest extends TestAbstractIntegration {
                         .assertThat()
                         .statusCode(404)
                         .extract()
-                        .response().print();
-        assertTrue(response.contains(
-                String.format(Objects.requireNonNull(env.getProperty("exception.PersonNotFoundException")), personBadId)));
+                        .response().as(TestErrorModel.class);
+        assertThat(response.getMessage()).isEqualTo(
+                String.format(Objects.requireNonNull(env.getProperty("exception.PersonNotFoundException")),
+                        personBadId));
 
     }
 
@@ -142,9 +140,10 @@ public class PassportFindPersonPassportTest extends TestAbstractIntegration {
                         .assertThat()
                         .statusCode(404)
                         .extract()
-                        .response().print();
-        assertTrue(response.contains(
-                String.format(Objects.requireNonNull(env.getProperty("exception.PersonNotFoundException")), personBadId)));
+                        .response().as(TestErrorModel.class);
+        assertThat(response.getMessage()).isEqualTo(
+                String.format(Objects.requireNonNull(env.getProperty("exception.PersonNotFoundException")),
+                        personBadId));
 
 
     }
@@ -171,10 +170,10 @@ public class PassportFindPersonPassportTest extends TestAbstractIntegration {
                         true, null, null)
                 .assertThat()
                 .statusCode(404)
-                .extract().response().print();
+                .extract().response().as(TestErrorModel.class);
 
-        assertTrue(response.contains(String.format(
-                Objects.requireNonNull(env.getProperty("exception.PersonNotFoundException")), personBadId)));
+        assertThat(response.getMessage()).isEqualTo(String.format(
+                Objects.requireNonNull(env.getProperty("exception.PersonNotFoundException")), personBadId));
     }
 
     @Test
@@ -214,10 +213,10 @@ public class PassportFindPersonPassportTest extends TestAbstractIntegration {
                         Instant.now())
                 .assertThat().statusCode(404)
                 .extract()
-                .response().print();
+                .response().as(TestErrorModel.class);
 
-        assertTrue(response.contains(String.format(
-                Objects.requireNonNull(env.getProperty("exception.PersonNotFoundException")), personBadId)));
+        assertThat(response.getMessage()).isEqualTo(String.format(
+                Objects.requireNonNull(env.getProperty("exception.PersonNotFoundException")), personBadId));
     }
 
     @Test
@@ -229,8 +228,9 @@ public class PassportFindPersonPassportTest extends TestAbstractIntegration {
                         Instant.from(isoOffsetDateTime.parse("2022-05-08T19:00:00-02:00")))
                 .assertThat().statusCode(400)
                 .extract()
-                .response().print();
-        assertTrue(response.contains(Objects.requireNonNull(env.getProperty("exception.InvalidPassportDataException"))));
+                .response().as(TestErrorModel.class);
+        assertThat(response.getMessage())
+                .isEqualTo(Objects.requireNonNull(env.getProperty("exception.InvalidPassportDataException")));
     }
 
     @Test

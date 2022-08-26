@@ -120,7 +120,8 @@ public class SearchPassportByNumberTest extends TestAbstractIntegration {
                 .statusCode(400)
                 .extract()
                 .response().as(TestErrorModel.class);
-        assertThat(response.getMessage()).isEqualTo(Objects.requireNonNull(env.getProperty("exception.BadDateFormat")));
+        assertThat(response.getMessage())
+                .isEqualTo(Objects.requireNonNull(env.getProperty("exception.BadDateFormat")));
     }
 
 }
