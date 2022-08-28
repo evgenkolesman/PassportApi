@@ -4,8 +4,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sperasoft.passportapi.controller.dto.PassportRequest;
 import com.sperasoft.passportapi.controller.dto.PassportRequestTestModel;
+import com.sperasoft.passportapi.controller.dto.TestLostPassportInfo;
 import com.sperasoft.passportapi.model.LostPassportInfo;
 import io.restassured.response.ValidatableResponse;
+import io.restassured.specification.RequestSpecification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.lang.Nullable;
@@ -21,8 +23,6 @@ import static io.restassured.RestAssured.given;
 @Component
 public class PassportTestMethodContainer {
 
-    @Autowired
-    private ObjectMapper mapper;
 
     @Autowired
     private UriComponentsBuilder builder;
@@ -38,10 +38,9 @@ public class PassportTestMethodContainer {
                 .path(personId)
                 .path(PASSPORT_URI)
                 .replaceQuery("").toUriString();
-        String reqPassport = mapper.writeValueAsString(passportRequest);
         return given()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .body(reqPassport)
+                .body(passportRequest)
                 .when().post(path)
                 .then()
                 .and().log()
@@ -57,10 +56,9 @@ public class PassportTestMethodContainer {
                 .path(personId)
                 .path(PASSPORT_URI)
                 .replaceQuery("").toUriString();
-        String reqPassport = mapper.writeValueAsString(passportRequest);
         return given()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .body(reqPassport)
+                .body(passportRequest)
                 .when().post(path)
                 .then()
                 .and().log()
@@ -71,10 +69,9 @@ public class PassportTestMethodContainer {
                                               String passportId,
                                               String number, String givenDate, String departmentCode) throws JsonProcessingException {
         PassportRequestTestModel passportRequestTest = new PassportRequestTestModel(number, givenDate, departmentCode);
-        String reqPassport = mapper.writeValueAsString(passportRequestTest);
         return given()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .body(reqPassport)
+                .body(passportRequestTest)
                 .when().put(builder
                         .replacePath(PERSON_URI).path("/")
                         .path(personId)
@@ -89,10 +86,9 @@ public class PassportTestMethodContainer {
     public ValidatableResponse updatePassport(String personId,
                                               String passportId,
                                               PassportRequest passportRequest) throws JsonProcessingException {
-        String reqPassport = mapper.writeValueAsString(passportRequest);
         return given()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .body(reqPassport)
+                .body(passportRequest)
                 .when().put(builder
                         .replacePath(PERSON_URI).path("/")
                         .path(personId)
@@ -164,9 +160,11 @@ public class PassportTestMethodContainer {
                 .all();
     }
 
+    //TODO !!!! Fix description
+
     public ValidatableResponse lostPassportDeactivate(String personId,
                                                       String id,
-                                                      LostPassportInfo description) throws JsonProcessingException {
+                                                      TestLostPassportInfo description) throws JsonProcessingException {
         String path = builder
                 .replacePath(PERSON_URI)
                 .path("/")
@@ -175,11 +173,14 @@ public class PassportTestMethodContainer {
                 .path(id)
                 .path(LOST_PASSPORT_URI)
                 .replaceQuery("").toUriString();
-        if (description == null) description = new LostPassportInfo("");
-        String message = mapper.writeValueAsString(description.getDescription());
+        if (description == null) description = new TestLostPassportInfo("");
+        String message = new ObjectMapper().writeValueAsString(description.getDescription());
+        System.out.println("-----> " + message);
+
         return given()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .body(message)
+//                .body(new ObjectMapper().writeValueAsString(description))
+                .body("\"" + description.getDescription() + "\"")
                 .when()
                 .post(path)
                 .then()

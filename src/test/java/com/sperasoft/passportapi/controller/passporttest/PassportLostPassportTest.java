@@ -81,7 +81,7 @@ public class PassportLostPassportTest extends TestAbstractIntegration {
                 .extract().as(PassportResponse.class);
         assertEquals(true, passportTestMethodContainer.lostPassportDeactivate(personResponse.getId(),
                         passportResponse.getId(),
-                        new LostPassportInfo("I lost my passport"))
+                        new TestLostPassportInfo("I lost my passport"))
                 .assertThat().statusCode(200)
                 .extract()
                 .as(Boolean.class));
@@ -94,7 +94,7 @@ public class PassportLostPassportTest extends TestAbstractIntegration {
         String personBadId = FriendlyId.createFriendlyId();
         var response = passportTestMethodContainer.lostPassportDeactivate(personBadId,
                         passportResponse.getId(),
-                        new LostPassportInfo("I lost my passport"))
+                        new TestLostPassportInfo("I lost my passport"))
                 .assertThat().statusCode(404)
                 .extract()
                 .response().as(TestErrorModel.class);
