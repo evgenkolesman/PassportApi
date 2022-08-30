@@ -31,7 +31,7 @@ public class RestResponseEntityExceptionHandler {
 
     private final Environment environment;
 
-    //TODO maybe we should create error message almost in Exception need to think
+    //TODO maybe we can take exception message on exception layer from props
 
     @ExceptionHandler
     protected ResponseEntity<ErrorModel> handleException(PassportNotFoundException exception) {

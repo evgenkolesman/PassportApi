@@ -12,4 +12,4 @@ import org.springframework.context.annotation.PropertySource;
 public class CommonConfiguration {
 }
 
-//TODO If Exceptions will be like that we will remove it
+//TODO If Exceptions will be like that we will remove it and move it to test section
