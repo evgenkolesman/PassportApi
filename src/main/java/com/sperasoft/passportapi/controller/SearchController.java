@@ -4,7 +4,6 @@ import com.sperasoft.passportapi.controller.dto.PassportResponse;
 import com.sperasoft.passportapi.controller.dto.PersonResponse;
 import com.sperasoft.passportapi.model.Number;
 import com.sperasoft.passportapi.service.SearchService;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.lang.Nullable;
@@ -25,7 +24,7 @@ public class SearchController {
     @PostMapping
     public PersonResponse findPersonByPassportNumber(@NotNull(message = "Invalid data: number filed shouldn`t be empty")
                                                      @RequestBody Number number) {
-        return PersonResponse.of(searchService.findPersonByPassportNumber(number.getNumber()));
+        return PersonResponse.of(searchService.findPersonByPassportNumber(number.number()));
     }
 
     @GetMapping

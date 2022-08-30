@@ -82,8 +82,7 @@ public class SearchPassportByNumberTest extends TestAbstractIntegration {
 
     @Test
     void testFindPersonByPassportNumberCorrect() throws Exception {
-        var number1 = new Number();
-        number1.setNumber(String.valueOf(number));
+        var number1 = new Number(String.valueOf(number));
         var response = searchAbstract.findPersonByPassportNumber(number1)
                 .statusCode(200)
                 .extract()
@@ -93,8 +92,8 @@ public class SearchPassportByNumberTest extends TestAbstractIntegration {
 
     @Test
     void testFindPersonByPassportNumberNotCorrectLengthNumber() throws Exception {
-        var number1 = new Number();
-        number1.setNumber(String.valueOf(ThreadLocalRandom.current().nextInt(10000000)));
+        var number1 = new Number(
+                String.valueOf(ThreadLocalRandom.current().nextInt(10000000)));
         var response = searchAbstract.findPersonByPassportNumber(number1)
                 .statusCode(400)
                 .extract()
@@ -104,8 +103,7 @@ public class SearchPassportByNumberTest extends TestAbstractIntegration {
 
     @Test
     void testFindPersonByPassportNumberNotCorrect() throws Exception {
-        var number1 = new Number();
-        number1.setNumber(String.valueOf(number - 100));
+        var number1 = new Number(String.valueOf(number - 100));
         var response = searchAbstract.findPersonByPassportNumber(number1)
                 .statusCode(400)
                 .extract()

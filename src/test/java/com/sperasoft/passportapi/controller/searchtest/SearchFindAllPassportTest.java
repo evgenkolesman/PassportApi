@@ -6,7 +6,6 @@ import com.sperasoft.passportapi.controller.abstracts.SearchTestMethodContainer;
 import com.sperasoft.passportapi.controller.abstracts.TestAbstractIntegration;
 import com.sperasoft.passportapi.controller.dto.*;
 import com.sperasoft.passportapi.model.ErrorModel;
-import com.sperasoft.passportapi.model.Number;
 import com.sperasoft.passportapi.repository.PassportRepository;
 import io.restassured.RestAssured;
 import org.junit.jupiter.api.AfterEach;
@@ -88,8 +87,6 @@ public class SearchFindAllPassportTest extends TestAbstractIntegration {
 
     @Test
     void testFindAllPassportsWithOutParams() {
-        var number1 = new Number();
-        number1.setNumber(String.valueOf(number));
         var response = searchAbstract
                 .findAllPassports(null, null, null)
                 .statusCode(200)
@@ -109,8 +106,6 @@ public class SearchFindAllPassportTest extends TestAbstractIntegration {
 
     @Test
     void testFindAllPassportsWithActiveFalse() {
-        var number1 = new Number();
-        number1.setNumber(String.valueOf(number));
         var response = searchAbstract.findAllPassports(false, null, null)
                 .statusCode(200)
                 .extract()
@@ -120,8 +115,6 @@ public class SearchFindAllPassportTest extends TestAbstractIntegration {
 
     @Test
     void testFindAllPassportsWithDates() {
-        var number1 = new Number();
-        number1.setNumber(String.valueOf(number));
         var response = searchAbstract.findAllPassports(null,
                         Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2022-05-01T19:00:00+09:00")),
                         Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2022-07-01T19:00:00+10:00")))
@@ -133,8 +126,6 @@ public class SearchFindAllPassportTest extends TestAbstractIntegration {
 
     @Test
     void testFindAllPassportsWithBadStringFormatDatesStartDate() {
-        var number1 = new Number();
-        number1.setNumber(String.valueOf(number));
         var response = searchAbstract.findAllPassportsWithString(null,
                         "2022-05-00+09:00",
                         "2022-07-01T19:00:00+10:00")
@@ -147,8 +138,6 @@ public class SearchFindAllPassportTest extends TestAbstractIntegration {
 
     @Test
     void testFindAllPassportsWithBadStringFormatDatesEndDate() {
-        var number1 = new Number();
-        number1.setNumber(String.valueOf(number));
         var response = searchAbstract.findAllPassportsWithString(null,
                         "2022-05-01T19:00:00+09:00",
                         "________")
@@ -161,8 +150,6 @@ public class SearchFindAllPassportTest extends TestAbstractIntegration {
 
     @Test
     void testFindAllPassportsWithActiveAndDates() {
-        var number1 = new Number();
-        number1.setNumber(String.valueOf(number));
         var response = searchAbstract.findAllPassports(true,
                         Instant.parse("2022-05-01T19:00:00+09:00"),
                         Instant.parse("2022-07-01T19:00:00+10:00"))
@@ -174,8 +161,6 @@ public class SearchFindAllPassportTest extends TestAbstractIntegration {
 
     @Test
     void testFindAllPassportsWithActiveAndBadDates() {
-        var number1 = new Number();
-        number1.setNumber(String.valueOf(number));
         var response = searchAbstract.findAllPassports(true,
                         Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2022-10-01T19:00:00+09:00")),
                         Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2022-07-01T19:00:00+10:00")))
@@ -187,8 +172,6 @@ public class SearchFindAllPassportTest extends TestAbstractIntegration {
 
     @Test
     void testFindAllPassportsWithActiveAndBadDatesAndFalse() {
-        var number1 = new Number();
-        number1.setNumber(String.valueOf(number));
         var response = searchAbstract.findAllPassports(true,
                         Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2022-10-01T19:00:00+09:00")),
                         Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2022-07-01T19:00:00+10:00")))
@@ -200,8 +183,6 @@ public class SearchFindAllPassportTest extends TestAbstractIntegration {
 
     @Test
     void testFindAllPassportsWithActiveAndStartDate() {
-        var number1 = new Number();
-        number1.setNumber(String.valueOf(number));
         var response = searchAbstract.findAllPassports(true,
                         Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2022-05-01T19:00:00+09:00")),
                         null)
@@ -213,8 +194,6 @@ public class SearchFindAllPassportTest extends TestAbstractIntegration {
 
     @Test
     void testFindAllPassportsWithActiveAndEndDate() {
-        var number1 = new Number();
-        number1.setNumber(String.valueOf(number));
         var response = searchAbstract.findAllPassports(true,
                         null,
                         Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2022-07-01T19:00:00+10:00")))
