@@ -5,10 +5,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sperasoft.passportapi.controller.abstracts.PassportTestMethodContainer;
 import com.sperasoft.passportapi.controller.abstracts.PersonTestMethodContainer;
 import com.sperasoft.passportapi.controller.abstracts.TestAbstractIntegration;
-import com.sperasoft.passportapi.controller.dto.PassportRequest;
-import com.sperasoft.passportapi.controller.dto.PassportResponse;
-import com.sperasoft.passportapi.controller.dto.PersonRequest;
-import com.sperasoft.passportapi.controller.dto.PersonResponse;
+import com.sperasoft.passportapi.controller.dto.*;
 import com.sperasoft.passportapi.repository.PassportRepository;
 import io.restassured.RestAssured;
 import org.junit.jupiter.api.AfterEach;
@@ -23,14 +20,14 @@ import java.time.*;
 import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class PassportUpdateTest extends TestAbstractIntegration {
 
-    private static final String PASSPORT_NUMBER_NOT_FILLED = "Passport number field should be filled";
+    private static final String PASSPORT_NUMBER_NOT_FILLED = "Invalid data: Passport number field should be filled";
     private static final String PASSPORT_NUMBER_BAD_LENGTH = "Invalid data: Passport number should be 10 symbols length";
-    private static final String PASSPORT_GIVEN_DATE_EMPTY = "Given Date field shouldn`t be empty";
+    private static final String PASSPORT_GIVEN_DATE_EMPTY = "Invalid data: Given Date field shouldn`t be empty";
     private static final String PASSPORT_DEPARTMENT_CODE_NOT_FILLED = "Invalid data: Department code field should be filled";
     private static final String PASSPORT_DEPARTMENT_CODE_NOT_DIGIT = "Invalid data: Invalid department code";
     private static final String PASSPORT_DEPARTMENT_CODE_BAD_SIZE = "Invalid data: department code size should be 6 digits";
@@ -82,11 +79,6 @@ public class PassportUpdateTest extends TestAbstractIntegration {
 
     }
 
-
-    /**
-     * Update Passport tests
-     */
-
     @Test
     void updatePassportWithCorrectDataNumber() throws JsonProcessingException {
         passportResponse = passportTestMethodContainer.createPassport(personResponse.getId(),
@@ -118,9 +110,9 @@ public class PassportUpdateTest extends TestAbstractIntegration {
                 passportTestMethodContainer.updatePassport(badPersonId, passportResponse.getId(),
                                 passportRequest)
                         .assertThat().statusCode(404)
-                        .extract().response().print();
-        assertTrue(response.contains(String.format(
-                Objects.requireNonNull(env.getProperty("exception.PersonNotFoundException")), badPersonId)));
+                        .extract().response().as(TestErrorModel.class);
+        assertThat(response.getMessage()).isEqualTo(String.format(
+                Objects.requireNonNull(env.getProperty("exception.PersonNotFoundException")), badPersonId));
 
     }
 
@@ -139,9 +131,9 @@ public class PassportUpdateTest extends TestAbstractIntegration {
                                 passportRequest.getGivenDate().toString(),
                                 passportRequest.getDepartmentCode())
                         .assertThat().statusCode(404)
-                        .extract().response().print();
-        assertTrue(response.contains(String.format(Objects.requireNonNull(
-                env.getProperty("exception.PassportNotFoundException")), friendlyId)));
+                        .extract().response().as(TestErrorModel.class);
+        assertThat(response.getMessage()).isEqualTo(String.format(Objects.requireNonNull(
+                env.getProperty("exception.PassportNotFoundException")), friendlyId));
 
     }
 
@@ -151,10 +143,13 @@ public class PassportUpdateTest extends TestAbstractIntegration {
                         passportRequest)
                 .assertThat().statusCode(200)
                 .extract().as(PassportResponse.class);
-        var response = passportTestMethodContainer.updatePassport(personResponse.getId(), passportResponse.getId(),
-                        "123", Instant.now().toString(), "123123")
-                .assertThat().statusCode(400).extract().response().print();
-        assertTrue(response.contains(PASSPORT_NUMBER_BAD_LENGTH));
+        var response = passportTestMethodContainer.updatePassport(personResponse.getId(),
+                        passportResponse.getId(),
+                        "123",
+                        Instant.now().toString(),
+                        "123123")
+                .assertThat().statusCode(400).extract().response().as(TestErrorModel.class);
+        assertThat(response.getMessage()).isEqualTo(PASSPORT_NUMBER_BAD_LENGTH);
     }
 
 
@@ -164,10 +159,14 @@ public class PassportUpdateTest extends TestAbstractIntegration {
                         passportRequest)
                 .assertThat().statusCode(200)
                 .extract().as(PassportResponse.class);
-        var response = passportTestMethodContainer.updatePassport(personResponse.getId(), passportResponse.getId(),
-                        "12321334243543", Instant.now().toString(), "123123")
-                .assertThat().statusCode(400).extract().response().print();
-        assertTrue(response.contains(PASSPORT_NUMBER_BAD_LENGTH));
+        var response = passportTestMethodContainer.updatePassport(personResponse.getId(),
+                        passportResponse.getId(),
+                        "12321334243543",
+                        Instant.now().toString(),
+                        "123123")
+                .assertThat().statusCode(400).extract().response().as(TestErrorModel.class);
+        assertThat(response.getMessage()).isEqualTo(PASSPORT_NUMBER_BAD_LENGTH);
+
     }
 
     @Test
@@ -176,10 +175,13 @@ public class PassportUpdateTest extends TestAbstractIntegration {
                         passportRequest)
                 .assertThat().statusCode(200)
                 .extract().as(PassportResponse.class);
-        var response = passportTestMethodContainer.updatePassport(personResponse.getId(), passportResponse.getId(),
-                        "", Instant.now().toString(), "123123")
-                .assertThat().statusCode(400).extract().response().print();
-        assertTrue(response.contains(PASSPORT_NUMBER_BAD_LENGTH));
+        var response = passportTestMethodContainer.updatePassport(personResponse.getId(),
+                        passportResponse.getId(),
+                        "",
+                        Instant.now().toString(),
+                        "123123")
+                .assertThat().statusCode(400).extract().response().as(TestErrorModel.class);
+        assertThat(response.getMessage()).isEqualTo(PASSPORT_NUMBER_BAD_LENGTH);
     }
 
     @Test
@@ -188,10 +190,13 @@ public class PassportUpdateTest extends TestAbstractIntegration {
                         passportRequest)
                 .assertThat().statusCode(200)
                 .extract().as(PassportResponse.class);
-        var response = passportTestMethodContainer.updatePassport(personResponse.getId(), passportResponse.getId(),
-                        null, Instant.now().toString(), "123123")
-                .assertThat().statusCode(400).extract().response().print();
-        assertTrue(response.contains(PASSPORT_NUMBER_NOT_FILLED));
+        var response = passportTestMethodContainer.updatePassport(personResponse.getId(),
+                        passportResponse.getId(),
+                        null,
+                        Instant.now().toString(),
+                        "123123")
+                .assertThat().statusCode(400).extract().response().as(TestErrorModel.class);
+        assertThat(response.getMessage()).isEqualTo(PASSPORT_NUMBER_NOT_FILLED);
     }
 
     @Test
@@ -200,10 +205,13 @@ public class PassportUpdateTest extends TestAbstractIntegration {
                         passportRequest)
                 .assertThat().statusCode(200)
                 .extract().as(PassportResponse.class);
-        var response = passportTestMethodContainer.updatePassport(personResponse.getId(), passportResponse.getId(),
-                        "1234675678", Instant.now().toString(), "123")
-                .assertThat().statusCode(400).extract().response().print();
-        assertTrue(response.contains(PASSPORT_DEPARTMENT_CODE_BAD_SIZE));
+        var response = passportTestMethodContainer.updatePassport(personResponse.getId(),
+                        passportResponse.getId(),
+                        "1234675678",
+                        Instant.now().toString(),
+                        "123")
+                .assertThat().statusCode(400).extract().response().as(TestErrorModel.class);
+        assertThat(response.getMessage()).isEqualTo(PASSPORT_DEPARTMENT_CODE_BAD_SIZE);
     }
 
 
@@ -213,10 +221,11 @@ public class PassportUpdateTest extends TestAbstractIntegration {
                         passportRequest)
                 .assertThat().statusCode(200)
                 .extract().as(PassportResponse.class);
-        var response = passportTestMethodContainer.updatePassport(personResponse.getId(), passportResponse.getId(),
+        var response = passportTestMethodContainer.updatePassport(personResponse.getId(),
+                        passportResponse.getId(),
                         "1234675678", Instant.now().toString(), "123")
-                .assertThat().statusCode(400).extract().response().print();
-        assertTrue(response.contains(PASSPORT_DEPARTMENT_CODE_BAD_SIZE));
+                .assertThat().statusCode(400).extract().response().as(TestErrorModel.class);
+        assertThat(response.getMessage()).isEqualTo(PASSPORT_DEPARTMENT_CODE_BAD_SIZE);
     }
 
 
@@ -226,10 +235,11 @@ public class PassportUpdateTest extends TestAbstractIntegration {
                         passportRequest)
                 .assertThat().statusCode(200)
                 .extract().as(PassportResponse.class);
-        var response = passportTestMethodContainer.updatePassport(personResponse.getId(), passportResponse.getId(),
+        var response = passportTestMethodContainer.updatePassport(personResponse.getId(),
+                        passportResponse.getId(),
                         "1234675678", Instant.now().toString(), "*as*$$")
-                .assertThat().statusCode(400).extract().response().print();
-        assertTrue(response.contains(PASSPORT_DEPARTMENT_CODE_NOT_DIGIT));
+                .assertThat().statusCode(400).extract().response().as(TestErrorModel.class);
+        assertThat(response.getMessage()).isEqualTo(PASSPORT_DEPARTMENT_CODE_NOT_DIGIT);
     }
 
     @Test
@@ -238,10 +248,11 @@ public class PassportUpdateTest extends TestAbstractIntegration {
                         passportRequest)
                 .assertThat().statusCode(200)
                 .extract().as(PassportResponse.class);
-        var response = passportTestMethodContainer.updatePassport(personResponse.getId(), passportResponse.getId(),
+        var response = passportTestMethodContainer.updatePassport(personResponse.getId(),
+                        passportResponse.getId(),
                         "1234675678", Instant.now().toString(), null)
-                .assertThat().statusCode(400).extract().response().print();
-        assertTrue(response.contains(PASSPORT_DEPARTMENT_CODE_NOT_FILLED));
+                .assertThat().statusCode(400).extract().response().as(TestErrorModel.class);
+        assertThat(response.getMessage()).isEqualTo(PASSPORT_DEPARTMENT_CODE_NOT_FILLED);
     }
 
 
@@ -251,10 +262,13 @@ public class PassportUpdateTest extends TestAbstractIntegration {
                         passportRequest)
                 .assertThat().statusCode(200)
                 .extract().as(PassportResponse.class);
-        var response = passportTestMethodContainer.updatePassport(personResponse.getId(), passportResponse.getId(),
-                        "1234675678", "dsa", "123456")
-                .assertThat().statusCode(400).extract().response().print();
-        assertTrue(response.contains(Objects.requireNonNull(env.getProperty("exception.BadDateFormat"))));
+        var response = passportTestMethodContainer.updatePassport(personResponse.getId(),
+                        passportResponse.getId(),
+                        "1234675678",
+                        "dsa",
+                        "123456")
+                .assertThat().statusCode(400).extract().response().as(TestErrorModel.class);
+        assertThat(response.getMessage()).isEqualTo(Objects.requireNonNull(env.getProperty("exception.BadDateFormat")));
     }
 
     @Test
@@ -263,10 +277,13 @@ public class PassportUpdateTest extends TestAbstractIntegration {
                         passportRequest)
                 .assertThat().statusCode(200)
                 .extract().as(PassportResponse.class);
-        var response = passportTestMethodContainer.updatePassport(personResponse.getId(), passportResponse.getId(),
-                        "1234675678", null, "123456")
-                .assertThat().statusCode(400).extract().response().print();
-        assertTrue(response.contains(PASSPORT_GIVEN_DATE_EMPTY));
+        var response = passportTestMethodContainer.updatePassport(personResponse.getId(),
+                        passportResponse.getId(),
+                        "1234675678",
+                        null,
+                        "123456")
+                .assertThat().statusCode(400).extract().response().as(TestErrorModel.class);
+        assertThat(response.getMessage()).isEqualTo(PASSPORT_GIVEN_DATE_EMPTY);
     }
 
 }

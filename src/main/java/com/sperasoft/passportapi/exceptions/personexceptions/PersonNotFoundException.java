@@ -1,14 +1,15 @@
 package com.sperasoft.passportapi.exceptions.personexceptions;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import java.io.Serial;
 
-@ResponseStatus(HttpStatus.NOT_FOUND)
 public class PersonNotFoundException extends RuntimeException {
 
-    private final static long serialVersionUID = -5684387770921886370L;
+    @Serial
+    private static final long serialVersionUID = -5684387770921886370L;
+
+    public static final String PERSON_NOT_FOUND = "Person with this ID: %s not found";
 
     public PersonNotFoundException(String message) {
-        super(message);
+        super(String.format(PERSON_NOT_FOUND, message));
     }
 }

@@ -3,7 +3,7 @@ package com.sperasoft.passportapi.controller.dto;
 import lombok.Data;
 
 @Data
-public class PersonRequestTest {
+public class PersonRequestTestModel {
 
     private final String name;
 

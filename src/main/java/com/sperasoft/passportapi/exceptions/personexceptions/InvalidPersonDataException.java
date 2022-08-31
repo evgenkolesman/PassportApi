@@ -1,14 +1,15 @@
 package com.sperasoft.passportapi.exceptions.personexceptions;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import java.io.Serial;
 
-@ResponseStatus(HttpStatus.BAD_REQUEST)
-public class InvalidPersonDataException extends RuntimeException{
+public class InvalidPersonDataException extends RuntimeException {
 
-    private final static long serialVersionUID = 8321027096125720088L;
+    @Serial
+    private static final long serialVersionUID = 8321027096125720088L;
+
+    public static final String INVALID_PERSON_DATA = "Invalid person data";
 
     public InvalidPersonDataException() {
-        super();
+        super(INVALID_PERSON_DATA);
     }
 }

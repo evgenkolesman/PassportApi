@@ -1,15 +1,16 @@
 package com.sperasoft.passportapi.exceptions.passportexceptions;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import java.io.Serial;
 
-@ResponseStatus(HttpStatus.NOT_FOUND)
 public class PassportNotFoundException extends RuntimeException {
 
-    private final static long serialVersionUID = -3578726135963953405L;
+    @Serial
+    private static final long serialVersionUID = -3578726135963953405L;
+
+    private static final String PASSPORT_NOT_FOUND = "Passport with ID: %s not found";
 
     public PassportNotFoundException(String message) {
-        super(message);
+        super(String.format(PASSPORT_NOT_FOUND, message));
     }
 
 }

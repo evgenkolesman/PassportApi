@@ -3,7 +3,7 @@ package com.sperasoft.passportapi.controller.abstracts;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sperasoft.passportapi.controller.dto.PersonRequest;
-import com.sperasoft.passportapi.controller.dto.PersonRequestTest;
+import com.sperasoft.passportapi.controller.dto.PersonRequestTestModel;
 import io.restassured.response.ValidatableResponse;
 import org.json.JSONException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +25,7 @@ public class PersonTestMethodContainer {
     private static final String PERSON_URI = "/person";
 
     public ValidatableResponse createPerson(String name, String birthday, String birthdayCountry) throws JsonProcessingException, JSONException {
-        PersonRequestTest personRequestTest = new PersonRequestTest(name, birthday, birthdayCountry);
+        PersonRequestTestModel personRequestTest = new PersonRequestTestModel(name, birthday, birthdayCountry);
         String message = mapper.writeValueAsString(personRequestTest);
         return given()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -49,7 +49,7 @@ public class PersonTestMethodContainer {
     }
 
     public ValidatableResponse updatePerson(String personId,
-                                            PersonRequest personRequestUpdate) throws JsonProcessingException {
+                                            PersonRequest personRequestUpdate) {
         String path = builder.replacePath(PERSON_URI)
                 .path("/")
                 .path(personId).toUriString();
@@ -64,7 +64,7 @@ public class PersonTestMethodContainer {
 
 
     public ValidatableResponse updatePerson(String personId,
-                                            PersonRequestTest personRequestTest) throws JsonProcessingException {
+                                            PersonRequestTestModel personRequestTest) throws JsonProcessingException {
         String message = mapper.writeValueAsString(personRequestTest);
         String path = builder.replacePath(PERSON_URI)
                 .path("/")

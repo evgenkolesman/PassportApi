@@ -5,10 +5,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sperasoft.passportapi.controller.abstracts.PassportTestMethodContainer;
 import com.sperasoft.passportapi.controller.abstracts.PersonTestMethodContainer;
 import com.sperasoft.passportapi.controller.abstracts.TestAbstractIntegration;
-import com.sperasoft.passportapi.controller.dto.PassportRequest;
-import com.sperasoft.passportapi.controller.dto.PassportResponse;
-import com.sperasoft.passportapi.controller.dto.PersonRequest;
-import com.sperasoft.passportapi.controller.dto.PersonResponse;
+import com.sperasoft.passportapi.controller.dto.*;
 import com.sperasoft.passportapi.repository.PassportRepository;
 import io.restassured.RestAssured;
 import org.junit.jupiter.api.AfterEach;
@@ -26,7 +23,7 @@ import java.time.ZonedDateTime;
 import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 public class PassportDeleteTest extends TestAbstractIntegration {
 
@@ -75,10 +72,6 @@ public class PassportDeleteTest extends TestAbstractIntegration {
 
     }
 
-    /**
-     * Delete Passport tests
-     */
-
     @Test
     void deletePassportTestCorrectId() throws JsonProcessingException {
         PassportResponse passportResponse = passportTestMethodContainer.createPassport(personResponse.getId(), passportRequest)
@@ -91,9 +84,9 @@ public class PassportDeleteTest extends TestAbstractIntegration {
     void deletePassportTestNotCorrectBadId() {
         String friendlyId = FriendlyId.createFriendlyId();
         var response = passportTestMethodContainer.deletePassport(personResponse.getId(), friendlyId)
-                .assertThat().statusCode(404).extract().response().print();
-        assertTrue(response.contains(String.format(
-                Objects.requireNonNull(env.getProperty("exception.PassportNotFoundException")), friendlyId)));
+                .assertThat().statusCode(404).extract().response().as(TestErrorModel.class);
+        assertThat(response.getMessage()).isEqualTo(String.format(
+                Objects.requireNonNull(env.getProperty("exception.PassportNotFoundException")), friendlyId));
     }
 
     @Test
@@ -101,7 +94,6 @@ public class PassportDeleteTest extends TestAbstractIntegration {
         passportTestMethodContainer.deletePassport(personResponse.getId(), "")
                 .assertThat().statusCode(405);
     }
-
 
     @Test
     void deletePassportTestNotCorrectBadIdNull() {

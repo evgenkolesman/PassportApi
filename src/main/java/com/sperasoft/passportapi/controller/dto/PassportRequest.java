@@ -21,8 +21,8 @@ public class PassportRequest {
     @NotNull(message = "Invalid data: Given Date field shouldn`t be empty")
     private final Instant givenDate;
 
+    @Digits(integer = 6, fraction = 6, message = "Invalid data: Invalid department code")
     @NotNull(message = "Invalid data: Department code field should be filled")
-    @Digits(integer = 6, fraction = 0, message = "Invalid data: Invalid department code")
-    @Size(min = 6, max = 6, message = "Invalid data: department code size should be 6 digits")
+    @Size(min = 6, message = "Invalid data: department code size should be 6 digits")
     private final String departmentCode;
 }

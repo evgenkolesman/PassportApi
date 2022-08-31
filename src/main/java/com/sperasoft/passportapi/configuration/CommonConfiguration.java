@@ -11,3 +11,5 @@ import org.springframework.context.annotation.PropertySource;
 @RequiredArgsConstructor
 public class CommonConfiguration {
 }
+
+//TODO If Exceptions will be like that we will remove it and move it to test section

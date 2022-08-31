@@ -5,10 +5,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sperasoft.passportapi.controller.abstracts.PassportTestMethodContainer;
 import com.sperasoft.passportapi.controller.abstracts.PersonTestMethodContainer;
 import com.sperasoft.passportapi.controller.abstracts.TestAbstractIntegration;
-import com.sperasoft.passportapi.controller.dto.PassportRequest;
-import com.sperasoft.passportapi.controller.dto.PassportResponse;
-import com.sperasoft.passportapi.controller.dto.PersonRequest;
-import com.sperasoft.passportapi.controller.dto.PersonResponse;
+import com.sperasoft.passportapi.controller.dto.*;
 import com.sperasoft.passportapi.model.ErrorModel;
 import com.sperasoft.passportapi.model.LostPassportInfo;
 import com.sperasoft.passportapi.repository.PassportRepository;
@@ -28,8 +25,8 @@ import java.time.ZonedDateTime;
 import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class PassportLostPassportTest extends TestAbstractIntegration {
 
@@ -84,7 +81,7 @@ public class PassportLostPassportTest extends TestAbstractIntegration {
                 .extract().as(PassportResponse.class);
         assertEquals(true, passportTestMethodContainer.lostPassportDeactivate(personResponse.getId(),
                         passportResponse.getId(),
-                        new LostPassportInfo("I lost my passport"))
+                        new TestLostPassportInfo("I lost my passport"))
                 .assertThat().statusCode(200)
                 .extract()
                 .as(Boolean.class));
@@ -97,12 +94,13 @@ public class PassportLostPassportTest extends TestAbstractIntegration {
         String personBadId = FriendlyId.createFriendlyId();
         var response = passportTestMethodContainer.lostPassportDeactivate(personBadId,
                         passportResponse.getId(),
-                        new LostPassportInfo("I lost my passport"))
+                        new TestLostPassportInfo("I lost my passport"))
                 .assertThat().statusCode(404)
                 .extract()
-                .response().print();
-        assertTrue(response.contains(
-                String.format(Objects.requireNonNull(env.getProperty("exception.PersonNotFoundException")), personBadId)));
+                .response().as(TestErrorModel.class);
+        assertThat(response.getMessage()).isEqualTo(
+                String.format(Objects.requireNonNull(env.getProperty("exception.PersonNotFoundException")),
+                        personBadId));
 
     }
 
