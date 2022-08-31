@@ -1,18 +1,16 @@
 package com.sperasoft.passportapi.controller.abstracts;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sperasoft.passportapi.controller.dto.PassportRequest;
-import com.sperasoft.passportapi.controller.dto.PassportRequestTest;
-import com.sperasoft.passportapi.model.LostPassportInfo;
+import com.sperasoft.passportapi.controller.dto.PassportRequestTestModel;
+import com.sperasoft.passportapi.controller.dto.TestLostPassportInfo;
+import com.sperasoft.passportapi.utils.UriComponentsBuilderUtil;
 import io.restassured.response.ValidatableResponse;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.time.Instant;
 
@@ -21,26 +19,20 @@ import static io.restassured.RestAssured.given;
 @Component
 public class PassportTestMethodContainer {
 
-    @Autowired
-    private ObjectMapper mapper;
-    @Autowired
-    private UriComponentsBuilder builder;
-
     private static final String LOST_PASSPORT_URI = "/lostPassport";
     private static final String PERSON_URI = "/person";
     private static final String PASSPORT_URI = "/passport";
 
     public ValidatableResponse createPassport(String personId,
                                               PassportRequest passportRequest) throws JsonProcessingException {
-        String path = builder
+        String path = UriComponentsBuilderUtil.builder()
                 .replacePath(PERSON_URI).path("/")
                 .path(personId)
                 .path(PASSPORT_URI)
                 .replaceQuery("").toUriString();
-        String reqPassport = mapper.writeValueAsString(passportRequest);
         return given()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .body(reqPassport)
+                .body(passportRequest)
                 .when().post(path)
                 .then()
                 .and().log()
@@ -50,16 +42,15 @@ public class PassportTestMethodContainer {
     public ValidatableResponse createPassport(String personId,
                                               String number, String givenDate, String departmentCode)
             throws JsonProcessingException {
-        PassportRequestTest passportRequest = new PassportRequestTest(number, givenDate, departmentCode);
-        String path = builder
+        PassportRequestTestModel passportRequest = new PassportRequestTestModel(number, givenDate, departmentCode);
+        String path = UriComponentsBuilderUtil.builder()
                 .replacePath(PERSON_URI).path("/")
                 .path(personId)
                 .path(PASSPORT_URI)
                 .replaceQuery("").toUriString();
-        String reqPassport = mapper.writeValueAsString(passportRequest);
         return given()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .body(reqPassport)
+                .body(passportRequest)
                 .when().post(path)
                 .then()
                 .and().log()
@@ -68,13 +59,12 @@ public class PassportTestMethodContainer {
 
     public ValidatableResponse updatePassport(String personId,
                                               String passportId,
-                                              String number, String givenDate, String departmentCode) throws JsonProcessingException {
-        PassportRequestTest passportRequestTest = new PassportRequestTest(number, givenDate, departmentCode);
-        String reqPassport = mapper.writeValueAsString(passportRequestTest);
+                                              String number, String givenDate, String departmentCode) {
+        PassportRequestTestModel passportRequestTest = new PassportRequestTestModel(number, givenDate, departmentCode);
         return given()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .body(reqPassport)
-                .when().put(builder
+                .body(passportRequestTest)
+                .when().put(UriComponentsBuilderUtil.builder()
                         .replacePath(PERSON_URI).path("/")
                         .path(personId)
                         .path(PASSPORT_URI).path("/")
@@ -87,12 +77,11 @@ public class PassportTestMethodContainer {
 
     public ValidatableResponse updatePassport(String personId,
                                               String passportId,
-                                              PassportRequest passportRequest) throws JsonProcessingException {
-        String reqPassport = mapper.writeValueAsString(passportRequest);
+                                              PassportRequest passportRequest) {
         return given()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .body(reqPassport)
-                .when().put(builder
+                .body(passportRequest)
+                .when().put(UriComponentsBuilderUtil.builder()
                         .replacePath(PERSON_URI).path("/")
                         .path(personId)
                         .path(PASSPORT_URI).path("/")
@@ -104,7 +93,7 @@ public class PassportTestMethodContainer {
     }
 
     public ValidatableResponse deletePassport(String personId, String passportId) {
-        String path = builder
+        String path = UriComponentsBuilderUtil.builder()
                 .replacePath(PERSON_URI).path("/")
                 .path(personId)
                 .path(PASSPORT_URI)
@@ -129,7 +118,7 @@ public class PassportTestMethodContainer {
             }
 
         }
-        String path = builder
+        String path = UriComponentsBuilderUtil.builder()
                 .replacePath(PERSON_URI)
                 .path("/")
                 .path(personId)
@@ -147,7 +136,7 @@ public class PassportTestMethodContainer {
                                             @Nullable Boolean active) {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         if (active != null) params.addIfAbsent("active", String.valueOf(active));
-        String path = builder
+        String path = UriComponentsBuilderUtil.builder()
                 .replacePath(PERSON_URI)
                 .path("/")
                 .path(personId)
@@ -165,8 +154,8 @@ public class PassportTestMethodContainer {
 
     public ValidatableResponse lostPassportDeactivate(String personId,
                                                       String id,
-                                                      LostPassportInfo description) throws JsonProcessingException {
-        String path = builder
+                                                      TestLostPassportInfo description) {
+        String path = UriComponentsBuilderUtil.builder()
                 .replacePath(PERSON_URI)
                 .path("/")
                 .path(personId)
@@ -174,11 +163,10 @@ public class PassportTestMethodContainer {
                 .path(id)
                 .path(LOST_PASSPORT_URI)
                 .replaceQuery("").toUriString();
-        if (description == null) description = new LostPassportInfo("");
-        String message = mapper.writeValueAsString(description.getDescription());
+        if (description == null) description = new TestLostPassportInfo("");
         return given()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .body(message)
+                .body(description)
                 .when()
                 .post(path)
                 .then()

@@ -5,8 +5,10 @@ import com.sperasoft.passportapi.controller.abstracts.PersonTestMethodContainer;
 import com.sperasoft.passportapi.controller.abstracts.TestAbstractIntegration;
 import com.sperasoft.passportapi.controller.dto.PersonRequest;
 import com.sperasoft.passportapi.controller.dto.PersonResponse;
+import com.sperasoft.passportapi.controller.dto.TestErrorModel;
 import com.sperasoft.passportapi.model.Person;
 import com.sperasoft.passportapi.repository.PersonRepository;
+import com.sperasoft.passportapi.utils.UriComponentsBuilderUtil;
 import io.restassured.RestAssured;
 import org.json.JSONException;
 import org.junit.jupiter.api.AfterEach;
@@ -15,7 +17,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.core.env.Environment;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -23,11 +24,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
-public class PersonCreateTests extends TestAbstractIntegration {
+public class PersonCreateTest extends TestAbstractIntegration {
 
     public static final String INVALID_DATA_NAME_SIZE = "Invalid data: Name must be minimum 2 characters long";
     public static final String INVALID_DATA_BIRTHDAY_COUNTRY_ISO_CODE =
@@ -46,9 +47,6 @@ public class PersonCreateTests extends TestAbstractIntegration {
     private PersonTestMethodContainer personTestMethodContainer;
 
     @Autowired
-    private UriComponentsBuilder builder;
-
-    @Autowired
     PersonRepository personRepository;
 
     private PersonRequest personRequest;
@@ -56,7 +54,7 @@ public class PersonCreateTests extends TestAbstractIntegration {
 
     @BeforeEach
     void testDataProduce() {
-        builder.port(port);
+        UriComponentsBuilderUtil.builder().port(port);
         RestAssured.port = port;
         String string = "2010-02-02";
         LocalDate date = LocalDate.parse(string, DateTimeFormatter.ISO_DATE);
@@ -85,8 +83,9 @@ public class PersonCreateTests extends TestAbstractIntegration {
         personResponse = personTestMethodContainer.createPerson(personRequest)
                 .assertThat().statusCode(200).extract().as(PersonResponse.class);
         var response = personTestMethodContainer.createPerson(personRequest)
-                .assertThat().statusCode(400).extract().response().print();
-        assertTrue(response.contains(Objects.requireNonNull(env.getProperty("exception.InvalidPersonDataException"))));
+                .assertThat().statusCode(400).extract().response().as(TestErrorModel.class);
+        assertThat(response.getMessage())
+                .isEqualTo(Objects.requireNonNull(env.getProperty("exception.InvalidPersonDataException")));
     }
 
     @Test
@@ -95,9 +94,10 @@ public class PersonCreateTests extends TestAbstractIntegration {
                         "2000-10-11",
                         "RU")
                 .assertThat().statusCode(400)
-                .and().extract().response().print();
+                .and().extract().response().as(TestErrorModel.class);
 
-        assertTrue(response.contains(INVALID_DATA_NAME_SIZE));
+        assertThat(response.getMessage())
+                .isEqualTo(INVALID_DATA_NAME_SIZE);
     }
 
     @Test
@@ -106,9 +106,10 @@ public class PersonCreateTests extends TestAbstractIntegration {
                         "2000-10-11",
                         "RU")
                 .assertThat().statusCode(400)
-                .and().extract().response().print();
+                .and().extract().response().as(TestErrorModel.class);
 
-        assertTrue(response.contains(INVALID_DATA_NAME_SIZE));
+        assertThat(response.getMessage())
+                .isEqualTo(INVALID_DATA_NAME_SIZE);
 
     }
 
@@ -118,9 +119,10 @@ public class PersonCreateTests extends TestAbstractIntegration {
                         "2000-10-11",
                         "RU")
                 .assertThat().statusCode(400)
-                .and().extract().response().print();
+                .and().extract().response().as(TestErrorModel.class);
 
-        assertTrue(response.contains(INVALID_DATA_NAME_SIZE));
+        assertThat(response.getMessage())
+                .isEqualTo(INVALID_DATA_NAME_SIZE);
     }
 
     @Test
@@ -129,55 +131,60 @@ public class PersonCreateTests extends TestAbstractIntegration {
                         "2000-10-11",
                         "RU")
                 .assertThat().statusCode(400)
-                .and().extract().response().print();
-        assertTrue(response.contains(INVALID_DATA_NAME_NOT_FILLED));
+                .and().extract().response().as(TestErrorModel.class);
+        assertThat(response.getMessage())
+                .isEqualTo(INVALID_DATA_NAME_NOT_FILLED);
     }
 
     @Test
     void createNotCorrectPersonWithBadCountryMoreThanTwo() throws JsonProcessingException, JSONException {
-        String response = personTestMethodContainer.createPerson("1efefs dsfdsf",
+        var response = personTestMethodContainer.createPerson("1efefs dsfdsf",
                         "2000-10-11",
                         "RUS")
                 .assertThat().statusCode(400)
-                .and().extract().response().print();
+                .and().extract().response().as(TestErrorModel.class);
 
-        assertTrue(response.contains(INVALID_DATA_BIRTHDAY_COUNTRY_ISO_CODE));
+        assertThat(response.getMessage())
+                .isEqualTo(INVALID_DATA_BIRTHDAY_COUNTRY_ISO_CODE);
 
     }
 
     @Test
     void createNotCorrectPersonWithBadCountryLessThanTwo() throws JsonProcessingException, JSONException {
-        String response = personTestMethodContainer.createPerson("1efefs dsfdsf",
+        var response = personTestMethodContainer.createPerson("1efefs dsfdsf",
                         "2000-10-11",
                         "R")
                 .assertThat().statusCode(400)
-                .and().extract().response().print();
+                .and().extract().response().as(TestErrorModel.class);
 
-        assertTrue(response.contains(INVALID_DATA_BIRTHDAY_COUNTRY_ISO_CODE));
+        assertThat(response.getMessage())
+                .isEqualTo(INVALID_DATA_BIRTHDAY_COUNTRY_ISO_CODE);
 
     }
 
     @Test
     void createNotCorrectPersonWithBadCountryNull() throws JsonProcessingException, JSONException {
-        String response = personTestMethodContainer.createPerson("1efefs dsfdsf",
+        var response = personTestMethodContainer.createPerson("1efefs dsfdsf",
                         "2000-10-11",
                         null)
                 .assertThat().statusCode(400)
-                .and().extract().response().print();
+                .and().extract().response().as(TestErrorModel.class);
 
-        assertTrue(response.contains(INVALID_DATA_BIRTHDAY_NOT_FILLED));
+        assertThat(response.getMessage())
+                .isEqualTo(INVALID_DATA_BIRTHDAY_NOT_FILLED);
 
     }
 
     @Test
     void createNotCorrectPersonWithBadDateNull() throws JsonProcessingException, JSONException {
-        String response = personTestMethodContainer.createPerson("1efefs dsfdsf",
+        var response = personTestMethodContainer.createPerson("1efefs dsfdsf",
                         null,
                         "RU")
                 .assertThat().statusCode(400)
-                .and().extract().response().print();
+                .and().extract().response().as(TestErrorModel.class);
 
-        assertTrue(response.contains(INVALID_DATA_GIVEN_DATE_EMPTY));
+        assertThat(response.getMessage())
+                .isEqualTo(INVALID_DATA_GIVEN_DATE_EMPTY);
 
     }
 
@@ -187,8 +194,9 @@ public class PersonCreateTests extends TestAbstractIntegration {
                         "2000-10-111",
                         "RU")
                 .assertThat().statusCode(400)
-                .and().extract().response().print();
-        assertTrue(response.contains(Objects.requireNonNull(env.getProperty("exception.BadDateFormat"))));
+                .and().extract().response().as(TestErrorModel.class);
+        assertThat(response.getMessage())
+                .isEqualTo(Objects.requireNonNull(env.getProperty("exception.BadDateFormat")));
 
     }
 
@@ -198,8 +206,9 @@ public class PersonCreateTests extends TestAbstractIntegration {
                         "200010111",
                         "RU")
                 .assertThat().statusCode(400)
-                .and().extract().response().print();
-        assertTrue(response.contains(Objects.requireNonNull(env.getProperty("exception.BadDateFormat"))));
+                .and().extract().response().as(TestErrorModel.class);
+        assertThat(response.getMessage())
+                .isEqualTo(Objects.requireNonNull(env.getProperty("exception.BadDateFormat")));
 
     }
 

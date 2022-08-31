@@ -82,7 +82,7 @@ public class PassportService {
                             passportPerson.getGivenDate(),
                             passportPerson.getDepartmentCode(),
                             false,
-                            description.getDescription()));
+                            description.description()));
             return true;
         } else {
             throw new PassportDeactivatedException();

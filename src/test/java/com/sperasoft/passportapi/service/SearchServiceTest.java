@@ -27,6 +27,11 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 
+/**
+ * Maybe we can delete most of Service tests
+ * but it needs to investigate
+ */
+
 @Slf4j
 public class SearchServiceTest extends TestAbstractIntegration {
 

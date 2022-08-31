@@ -1,15 +1,16 @@
 package com.sperasoft.passportapi.exceptions.passportexceptions;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import java.io.Serial;
 
-@ResponseStatus(HttpStatus.CONFLICT)
 public class PassportDeactivatedException extends RuntimeException {
 
-    private final static long serialVersionUID = 3337071209904500038L;
+    @Serial
+    private static final long serialVersionUID = 3337071209904500038L;
+
+    private static final String PASSPORT_DEACTIVATED = "Passport was already deactivated or not exist";
 
     public PassportDeactivatedException() {
-        super();
+        super(PASSPORT_DEACTIVATED);
     }
 
 }

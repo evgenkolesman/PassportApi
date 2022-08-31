@@ -18,6 +18,12 @@ import java.time.format.DateTimeFormatter;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
+
+/**
+ * Maybe we can delete most of Service tests
+ * but it needs to investigate
+ */
+
 @Slf4j
 public class PersonServiceTest extends TestAbstractIntegration {
 

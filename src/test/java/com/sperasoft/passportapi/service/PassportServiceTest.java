@@ -29,6 +29,11 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Maybe we can delete most of Service tests
+ * but it needs to investigate
+ */
+
 @Slf4j
 class PassportServiceTest extends TestAbstractIntegration {
 
