@@ -7,6 +7,7 @@ import com.sperasoft.passportapi.controller.dto.PersonResponse;
 import com.sperasoft.passportapi.model.ErrorModel;
 import com.sperasoft.passportapi.model.Person;
 import com.sperasoft.passportapi.repository.PersonRepository;
+import com.sperasoft.passportapi.utils.UriComponentsBuilderUtil;
 import io.restassured.RestAssured;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,7 +15,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.core.env.Environment;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -36,9 +36,6 @@ public class PersonDeleteTest extends TestAbstractIntegration {
     private PersonTestMethodContainer personTestMethodContainer;
 
     @Autowired
-    private UriComponentsBuilder builder;
-
-    @Autowired
     PersonRepository personRepository;
     private PersonRequest personRequest;
 
@@ -46,7 +43,7 @@ public class PersonDeleteTest extends TestAbstractIntegration {
 
     @BeforeEach
     void testDataProduce() {
-        builder.port(port);
+        UriComponentsBuilderUtil.builder().port(port);
         RestAssured.port = port;
         String string = "2010-02-02";
         LocalDate date = LocalDate.parse(string, DateTimeFormatter.ISO_DATE);

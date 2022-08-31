@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -31,17 +30,10 @@ public class RestResponseEntityExceptionHandler {
 
     private final Environment environment;
 
-    //TODO maybe we can take exception message on exception layer from props
-
     @ExceptionHandler
     protected ResponseEntity<ErrorModel> handleException(PassportNotFoundException exception) {
         var errorId = FriendlyId.createFriendlyId();
-        log.info(exception.getMessage());
-
-        log.error(String.format("%s %s", errorId, exception.getMessage()));
-        log.info(Arrays.stream(exception.getSuppressed())
-                .map(Throwable::getMessage)
-                .collect(Collectors.joining("\n")));
+        log.info(String.format("%s %s", errorId, exception.getMessage()));
         return new ResponseEntity<>(new ErrorModel(errorId,
                 exception.getMessage(),
                 HttpStatus.NOT_FOUND),
@@ -51,9 +43,7 @@ public class RestResponseEntityExceptionHandler {
     @ExceptionHandler
     protected ResponseEntity<ErrorModel> handleException(PersonNotFoundException exception) {
         var errorId = FriendlyId.createFriendlyId();
-        log.info(exception.getMessage());
-
-        log.error(String.format("%s %s", errorId, exception.getMessage()));
+        log.info(String.format("%s %s", errorId, exception.getMessage()));
         return new ResponseEntity<>(new ErrorModel(errorId,
                 exception.getMessage(),
                 HttpStatus.NOT_FOUND),
@@ -63,9 +53,7 @@ public class RestResponseEntityExceptionHandler {
     @ExceptionHandler
     protected ResponseEntity<ErrorModel> handleException(InvalidPersonDataException exception) {
         var errorId = FriendlyId.createFriendlyId();
-        log.info(exception.getMessage());
-
-        log.error(String.format("%s %s", errorId, exception.getMessage()));
+        log.info(String.format("%s %s", errorId, exception.getMessage()));
         return new ResponseEntity<>(new ErrorModel(errorId,
                 exception.getMessage(),
                 HttpStatus.BAD_REQUEST),
@@ -75,9 +63,7 @@ public class RestResponseEntityExceptionHandler {
     @ExceptionHandler
     protected ResponseEntity<ErrorModel> handleException(PassportWrongNumberException exception) {
         var errorId = FriendlyId.createFriendlyId();
-        log.info(exception.getMessage());
-
-        log.error(String.format("%s %s", errorId, exception.getMessage()));
+        log.info(String.format("%s %s", errorId, exception.getMessage()));
         return new ResponseEntity<>(new ErrorModel(errorId,
                 exception.getMessage(),
                 HttpStatus.BAD_REQUEST),
@@ -87,9 +73,7 @@ public class RestResponseEntityExceptionHandler {
     @ExceptionHandler
     protected ResponseEntity<ErrorModel> handleException(PassportWasAddedException exception) {
         var errorId = FriendlyId.createFriendlyId();
-        log.info(exception.getMessage());
-
-        log.error(String.format("%s %s", errorId, exception.getMessage()));
+        log.info(String.format("%s %s", errorId, exception.getMessage()));
         return new ResponseEntity<>(new ErrorModel(errorId,
                 exception.getMessage(),
                 HttpStatus.BAD_REQUEST),
@@ -99,9 +83,7 @@ public class RestResponseEntityExceptionHandler {
     @ExceptionHandler
     protected ResponseEntity<ErrorModel> handleException(PassportBadStatusException exception) {
         var errorId = FriendlyId.createFriendlyId();
-        log.info(exception.getMessage());
-
-        log.error(String.format("%s %s", errorId, exception.getMessage()));
+        log.info(String.format("%s %s", errorId, exception.getMessage()));
         return new ResponseEntity<>(new ErrorModel(errorId,
                 exception.getMessage(),
                 HttpStatus.BAD_REQUEST),
@@ -111,9 +93,7 @@ public class RestResponseEntityExceptionHandler {
     @ExceptionHandler
     protected ResponseEntity<ErrorModel> handleException(InvalidPassportDataException exception) {
         var errorId = FriendlyId.createFriendlyId();
-        log.info(exception.getMessage());
-
-        log.error(String.format("%s %s", errorId, exception.getMessage()));
+        log.info(String.format("%s %s", errorId, exception.getMessage()));
         return new ResponseEntity<>(new ErrorModel(errorId,
                 exception.getMessage(),
                 HttpStatus.BAD_REQUEST),
@@ -123,8 +103,7 @@ public class RestResponseEntityExceptionHandler {
     @ExceptionHandler
     protected ResponseEntity<ErrorModel> handleException(PassportDeactivatedException exception) {
         var errorId = FriendlyId.createFriendlyId();
-        log.info(exception.getMessage());
-        log.error(String.format("%s %s", errorId, exception.getMessage()));
+        log.info(String.format("%s %s", errorId, exception.getMessage()));
         return new ResponseEntity<>(new ErrorModel(errorId,
                 exception.getMessage(),
                 HttpStatus.CONFLICT),
@@ -145,15 +124,15 @@ public class RestResponseEntityExceptionHandler {
         }
         String collectMessages = fieldErrors.stream()
                 .map(DefaultMessageSourceResolvable::getDefaultMessage).collect(Collectors.joining("\n"));
-        log.info(exception.getMessage());
+        log.info(String.format("%s %s", errorId, exception.getMessage()));
         return new ResponseEntity<>(new ErrorModel(errorId, collectMessages, HttpStatus.BAD_REQUEST),
                 HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler()
+    @ExceptionHandler
     protected ResponseEntity<ErrorModel> handleException(MethodArgumentTypeMismatchException exception) {
         var errorId = FriendlyId.createFriendlyId();
-        log.info(exception.getMessage());
+        log.info(String.format("%s %s", errorId, exception.getMessage()));
         String message = environment.getProperty("exception.BadDateFormat");
         return new ResponseEntity<>(new ErrorModel(errorId, message, HttpStatus.BAD_REQUEST),
                 HttpStatus.BAD_REQUEST);
@@ -162,11 +141,9 @@ public class RestResponseEntityExceptionHandler {
     @ExceptionHandler
     protected ResponseEntity<ErrorModel> handleException(HttpMessageNotReadableException exception) {
         var errorId = FriendlyId.createFriendlyId();
-        log.info(exception.getMessage());
+        log.info(String.format("%s %s", errorId, exception.getMessage()));
         String message = environment.getProperty("exception.BadDateFormat");
         return new ResponseEntity<>(new ErrorModel(errorId, message, HttpStatus.BAD_REQUEST),
                 HttpStatus.BAD_REQUEST);
     }
-
-
 }
