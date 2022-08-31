@@ -8,6 +8,7 @@ import com.sperasoft.passportapi.controller.abstracts.TestAbstractIntegration;
 import com.sperasoft.passportapi.controller.dto.*;
 import com.sperasoft.passportapi.model.ErrorModel;
 import com.sperasoft.passportapi.repository.PassportRepository;
+import com.sperasoft.passportapi.utils.UriComponentsBuilderUtil;
 import io.restassured.RestAssured;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,7 +16,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.core.env.Environment;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -42,8 +42,6 @@ public class PassportFindPassportByIdTest extends TestAbstractIntegration {
     private PassportTestMethodContainer passportTestMethodContainer;
 
     @Autowired
-    private UriComponentsBuilder builder;
-    @Autowired
     private PassportRepository passportRepository;
     private PassportRequest passportRequest;
     private PassportResponse passportResponse;
@@ -51,7 +49,7 @@ public class PassportFindPassportByIdTest extends TestAbstractIntegration {
 
     @BeforeEach
     void testDataProduce() {
-        builder.port(port);
+        UriComponentsBuilderUtil.builder().port(port);
         RestAssured.port = port;
         int number = ThreadLocalRandom.current().nextInt(999999999) + 1000000000;
         int departmentCode = ThreadLocalRandom.current().nextInt(99999) + 100000;

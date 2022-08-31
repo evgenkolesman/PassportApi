@@ -1,5 +1,6 @@
 package com.sperasoft.passportapi.controller.searchtest;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sperasoft.passportapi.controller.abstracts.PassportTestMethodContainer;
 import com.sperasoft.passportapi.controller.abstracts.PersonTestMethodContainer;
 import com.sperasoft.passportapi.controller.abstracts.SearchTestMethodContainer;
@@ -113,7 +114,7 @@ public class SearchPassportByNumberTest extends TestAbstractIntegration {
 
     //TODO check this exception
     @Test
-    void testFindPersonByPassportNumberNotCorrectNull() throws Exception {
+    void testFindPersonByPassportNumberNotCorrectNull() throws JsonProcessingException {
         var response = searchAbstract.findPersonByPassportNumber(null)
                 .statusCode(400)
                 .extract()

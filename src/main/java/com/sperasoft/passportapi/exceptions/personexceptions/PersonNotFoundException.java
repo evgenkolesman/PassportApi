@@ -9,7 +9,7 @@ public class PersonNotFoundException extends RuntimeException {
 
     public static final String PERSON_NOT_FOUND = "Person with this ID: %s not found";
 
-    public PersonNotFoundException(String message) {
-        super(String.format(PERSON_NOT_FOUND, message));
+    public PersonNotFoundException(String personId) {
+        super(String.format(PERSON_NOT_FOUND, personId));
     }
 }
