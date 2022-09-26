@@ -58,7 +58,8 @@ public class PassportDeleteTest extends TestAbstractIntegration {
         PersonRequest personRequest = new PersonRequest("Alex Frolov" + varInt,
                 LocalDate.now().minusYears(18),
                 "UK");
-        personResponse = personTestMethodContainer.createPerson(personRequest).extract().as(PersonResponse.class);
+        personResponse = personTestMethodContainer.createPerson(personRequest).extract()
+                .as(PersonResponse.class);
     }
 
     @AfterEach
