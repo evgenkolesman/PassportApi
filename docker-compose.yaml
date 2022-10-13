@@ -14,18 +14,13 @@ services:
     image: postgres:14.3-alpine
     container_name: postgresdb
     ports:
-      - "54333:5432"
+      - "5432:5432"
+    #      - "54333:5432"
     environment:
       POSTGRES_DB: "passportapi1"
       POSTGRES_USER: "postgres"
       POSTGRES_PASSWORD: "PassworD1"
       PG_DATA: ./snap/postgres/data/pgdata
-    #        volumes:
-    #          - "./Загрузки/IdeaProjects/PassportApi/src/main/resources/iniema.sql"
-    #    - "./docs/sql/conf.d:/etc/mysql/conf.d"t.db.sql"
-    #    #          - "./Загрузки/IdeaProjects/PassportApi/src/main/resources/sch
-    #    - "./docs/sql/mysql-files.d:/var/lib/mysql-files"
-    #    - "./scp-persistence/src/main/resources/db/migration:/var/lib/mysql-files/migration"
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U postgres -d passportapi1" ]
       interval: 10s
@@ -40,3 +35,9 @@ services:
           memory: 1G
 
 
+    #        volumes:
+    #          - "./Загрузки/IdeaProjects/PassportApi/src/main/resources/initschema.sql"
+    #    - "./docs/sql/conf.d:/etc/mysql/conf.d"t.db.sql"
+    #    #          - "./Загрузки/IdeaProjects/PassportApi/src/main/resources/sch
+    #    - "./docs/sql/mysql-files.d:/var/lib/mysql-files"
+    #    - "./scp-persistence/src/main/resources/db/migration:/var/lib/mysql-files/migration"
