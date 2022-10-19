@@ -5,9 +5,9 @@ name: Passport Api - application body
 
 on:
   push:
-    branches: [ "for_application_body" ]
+    branches: [ "master" ]
   pull_request:
-    branches: [ "for_application_body" ]
+    branches: [ "master" ]
 
 jobs:
   build:
