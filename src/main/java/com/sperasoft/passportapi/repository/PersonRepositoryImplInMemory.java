@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Repository
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class PersonRepositoryImpl implements PersonRepository {
+public class PersonRepositoryImplInMemory implements PersonRepository {
 
     private static final Map<String, Person> personRepo = new ConcurrentHashMap<>();
 

@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class PassportRepositoryImpl implements PassportRepository {
+public class PassportRepositoryImplInMemory implements PassportRepository {
 
     private static final Map<String, Passport> passportRepo = new ConcurrentHashMap<>();
 
