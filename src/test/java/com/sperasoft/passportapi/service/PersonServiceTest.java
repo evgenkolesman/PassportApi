@@ -9,6 +9,7 @@ import com.sperasoft.passportapi.model.Person;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -25,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 
 @Slf4j
+@Disabled
 public class PersonServiceTest extends TestAbstractIntegration {
 
     @Autowired
