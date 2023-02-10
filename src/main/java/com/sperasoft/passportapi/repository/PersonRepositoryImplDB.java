@@ -4,7 +4,6 @@ import com.sperasoft.passportapi.exceptions.personexceptions.InvalidPersonDataEx
 import com.sperasoft.passportapi.exceptions.personexceptions.PersonNotFoundException;
 import com.sperasoft.passportapi.model.Person;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -16,14 +15,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Repository
-@RequiredArgsConstructor(onConstructor_ = {@Autowired})
+@RequiredArgsConstructor
 @Primary
 public class PersonRepositoryImplDB implements PersonRepository {
 
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public ArrayList<Person> findAll() {
+    public List<Person> findAll() {
         return new ArrayList<>(jdbcTemplate.query("SELECT*FROM Person;",
                 this::mapToPerson));
     }
@@ -54,7 +53,7 @@ public class PersonRepositoryImplDB implements PersonRepository {
     }
 
     @Override
-    public synchronized Person updatePerson(Person person) {
+    public Person updatePerson(Person person) {
         if (checkPresentById(person.getId())) {
             jdbcTemplate.update(
                     "UPDATE Person SET name = ?, birthday = ?, birthdayCountry = ? where id =?;",
@@ -68,7 +67,7 @@ public class PersonRepositoryImplDB implements PersonRepository {
     }
 
     @Override
-    public synchronized Person deletePerson(String id) {
+    public Person deletePerson(String id) {
         Person person;
         if (checkPresentById(id)) {
             person = findById(id);

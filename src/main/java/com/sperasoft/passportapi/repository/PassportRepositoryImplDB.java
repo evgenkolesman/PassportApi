@@ -4,7 +4,6 @@ import com.sperasoft.passportapi.exceptions.passportexceptions.*;
 import com.sperasoft.passportapi.exceptions.personexceptions.PersonNotFoundException;
 import com.sperasoft.passportapi.model.Passport;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -18,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Repository
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
+@RequiredArgsConstructor
 @Primary
 public class PassportRepositoryImplDB implements PassportRepository {
 
@@ -26,7 +25,7 @@ public class PassportRepositoryImplDB implements PassportRepository {
     private final PersonRepository personRepository;
 
     @Override
-    public synchronized Passport addPassport(Passport passport) {
+    public Passport addPassport(Passport passport) {
         if (personRepository.findById(passport.getPersonId()) == null) {
             throw new PersonNotFoundException(passport.getId());
         }
@@ -48,7 +47,7 @@ public class PassportRepositoryImplDB implements PassportRepository {
     }
 
     @Override
-    public synchronized Passport updatePassport(Passport passport) {
+    public Passport updatePassport(Passport passport) {
         if (personRepository.findById(passport.getPersonId()) == null) {
             throw new PersonNotFoundException(passport.getId());
         }
@@ -68,7 +67,7 @@ public class PassportRepositoryImplDB implements PassportRepository {
     }
 
     @Override
-    public synchronized Passport deletePassport(String id) {
+    public Passport deletePassport(String id) {
         Passport passport = findPassportById(id);
         if (passport != null) {
             jdbcTemplate.update("DELETE FROM Passport WHERE id = ?;",
@@ -96,7 +95,7 @@ public class PassportRepositoryImplDB implements PassportRepository {
 
 
     @Override
-    public ArrayList<Passport> getPassportsByParams() {
+    public List<Passport> getPassportsByParams() {
         return new ArrayList<>(jdbcTemplate.query("SELECT*FROM Passport;",
                 this::mapToPassport));
     }
