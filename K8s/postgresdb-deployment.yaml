@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgresdb-deployment
+  namespace: passportapi
+  labels:
+    app: passportapi
+spec:
+  selector:
+    matchLabels:
+      app: passportapi
+  template:
+    metadata:
+      labels:
+        app: passportapi
+    spec:
+      containers:
+        - name: postgresdb
+          image: postgres:14.3-alpine
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5432
+          envFrom:
+            - configMapRef:
+                name: postgresdb-configmap
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgresdb-service
+  namespace: passportapi
+spec:
+  selector:
+    app: passportapi
+  ports:
+    - port: 5432
+      targetPort: 5432

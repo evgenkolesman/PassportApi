@@ -36,12 +36,3 @@ services:
   #    restart: always
     environment:
       SPRING_DATASOURCE_URL: "jdbc:postgresql://postgresdb:5432/passportapi1"
-
-
-
-    #        volumes:
-    #          - "./Загрузки/IdeaProjects/PassportApi/src/main/resources/initschema.sql"
-    #    - "./docs/sql/conf.d:/etc/mysql/conf.d"t.db.sql"
-    #    #          - "./Загрузки/IdeaProjects/PassportApi/src/main/resources/sch
-    #    - "./docs/sql/mysql-files.d:/var/lib/mysql-files"
-    #    - "./scp-persistence/src/main/resources/db/migration:/var/lib/mysql-files/migration"
